@@ -1,0 +1,392 @@
+<div class="profile-page">
+  <div class="page-header">
+    <div class="header-content">
+      <h1>Meu Perfil</h1>
+      <p class="subtitle">
+        Gerencie suas informações pessoais e configurações da conta
+      </p>
+    </div>
+  </div>
+
+  <div class="profile-content">
+    <div class="profile-sidebar">
+      <div class="profile-avatar-section">
+        <div class="avatar-container">
+          <div class="profile-avatar">
+            <span class="avatar-initials">{{ getInitials() }}</span>
+          </div>
+          <button class="btn-change-avatar">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"
+              />
+              <circle cx="12" cy="13" r="4" />
+            </svg>
+            Alterar Foto
+          </button>
+        </div>
+        <div class="profile-info">
+          <h3>{{ freelancerData.name }}</h3>
+          <p>{{ freelancerData.email }}</p>
+          <span class="profile-status active">Conta Ativa</span>
+        </div>
+      </div>
+
+      <div class="profile-stats">
+        <div class="stat-item">
+          <span class="stat-number">{{ profileStats.totalClients }}</span>
+          <span class="stat-label">Clientes</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number">{{ profileStats.totalProposals }}</span>
+          <span class="stat-label">Propostas</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number">{{
+            profileStats.totalRevenue | currency : "BRL" : "symbol" : "1.0-0"
+          }}</span>
+          <span class="stat-label">Receita Total</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="profile-main">
+      <div class="profile-tabs">
+        <button
+          class="tab-button"
+          [class.active]="activeTab === 'personal'"
+          (click)="setActiveTab('personal')"
+        >
+          Dados Pessoais
+        </button>
+        <button
+          class="tab-button"
+          [class.active]="activeTab === 'address'"
+          (click)="setActiveTab('address')"
+        >
+          Endereço
+        </button>
+        <button
+          class="tab-button"
+          [class.active]="activeTab === 'settings'"
+          (click)="setActiveTab('settings')"
+        >
+          Configurações
+        </button>
+        <button
+          class="tab-button"
+          [class.active]="activeTab === 'security'"
+          (click)="setActiveTab('security')"
+        >
+          Segurança
+        </button>
+      </div>
+
+      <div class="tab-content">
+        <!-- Dados Pessoais -->
+        <div *ngIf="activeTab === 'personal'" class="tab-panel">
+          <h3>Informações Pessoais</h3>
+          <form class="profile-form">
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="name">Nome Completo</label>
+                <input
+                  type="text"
+                  id="name"
+                  [(ngModel)]="freelancerData.name"
+                  name="name"
+                  class="form-input"
+                />
+              </div>
+              <div class="form-group">
+                <label for="email">E-mail</label>
+                <input
+                  type="email"
+                  id="email"
+                  [(ngModel)]="freelancerData.email"
+                  name="email"
+                  class="form-input"
+                />
+              </div>
+              <div class="form-group">
+                <label for="phone">Telefone</label>
+                <input
+                  type="tel"
+                  id="phone"
+                  [(ngModel)]="freelancerData.phone"
+                  name="phone"
+                  class="form-input"
+                />
+              </div>
+              <div class="form-group">
+                <label for="document">CPF/CNPJ</label>
+                <input
+                  type="text"
+                  id="document"
+                  [(ngModel)]="freelancerData.document"
+                  name="document"
+                  class="form-input"
+                />
+              </div>
+            </div>
+            <div class="form-group full-width">
+              <label for="bio">Biografia Profissional</label>
+              <textarea
+                id="bio"
+                [(ngModel)]="freelancerData.bio"
+                name="bio"
+                class="form-textarea"
+                rows="4"
+                placeholder="Descreva sua experiência e especialidades..."
+              ></textarea>
+            </div>
+          </form>
+        </div>
+
+        <!-- Endereço -->
+        <div *ngIf="activeTab === 'address'" class="tab-panel">
+          <h3>Endereço</h3>
+          <form class="profile-form">
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="cep">CEP</label>
+                <input
+                  type="text"
+                  id="cep"
+                  [(ngModel)]="freelancerData.address.cep"
+                  name="cep"
+                  class="form-input"
+                />
+              </div>
+              <div class="form-group span-2">
+                <label for="street">Rua/Avenida</label>
+                <input
+                  type="text"
+                  id="street"
+                  [(ngModel)]="freelancerData.address.street"
+                  name="street"
+                  class="form-input"
+                />
+              </div>
+              <div class="form-group">
+                <label for="number">Número</label>
+                <input
+                  type="text"
+                  id="number"
+                  [(ngModel)]="freelancerData.address.number"
+                  name="number"
+                  class="form-input"
+                />
+              </div>
+              <div class="form-group span-2">
+                <label for="complement">Complemento</label>
+                <input
+                  type="text"
+                  id="complement"
+                  [(ngModel)]="freelancerData.address.complement"
+                  name="complement"
+                  class="form-input"
+                />
+              </div>
+              <div class="form-group">
+                <label for="neighborhood">Bairro</label>
+                <input
+                  type="text"
+                  id="neighborhood"
+                  [(ngModel)]="freelancerData.address.neighborhood"
+                  name="neighborhood"
+                  class="form-input"
+                />
+              </div>
+              <div class="form-group">
+                <label for="city">Cidade</label>
+                <input
+                  type="text"
+                  id="city"
+                  [(ngModel)]="freelancerData.address.city"
+                  name="city"
+                  class="form-input"
+                />
+              </div>
+              <div class="form-group">
+                <label for="state">Estado</label>
+                <select
+                  id="state"
+                  [(ngModel)]="freelancerData.address.state"
+                  name="state"
+                  class="form-select"
+                >
+                  <option value="">Selecione...</option>
+                  <option value="SP">São Paulo</option>
+                  <option value="RJ">Rio de Janeiro</option>
+                  <option value="MG">Minas Gerais</option>
+                  <!-- Adicionar outros estados -->
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="country">País</label>
+                <input
+                  type="text"
+                  id="country"
+                  [(ngModel)]="freelancerData.address.country"
+                  name="country"
+                  class="form-input"
+                  value="Brasil"
+                  readonly
+                />
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <!-- Configurações -->
+        <div *ngIf="activeTab === 'settings'" class="tab-panel">
+          <h3>Configurações</h3>
+          <div class="settings-section">
+            <h4>Notificações</h4>
+            <div class="settings-grid">
+              <div class="setting-item">
+                <div class="setting-info">
+                  <span class="setting-title">E-mail de Propostas</span>
+                  <span class="setting-description"
+                    >Receber notificações quando uma nova proposta for
+                    criada</span
+                  >
+                </div>
+                <label class="toggle-switch">
+                  <input
+                    type="checkbox"
+                    [(ngModel)]="settings.emailProposals"
+                  />
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+              <div class="setting-item">
+                <div class="setting-info">
+                  <span class="setting-title">E-mail de Aceite</span>
+                  <span class="setting-description"
+                    >Receber notificações quando uma proposta for aceita</span
+                  >
+                </div>
+                <label class="toggle-switch">
+                  <input
+                    type="checkbox"
+                    [(ngModel)]="settings.emailAcceptance"
+                  />
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+              <div class="setting-item">
+                <div class="setting-info">
+                  <span class="setting-title">Relatórios Semanais</span>
+                  <span class="setting-description"
+                    >Receber resumo semanal das atividades</span
+                  >
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" [(ngModel)]="settings.weeklyReports" />
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <h4>Preferências</h4>
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="timezone">Fuso Horário</label>
+                <select
+                  id="timezone"
+                  [(ngModel)]="settings.timezone"
+                  name="timezone"
+                  class="form-select"
+                >
+                  <option value="America/Sao_Paulo">Brasília (UTC-3)</option>
+                  <option value="America/Manaus">Manaus (UTC-4)</option>
+                  <option value="America/Rio_Branco">Rio Branco (UTC-5)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="currency">Moeda Padrão</label>
+                <select
+                  id="currency"
+                  [(ngModel)]="settings.currency"
+                  name="currency"
+                  class="form-select"
+                >
+                  <option value="BRL">Real Brasileiro (BRL)</option>
+                  <option value="USD">Dólar Americano (USD)</option>
+                  <option value="EUR">Euro (EUR)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Segurança -->
+        <div *ngIf="activeTab === 'security'" class="tab-panel">
+          <h3>Segurança</h3>
+          <div class="security-section">
+            <h4>Alterar Senha</h4>
+            <form class="profile-form">
+              <div class="form-group">
+                <label for="currentPassword">Senha Atual</label>
+                <input
+                  type="password"
+                  id="currentPassword"
+                  class="form-input"
+                />
+              </div>
+              <div class="form-group">
+                <label for="newPassword">Nova Senha</label>
+                <input type="password" id="newPassword" class="form-input" />
+              </div>
+              <div class="form-group">
+                <label for="confirmPassword">Confirmar Nova Senha</label>
+                <input
+                  type="password"
+                  id="confirmPassword"
+                  class="form-input"
+                />
+              </div>
+              <button type="button" class="btn-secondary">Alterar Senha</button>
+            </form>
+          </div>
+
+          <div class="security-section">
+            <h4>Autenticação de Dois Fatores</h4>
+            <div class="setting-item">
+              <div class="setting-info">
+                <span class="setting-title">2FA via SMS</span>
+                <span class="setting-description"
+                  >Adicionar uma camada extra de segurança à sua conta</span
+                >
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" [(ngModel)]="settings.twoFactorAuth" />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <div class="security-section danger">
+            <h4>Zona de Perigo</h4>
+            <div class="danger-actions">
+              <button class="btn-danger">Excluir Conta</button>
+              <p class="danger-description">
+                Esta ação é irreversível. Todos os seus dados serão
+                permanentemente removidos.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn-secondary">Cancelar</button>
+        <button class="btn-primary">Salvar Alterações</button>
+      </div>
+    </div>
+  </div>
+</div>

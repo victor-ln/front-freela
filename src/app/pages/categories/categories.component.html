@@ -1,0 +1,139 @@
+<div class="categories-page">
+  <div class="page-header">
+    <div class="header-content">
+      <h1>Categorias de Serviços</h1>
+      <p class="subtitle">
+        Organize seus serviços por categorias para facilitar a gestão
+      </p>
+    </div>
+    <button class="btn-primary">
+      <svg viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 5v14m-7-7h14" />
+      </svg>
+      Nova Categoria
+    </button>
+  </div>
+
+  <div class="categories-grid">
+    <div *ngFor="let category of mockCategories" class="category-card">
+      <div class="category-header">
+        <div class="category-icon" [class]="category.type.toLowerCase()">
+          <i [innerHTML]="getCategoryIcon(category.type)"></i>
+        </div>
+        <div class="category-actions">
+          <button class="btn-icon" title="Editar">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
+              />
+              <path
+                d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"
+              />
+            </svg>
+          </button>
+          <button
+            class="btn-icon"
+            [class.danger]="category.servicesCount === 0"
+            [disabled]="category.servicesCount > 0"
+            title="Excluir"
+          >
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M3 6h18m-2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+              />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="category-content">
+        <h3>{{ category.type }}</h3>
+        <span class="status" [class]="category.status">
+          {{ category.status === "active" ? "Ativo" : "Inativo" }}
+        </span>
+      </div>
+
+      <div class="category-stats">
+        <div class="stat">
+          <span class="stat-number">{{ category.servicesCount }}</span>
+          <span class="stat-label">Serviços</span>
+        </div>
+        <div class="stat">
+          <span class="stat-number">{{ category.proposalsCount }}</span>
+          <span class="stat-label">Propostas</span>
+        </div>
+      </div>
+
+      <div class="category-services" *ngIf="category.recentServices.length > 0">
+        <h4>Serviços Recentes:</h4>
+        <ul>
+          <li *ngFor="let service of category.recentServices">{{ service }}</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="add-category-card">
+      <div class="add-content">
+        <div class="add-icon">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 5v14m-7-7h14" />
+          </svg>
+        </div>
+        <h3>Adicionar Nova Categoria</h3>
+        <p>Crie uma nova categoria para organizar seus serviços</p>
+        <button class="btn-secondary">Criar Categoria</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="category-insights">
+    <div class="insights-header">
+      <h2>Insights das Categorias</h2>
+    </div>
+    <div class="insights-grid">
+      <div class="insight-card">
+        <div class="insight-icon development">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <rect width="20" height="14" x="2" y="7" rx="2" ry="2" />
+            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+          </svg>
+        </div>
+        <div class="insight-content">
+          <h4>Mais Requisitada</h4>
+          <p>Desenvolvimento</p>
+          <span class="insight-stat">65% das propostas</span>
+        </div>
+      </div>
+
+      <div class="insight-card">
+        <div class="insight-icon revenue">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <line x1="12" y1="1" x2="12" y2="23" />
+            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+          </svg>
+        </div>
+        <div class="insight-content">
+          <h4>Maior Receita</h4>
+          <p>Desenvolvimento</p>
+          <span class="insight-stat">R$ 45.200</span>
+        </div>
+      </div>
+
+      <div class="insight-card">
+        <div class="insight-icon growth">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"
+            />
+            <path d="M12 9v4m0 4h.01" />
+          </svg>
+        </div>
+        <div class="insight-content">
+          <h4>Em Crescimento</h4>
+          <p>Consultoria</p>
+          <span class="insight-stat">+25% este mês</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

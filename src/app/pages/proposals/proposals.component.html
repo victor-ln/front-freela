@@ -1,0 +1,213 @@
+<div class="proposals-page">
+  <div class="page-header">
+    <div class="header-content">
+      <h1>Gerenciamento de Propostas</h1>
+      <p class="subtitle">Crie, gerencie e acompanhe suas propostas comerciais</p>
+    </div>
+    <button class="btn-primary">
+      <svg viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 5v14m-7-7h14"/>
+      </svg>
+      Nova Proposta
+    </button>
+  </div>
+
+  <div class="proposals-stats">
+    <div class="stat-card">
+      <div class="stat-icon pending">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M12 6v6l4 2"/>
+        </svg>
+      </div>
+      <div class="stat-content">
+        <h3>{{ getProposalsByStatus('pending').length }}</h3>
+        <p>Pendentes</p>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon accepted">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+      </div>
+      <div class="stat-content">
+        <h3>{{ getProposalsByStatus('accepted').length }}</h3>
+        <p>Aceitas</p>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon rejected">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M15 9l-6 6M9 9l6 6"/>
+        </svg>
+      </div>
+      <div class="stat-content">
+        <h3>{{ getProposalsByStatus('rejected').length }}</h3>
+        <p>Rejeitadas</p>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon total-value">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <line x1="12" y1="1" x2="12" y2="23"/>
+          <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+        </svg>
+      </div>
+      <div class="stat-content">
+        <h3>{{ getTotalValue() | currency:'BRL':'symbol':'1.0-0' }}</h3>
+        <p>Valor Total</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="filter-section">
+    <div class="search-box">
+      <svg viewBox="0 0 24 24" fill="currentColor">
+        <circle cx="11" cy="11" r="8"/>
+        <path d="m21 21-4.35-4.35"/>
+      </svg>
+      <input type="text" placeholder="Buscar propostas...">
+    </div>
+    <div class="filters">
+      <select class="filter-select" [(ngModel)]="selectedStatus">
+        <option value="">Todos os Status</option>
+        <option value="pending">Pendente</option>
+        <option value="accepted">Aceita</option>
+        <option value="rejected">Rejeitada</option>
+        <option value="negotiation">Em Negociação</option>
+      </select>
+      <select class="filter-select">
+        <option value="">Todos os Clientes</option>
+        <option value="empresa-abc">Empresa ABC</option>
+        <option value="startup-xyz">Startup XYZ</option>
+        <option value="loja-123">Loja 123</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="proposals-list">
+    <div *ngFor="let proposal of getFilteredProposals()" class="proposal-card">
+      <div class="proposal-header">
+        <div class="proposal-info">
+          <h3>{{ proposal.title }}</h3>
+          <p class="client-name">{{ proposal.client }}</p>
+        </div>
+        <div class="proposal-status-actions">
+          <span class="status" [class]="proposal.status">
+            {{ getStatusLabel(proposal.status) }}
+          </span>
+          <div class="proposal-actions">
+            <button *ngIf="proposal.status === 'pending'" 
+                    class="btn-icon" 
+                    title="Marcar como Aceita">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+            </button>
+            <button class="btn-icon" title="Editar">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+              </svg>
+            </button>
+            <button class="btn-icon" title="Visualizar">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+            </button>
+            <button class="btn-icon danger" title="Excluir">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M3 6h18m-2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="proposal-content">
+        <p class="proposal-description">{{ proposal.description }}</p>
+        
+        <div class="proposal-services">
+          <h4>Serviços Incluídos:</h4>
+          <div class="services-list">
+            <span *ngFor="let service of proposal.services" class="service-tag">
+              {{ service }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="proposal-details">
+        <div class="detail-grid">
+          <div class="detail-item">
+            <span class="detail-label">Template:</span>
+            <span class="detail-value">{{ proposal.template || 'Não definido' }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Criado em:</span>
+            <span class="detail-value">{{ proposal.createdAt | date:'dd/MM/yyyy' }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Atualizado:</span>
+            <span class="detail-value">{{ proposal.updatedAt | date:'dd/MM/yyyy' }}</span>
+          </div>
+          <div class="detail-item" *ngIf="proposal.acceptedAt">
+            <span class="detail-label">Aceita em:</span>
+            <span class="detail-value">{{ proposal.acceptedAt | date:'dd/MM/yyyy' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="proposal-footer">
+        <div class="proposal-value">
+          <span class="value-label">Valor Total</span>
+          <span class="value-amount">{{ proposal.totalValue | currency:'BRL':'symbol':'1.2-2' }}</span>
+        </div>
+        <div class="proposal-contract" *ngIf="proposal.status === 'accepted'">
+          <button class="btn-contract">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+              <polyline points="14,2 14,8 20,8"/>
+            </svg>
+            Gerar Contrato
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="proposals-insights" *ngIf="mockProposals.length > 0">
+    <div class="insights-header">
+      <h2>Insights das Propostas</h2>
+    </div>
+    <div class="insights-content">
+      <div class="conversion-rate">
+        <h4>Taxa de Conversão</h4>
+        <div class="rate-display">
+          <span class="rate-number">{{ getConversionRate() }}%</span>
+          <span class="rate-description">propostas aceitas</span>
+        </div>
+      </div>
+      <div class="average-value">
+        <h4>Valor Médio</h4>
+        <div class="rate-display">
+          <span class="rate-number">{{ getAverageValue() | currency:'BRL':'symbol':'1.0-0' }}</span>
+          <span class="rate-description">por proposta</span>
+        </div>
+      </div>
+      <div class="response-time">
+        <h4>Tempo Médio de Resposta</h4>
+        <div class="rate-display">
+          <span class="rate-number">3.2</span>
+          <span class="rate-description">dias</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

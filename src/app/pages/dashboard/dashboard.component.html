@@ -1,0 +1,132 @@
+<div class="dashboard">
+  <div class="dashboard-header">
+    <h1>Dashboard</h1>
+    <p class="subtitle">
+      Bem-vindo ao FreelaFlow! Aqui está um resumo das suas atividades.
+    </p>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon clients">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+          <circle cx="9" cy="7" r="4" />
+          <path d="m22 21-3-3m0 0a2 2 0 1 1-4 0 2 2 0 0 1 4 0" />
+        </svg>
+      </div>
+      <div class="stat-content">
+        <h3>15</h3>
+        <p>Clientes Ativos</p>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon proposals">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <rect width="8" height="4" x="8" y="2" rx="1" ry="1" />
+          <path
+            d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"
+          />
+          <path d="m9 14 2 2 4-4" />
+        </svg>
+      </div>
+      <div class="stat-content">
+        <h3>8</h3>
+        <p>Propostas Pendentes</p>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon services">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <rect width="20" height="14" x="2" y="7" rx="2" ry="2" />
+          <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+        </svg>
+      </div>
+      <div class="stat-content">
+        <h3>12</h3>
+        <p>Serviços Cadastrados</p>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon revenue">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <line x1="12" y1="1" x2="12" y2="23" />
+          <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+        </svg>
+      </div>
+      <div class="stat-content">
+        <h3>R$ 25.400</h3>
+        <p>Receita este Mês</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="recent-section">
+    <div class="recent-proposals">
+      <div class="section-header">
+        <h2>Propostas Recentes</h2>
+        <a routerLink="/proposals" class="view-all">Ver todas</a>
+      </div>
+      <div class="proposals-list">
+        <div class="proposal-item">
+          <div class="proposal-info">
+            <h4>Website Corporativo</h4>
+            <p>Cliente: Empresa ABC</p>
+            <span class="status pending">Pendente</span>
+          </div>
+          <div class="proposal-value">R$ 5.500</div>
+        </div>
+        <div class="proposal-item">
+          <div class="proposal-info">
+            <h4>App Mobile</h4>
+            <p>Cliente: Startup XYZ</p>
+            <span class="status accepted">Aceita</span>
+          </div>
+          <div class="proposal-value">R$ 12.000</div>
+        </div>
+        <div class="proposal-item">
+          <div class="proposal-info">
+            <h4>Logo e Identidade</h4>
+            <p>Cliente: Loja 123</p>
+            <span class="status pending">Pendente</span>
+          </div>
+          <div class="proposal-value">R$ 2.800</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="quick-actions">
+      <div class="section-header">
+        <h2>Ações Rápidas</h2>
+      </div>
+      <div class="actions-list">
+        <a routerLink="/proposals" class="action-button primary">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+            />
+          </svg>
+          Nova Proposta
+        </a>
+        <a routerLink="/clients" class="action-button secondary">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+            <circle cx="9" cy="7" r="4" />
+            <path d="m22 21-3-3m0 0a2 2 0 1 1-4 0 2 2 0 0 1 4 0" />
+          </svg>
+          Novo Cliente
+        </a>
+        <a routerLink="/services" class="action-button secondary">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <rect width="20" height="14" x="2" y="7" rx="2" ry="2" />
+            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+          </svg>
+          Novo Serviço
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
