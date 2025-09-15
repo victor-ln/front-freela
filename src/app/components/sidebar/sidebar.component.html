@@ -1,0 +1,51 @@
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <div class="logo">
+      <img src="/assets/freelaflow.png" alt="logo" class="logo-img">
+      <h2>FREELAFLOW</h2>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <ul class="nav-list">
+      <li *ngFor="let item of menuItems" class="nav-item">
+        <div class="nav-link-wrapper">
+          <a
+            [routerLink]="item.route || ''"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }"
+            class="nav-link"
+            [class.has-submenu]="item.submenu"
+            (click)="item.submenu ? toggleSubmenu(item) : null"
+          >
+            <lucide-icon [name]="item.icon" class="nav-icon"></lucide-icon>
+            <span class="nav-text">{{ item.title }}</span>
+            <lucide-icon
+              *ngIf="item.submenu"
+              name="chevron-down"
+              class="submenu-arrow"
+              [class.expanded]="item.expanded"
+            ></lucide-icon>
+          </a>
+
+          <ul *ngIf="item.submenu && item.expanded" class="submenu">
+            <li *ngFor="let subitem of item.submenu" class="submenu-item">
+              <a
+                [routerLink]="subitem.route"
+                routerLinkActive="active"
+                class="submenu-link"
+              >
+                <lucide-icon
+                  *ngIf="subitem.icon"
+                  [name]="subitem.icon"
+                  class="submenu-icon"
+                ></lucide-icon>
+                <span>{{ subitem.title }}</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </li>
+    </ul>
+  </nav>
+</aside>

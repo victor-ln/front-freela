@@ -1,0 +1,145 @@
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 240px;
+  height: 100vh;
+  background-color: var(--ff-white);
+  border-right: 1px solid var(--ff-gray-light);
+  box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
+  z-index: 1001;
+  overflow-y: auto;
+}
+
+.sidebar-header {
+  padding: 1.5rem 1rem;
+  border-bottom: 1px solid var(--ff-gray-light);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem; /* Espaço entre a imagem e o texto */
+}
+
+.logo-img {
+  width: 32px; /* Ajuste o tamanho conforme necessário */
+  height: 32px;
+}
+
+.logo h2 {
+  color: var(--ff-primary-dark);
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.sidebar-nav {
+  padding: 1rem 0;
+}
+
+.nav-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-item {
+  margin-bottom: 0.25rem;
+}
+
+.nav-link-wrapper {
+  position: relative;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  color: var(--ff-gray-dark);
+  text-decoration: none;
+  transition: all 0.2s ease;
+  gap: 0.75rem;
+  cursor: pointer;
+  border-left: 3px solid transparent;
+}
+
+.nav-link:hover {
+  background-color: #f8f9fa;
+  color: var(--ff-primary-dark);
+}
+
+.nav-link.active {
+  background-color: var(--ff-primary-light);
+  color: var(--ff-primary-dark);
+  border-left-color: var(--ff-primary-dark);
+  font-weight: 600;
+}
+
+.nav-link.has-submenu.active {
+  background-color: #f8f9fa;
+}
+
+.nav-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  color: var(--ff-primary-dark)
+}
+
+.nav-text {
+  flex: 1;
+  font-weight: 500;
+}
+
+.submenu-arrow {
+  width: 16px;
+  height: 16px;
+  transition: transform 0.2s ease;
+  transform: rotate(-90deg);
+}
+
+.submenu-arrow.expanded {
+  transform: rotate(0deg);
+}
+
+.submenu {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  background-color: #f8f9fa;
+  border-left: 3px solid var(--ff-primary-light);
+}
+
+.submenu-item {
+  margin: 0;
+}
+
+.submenu-link {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 1rem 0.5rem 2.5rem;
+  color: var(--ff-gray-dark);
+  text-decoration: none;
+  transition: all 0.2s ease;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.submenu-link:hover {
+  background-color: #e9ecef;
+  color: var(--ff-primary-dark);
+}
+
+.submenu-link.active {
+  background-color: var(--ff-primary-light);
+  color: var(--ff-primary-dark);
+  font-weight: 600;
+}
+
+.submenu-icon {
+  width: 16px;
+  height: 16px;
+}
