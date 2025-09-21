@@ -1,0 +1,27 @@
+<div class="filter-section">
+  <div class="search-box">
+    <svg viewBox="0 0 24 24" fill="currentColor">
+      <circle cx="11" cy="11" r="8" />
+      <path d="m21 21-4.35-4.35" />
+    </svg>
+    <input 
+      type="text" 
+      [placeholder]="searchPlaceholder" 
+      [(ngModel)]="searchTerm" 
+      (input)="onFilterChange()" 
+    />
+  </div>
+  <div class="filters">
+    <select 
+      *ngFor="let filter of selectFilters" 
+      class="filter-select" 
+      [(ngModel)]="filterValues[filter.model]" 
+      (change)="onFilterChange()"
+    >
+      <option value="">{{ filter.label }}</option>
+      <option *ngFor="let option of filter.options" [value]="option.value">
+        {{ option.label }}
+      </option>
+    </select>
+  </div>
+</div>

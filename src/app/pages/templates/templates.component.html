@@ -15,32 +15,16 @@
     </button>
   </div>
 
-  <div class="filter-section">
-    <div class="search-box">
-      <svg viewBox="0 0 24 24" fill="currentColor">
-        <circle cx="11" cy="11" r="8" />
-        <path d="m21 21-4.35-4.35" />
-      </svg>
-      <input type="text" placeholder="Buscar templates..." />
-    </div>
-    <div class="filters">
-      <select class="filter-select">
-        <option value="">Todos os Status</option>
-        <option value="approved">Aprovado</option>
-        <option value="review">Em Revisão</option>
-        <option value="draft">Rascunho</option>
-      </select>
-      <select class="filter-select">
-        <option value="">Todos os Tipos</option>
-        <option value="contract">Contrato</option>
-        <option value="proposal">Proposta</option>
-        <option value="agreement">Acordo</option>
-      </select>
-    </div>
-  </div>
+  <app-filter-bar
+    [data]="mockTemplates"
+    [searchFields]="searchFields"
+    [selectFilters]="selectFilters"
+    searchPlaceholder="Buscar por nome do template..."
+    (filteredData)="handleFilteredData($event)"
+  ></app-filter-bar>
 
   <div class="templates-grid">
-    <div *ngFor="let template of mockTemplates" class="template-card">
+    <div *ngFor="let template of filteredTemplates" class="template-card">
       <div class="template-header">
         <div class="template-icon">
           <svg viewBox="0 0 24 24" fill="currentColor">

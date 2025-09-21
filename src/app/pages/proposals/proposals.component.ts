@@ -1,37 +1,51 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ProposalModalComponent, Proposal } from '../../components/shared/proposal/proposal.component';
+import {
+  ProposalModalComponent,
+  Proposal,
+} from '../../components/shared/proposal/proposal.component';
 import { ConfirmModalComponent } from '../../components/shared/confirm-modal/confirm-modal.component';
+import {
+  FilterBarComponent,
+  SelectFilter,
+} from '../../components/shared/filter-bar/filter-bar.component';
 
 @Component({
-    selector: 'app-proposals',
-    imports: [CommonModule, FormsModule, ProposalModalComponent, ConfirmModalComponent],
-    templateUrl: './proposals.component.html',
-    styleUrls: ['./proposals.component.css']
+  selector: 'app-proposals',
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    ProposalModalComponent,
+    ConfirmModalComponent,
+    FilterBarComponent,
+  ],
+  templateUrl: './proposals.component.html',
+  styleUrls: ['./proposals.component.css'],
 })
-export class ProposalsComponent {
-  selectedStatus = '';
-
+export class ProposalsComponent implements OnInit {
   mockProposals: Proposal[] = [
     {
       id: '1',
       title: 'Website Corporativo - Empresa ABC',
       clientName: 'Empresa ABC Ltda',
-      description: 'Desenvolvimento de website institucional responsivo com sistema de gerenciamento de conteúdo.',
+      description:
+        'Desenvolvimento de website institucional responsivo com sistema de gerenciamento de conteúdo.',
       services: ['Desenvolvimento Web', 'Design Responsivo', 'CMS'],
       template: 'Contrato Desenvolvimento Web',
       totalValue: 8500,
       status: 'accepted',
       createdAt: new Date('2024-01-15'),
       updatedAt: new Date('2024-01-20'),
-      acceptedAt: new Date('2024-01-18')
+      acceptedAt: new Date('2024-01-18'),
     },
     {
       id: '2',
       title: 'Aplicativo Mobile - Startup XYZ',
       clientName: 'Startup XYZ',
-      description: 'Desenvolvimento de aplicativo nativo para iOS e Android com funcionalidades de e-commerce.',
+      description:
+        'Desenvolvimento de aplicativo nativo para iOS e Android com funcionalidades de e-commerce.',
       services: ['App iOS', 'App Android', 'Backend API'],
       template: 'Contrato App Mobile',
       totalValue: 18000,
@@ -43,7 +57,8 @@ export class ProposalsComponent {
       id: '3',
       title: 'Identidade Visual - Loja 123',
       clientName: 'Loja 123',
-      description: 'Criação completa de identidade visual incluindo logotipo, paleta de cores e manual de marca.',
+      description:
+        'Criação completa de identidade visual incluindo logotipo, paleta de cores e manual de marca.',
       services: ['Design de Logo', 'Identidade Visual', 'Manual de Marca'],
       template: 'Contrato Design Gráfico',
       totalValue: 3200,
@@ -55,7 +70,8 @@ export class ProposalsComponent {
       id: '4',
       title: 'E-commerce Completo - Moda Fashion',
       clientName: 'Moda Fashion',
-      description: 'Loja virtual completa com sistema de pagamento integrado e painel administrativo.',
+      description:
+        'Loja virtual completa com sistema de pagamento integrado e painel administrativo.',
       services: ['E-commerce', 'Gateway Pagamento', 'Painel Admin'],
       totalValue: 25000,
       status: 'rejected',
@@ -66,15 +82,33 @@ export class ProposalsComponent {
       id: '5',
       title: 'Consultoria UX - Tech Inovação',
       clientName: 'Tech Inovação',
-      description: 'Auditoria de UX e recomendações para melhoria da experiência do usuário.',
+      description:
+        'Auditoria de UX e recomendações para melhoria da experiência do usuário.',
       services: ['Auditoria UX', 'Prototipação', 'Relatório de Melhorias'],
       template: 'Contrato Consultoria',
       totalValue: 4500,
       status: 'accepted',
       createdAt: new Date('2024-01-22'),
       updatedAt: new Date('2024-01-30'),
-      acceptedAt: new Date('2024-01-28')
-    }
+      acceptedAt: new Date('2024-01-28'),
+    },
+  ];
+
+  filteredProposals: Proposal[] = [];
+
+  // Configuração para o FilterBarComponent
+  searchFields: (keyof Proposal)[] = ['title', 'clientName', 'description'];
+  selectFilters: SelectFilter[] = [
+    {
+      label: 'Todos os Status',
+      model: 'status',
+      options: [
+        { value: 'pending', label: 'Pendente' },
+        { value: 'accepted', label: 'Aceita' },
+        { value: 'rejected', label: 'Rejeitada' },
+        { value: 'negotiation', label: 'Em Negociação' },
+      ],
+    },
   ];
 
   isProposalModalOpen = false;
@@ -83,27 +117,31 @@ export class ProposalsComponent {
   selectedProposal: Proposal | null = null;
   proposalToDelete: Proposal | null = null;
 
+  ngOnInit(): void {
+    this.filteredProposals = [...this.mockProposals];
+  }
+
+  handleFilteredData(data: Proposal[]): void {
+    this.filteredProposals = data;
+  }
+
   getProposalsByStatus(status: string) {
-    return this.mockProposals.filter(proposal => proposal.status === status);
+    return this.mockProposals.filter((proposal) => proposal.status === status);
   }
 
   getTotalValue(): number {
-    return this.mockProposals.reduce((total, proposal) => total + proposal.totalValue, 0);
-  }
-
-  getFilteredProposals() {
-    if (!this.selectedStatus) {
-      return this.mockProposals;
-    }
-    return this.mockProposals.filter(proposal => proposal.status === this.selectedStatus);
+    return this.mockProposals.reduce(
+      (total, proposal) => total + proposal.totalValue,
+      0
+    );
   }
 
   getStatusLabel(status: string): string {
     const labels: { [key: string]: string } = {
-      'pending': 'Pendente',
-      'accepted': 'Aceita',
-      'rejected': 'Rejeitada',
-      'negotiation': 'Em Negociação'
+      pending: 'Pendente',
+      accepted: 'Aceita',
+      rejected: 'Rejeitada',
+      negotiation: 'Em Negociação',
     };
     return labels[status] || status;
   }
@@ -116,12 +154,15 @@ export class ProposalsComponent {
 
   getAverageValue(): number {
     const total = this.getTotalValue();
-    return this.mockProposals.length > 0 ? total / this.mockProposals.length : 0;
+    return this.mockProposals.length > 0
+      ? total / this.mockProposals.length
+      : 0;
   }
 
   markAsAccepted(proposal: Proposal) {
     proposal.status = 'accepted';
     proposal.acceptedAt = new Date();
+    this.handleFilteredData(this.mockProposals);
   }
 
   openNewProposalModal() {
@@ -146,12 +187,13 @@ export class ProposalsComponent {
   }
 
   handleProposalSaved(proposal: Proposal) {
-    const index = this.mockProposals.findIndex(p => p.id === proposal.id);
+    const index = this.mockProposals.findIndex((p) => p.id === proposal.id);
     if (index > -1) {
       this.mockProposals[index] = proposal;
     } else {
-      this.mockProposals.push(proposal);
+      this.mockProposals.unshift(proposal);
     }
+    this.handleFilteredData(this.mockProposals);
     this.closeProposalModal();
   }
 
@@ -162,7 +204,10 @@ export class ProposalsComponent {
 
   deleteProposalConfirmed() {
     if (this.proposalToDelete) {
-      this.mockProposals = this.mockProposals.filter(p => p.id !== this.proposalToDelete!.id);
+      this.mockProposals = this.mockProposals.filter(
+        (p) => p.id !== this.proposalToDelete!.id
+      );
+      this.handleFilteredData(this.mockProposals);
     }
     this.closeConfirmModal();
   }

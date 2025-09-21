@@ -14,31 +14,16 @@
     </button>
   </div>
 
-  <div class="filter-section">
-    <div class="search-box">
-      <svg viewBox="0 0 24 24" fill="currentColor">
-        <circle cx="11" cy="11" r="8" />
-        <path d="m21 21-4.35-4.35" />
-      </svg>
-      <input type="text" placeholder="Buscar serviços..." />
-    </div>
-    <div class="filters">
-      <select class="filter-select">
-        <option value="">Todas as Categorias</option>
-        <option value="desenvolvimento">Desenvolvimento</option>
-        <option value="design">Design</option>
-        <option value="consultoria">Consultoria</option>
-      </select>
-      <select class="filter-select">
-        <option value="">Todos os Status</option>
-        <option value="active">Ativo</option>
-        <option value="inactive">Inativo</option>
-      </select>
-    </div>
-  </div>
+  <app-filter-bar
+    [data]="mockServices"
+    [searchFields]="searchFields"
+    [selectFilters]="selectFilters"
+    searchPlaceholder="Buscar por nome ou descrição..."
+    (filteredData)="handleFilteredData($event)"
+  ></app-filter-bar>
 
   <div class="services-grid">
-    <div *ngFor="let service of mockServices" class="service-card">
+    <div *ngFor="let service of filteredServices" class="service-card">
       <div class="service-header">
         <div class="service-category">
           <span class="category-badge" [class]="service.category.toLowerCase()">

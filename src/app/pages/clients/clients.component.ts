@@ -1,16 +1,39 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
-import { ClientModalComponent, Client } from '../../components/shared/client-modal/client-modal.component';
+import {
+  RouterOutlet,
+  RouterLink,
+  RouterLinkActive,
+  Router,
+} from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import {
+  ClientModalComponent,
+  Client,
+} from '../../components/shared/client-modal/client-modal.component';
 import { ConfirmModalComponent } from '../../components/shared/confirm-modal/confirm-modal.component';
+import {
+  FilterBarComponent,
+  SelectFilter,
+} from '../../components/shared/filter-bar/filter-bar.component';
 
 @Component({
-    selector: 'app-clients',
-    imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, ClientModalComponent, ConfirmModalComponent],
-    templateUrl: `./clients.component.html`,
-    styleUrl: `./clients.component.css`
+  selector: 'app-clients',
+  standalone: true,
+  imports: [
+    CommonModule,
+    RouterOutlet,
+    RouterLink,
+    RouterLinkActive,
+    ClientModalComponent,
+    ConfirmModalComponent,
+    FormsModule,
+    FilterBarComponent,
+  ],
+  templateUrl: `./clients.component.html`,
+  styleUrls: [`./clients.component.css`],
 })
-export class ClientsComponent {
+export class ClientsComponent implements OnInit {
   mockClients: Client[] = [
     {
       id: '1',
@@ -28,8 +51,8 @@ export class ClientsComponent {
         neighborhood: 'Centro',
         city: 'São Paulo',
         state: 'SP',
-        country: 'Brasil'
-      }
+        country: 'Brasil',
+      },
     },
     {
       id: '2',
@@ -46,8 +69,8 @@ export class ClientsComponent {
         neighborhood: 'Bela Vista',
         city: 'São Paulo',
         state: 'SP',
-        country: 'Brasil'
-      }
+        country: 'Brasil',
+      },
     },
     {
       id: '3',
@@ -64,36 +87,55 @@ export class ClientsComponent {
         neighborhood: 'Consolação',
         city: 'São Paulo',
         state: 'SP',
-        country: 'Brasil'
-      }
-    }
+        country: 'Brasil',
+      },
+    },
   ];
 
-  // Modal states
+  filteredClients: Client[] = [];
+
+  // Configuração para o FilterBarComponent
+  searchFields: (keyof Client)[] = ['name', 'responsible', 'email', 'document'];
+  selectFilters: SelectFilter[] = [
+    {
+      label: 'Todos os Status',
+      model: 'status',
+      options: [
+        { value: 'active', label: 'Ativo' },
+        { value: 'inactive', label: 'Inativo' },
+      ],
+    },
+  ];
+
   isClientModalOpen = false;
   isConfirmModalOpen = false;
+  isViewModalOpen = false;
   selectedClient: Client | null = null;
   clientToDelete: Client | null = null;
 
+  constructor(private router: Router) {}
+
+  ngOnInit(): void {
+    this.filteredClients = [...this.mockClients];
+  }
+
+  handleFilteredData(data: Client[]): void {
+    this.filteredClients = data;
+  }
+
   getInitials(name: string): string {
-    return name.split(' ')
-      .map(word => word.charAt(0))
+    return name
+      .split(' ')
+      .map((word) => word.charAt(0))
       .slice(0, 2)
       .join('')
       .toUpperCase();
   }
 
   hasActiveSubRoute(): boolean {
-    // This will be improved when sub-routes are implemented
-    return false;
+    return this.router.url !== '/clients';
   }
 
-  viewClient(client: Client): void {
-    console.log('Visualizando cliente:', client);
-    // Logic to show client details, maybe in a modal or a separate page
-  }
-
-  // Modal methods
   openNewClientModal() {
     this.selectedClient = null;
     this.isClientModalOpen = true;
@@ -104,22 +146,25 @@ export class ClientsComponent {
     this.isClientModalOpen = true;
   }
 
+  openViewClientModal(client: Client) {
+    this.selectedClient = { ...client };
+    this.isViewModalOpen = true;
+  }
+
   closeClientModal() {
     this.isClientModalOpen = false;
+    this.isViewModalOpen = false;
     this.selectedClient = null;
   }
 
   handleClientSaved(client: Client) {
-    if (this.selectedClient?.id) {
-      // Update existing client
-      const index = this.mockClients.findIndex(c => c.id === client.id);
-      if (index > -1) {
-        this.mockClients[index] = client;
-      }
+    const index = this.mockClients.findIndex((c) => c.id === client.id);
+    if (index > -1) {
+      this.mockClients[index] = client;
     } else {
-      // Add new client
-      this.mockClients.push(client);
+      this.mockClients.unshift(client); // Add to the beginning
     }
+    this.handleFilteredData(this.mockClients); // Refresh list
     this.closeClientModal();
   }
 
@@ -130,7 +175,10 @@ export class ClientsComponent {
 
   deleteClientConfirmed() {
     if (this.clientToDelete) {
-      this.mockClients = this.mockClients.filter(c => c.id !== this.clientToDelete!.id);
+      this.mockClients = this.mockClients.filter(
+        (c) => c.id !== this.clientToDelete!.id
+      );
+      this.handleFilteredData(this.mockClients); // Refresh list
     }
     this.closeConfirmModal();
   }

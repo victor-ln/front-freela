@@ -65,33 +65,16 @@
     </div>
   </div>
 
-  <div class="filter-section">
-    <div class="search-box">
-      <svg viewBox="0 0 24 24" fill="currentColor">
-        <circle cx="11" cy="11" r="8"/>
-        <path d="m21 21-4.35-4.35"/>
-      </svg>
-      <input type="text" placeholder="Buscar propostas...">
-    </div>
-    <div class="filters">
-      <select class="filter-select" [(ngModel)]="selectedStatus">
-        <option value="">Todos os Status</option>
-        <option value="pending">Pendente</option>
-        <option value="accepted">Aceita</option>
-        <option value="rejected">Rejeitada</option>
-        <option value="negotiation">Em Negociação</option>
-      </select>
-      <select class="filter-select">
-        <option value="">Todos os Clientes</option>
-        <option value="empresa-abc">Empresa ABC</option>
-        <option value="startup-xyz">Startup XYZ</option>
-        <option value="loja-123">Loja 123</option>
-      </select>
-    </div>
-  </div>
+  <app-filter-bar
+    [data]="mockProposals"
+    [searchFields]="searchFields"
+    [selectFilters]="selectFilters"
+    searchPlaceholder="Buscar por título, cliente ou descrição..."
+    (filteredData)="handleFilteredData($event)"
+  ></app-filter-bar>
 
   <div class="proposals-list">
-    <div *ngFor="let proposal of getFilteredProposals()" class="proposal-card">
+    <div *ngFor="let proposal of filteredProposals" class="proposal-card">
       <div class="proposal-header">
         <div class="proposal-info">
           <h3>{{ proposal.title }}</h3>
