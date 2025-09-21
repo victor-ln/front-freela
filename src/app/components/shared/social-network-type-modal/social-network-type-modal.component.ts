@@ -10,11 +10,10 @@ export interface SocialNetworkType {
 }
 
 @Component({
-  selector: 'app-social-network-type-modal',
-  standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, ModalComponent],
-  templateUrl: `social-network-type-modal.component.html`,
-  styleUrl: `social-network-type-modal.component.css`,
+    selector: 'app-social-network-type-modal',
+    imports: [CommonModule, FormsModule, ReactiveFormsModule, ModalComponent],
+    templateUrl: `social-network-type-modal.component.html`,
+    styleUrl: `social-network-type-modal.component.css`
 })
 export class SocialNetworkTypeModalComponent implements OnInit, OnChanges {
   @Input() isOpen = false;

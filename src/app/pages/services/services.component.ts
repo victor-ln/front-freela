@@ -4,11 +4,10 @@ import { ServiceModalComponent, Service } from '../../components/shared/service-
 import { ConfirmModalComponent } from '../../components/shared/confirm-modal/confirm-modal.component';
 
 @Component({
-  selector: 'app-services',
-  standalone: true,
-  imports: [CommonModule, ServiceModalComponent, ConfirmModalComponent],
-  templateUrl: `./services.component.html`,
-  styleUrl: `./services.component.css`,
+    selector: 'app-services',
+    imports: [CommonModule, ServiceModalComponent, ConfirmModalComponent],
+    templateUrl: `./services.component.html`,
+    styleUrl: `./services.component.css`
 })
 export class ServicesComponent {
   mockServices: Service[] = [

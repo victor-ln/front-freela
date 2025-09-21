@@ -4,11 +4,10 @@ import { TemplateModalComponent, Template } from '../../components/shared/templa
 import { ConfirmModalComponent } from '../../components/shared/confirm-modal/confirm-modal.component';
 
 @Component({
-  selector: 'app-templates',
-  standalone: true,
-  imports: [CommonModule, TemplateModalComponent, ConfirmModalComponent],
-  templateUrl: `./templates.component.html`,
-  styleUrls: [`./templates.component.css`]
+    selector: 'app-templates',
+    imports: [CommonModule, TemplateModalComponent, ConfirmModalComponent],
+    templateUrl: `./templates.component.html`,
+    styleUrls: [`./templates.component.css`]
 })
 export class TemplatesComponent {
   mockTemplates: Template[] = [

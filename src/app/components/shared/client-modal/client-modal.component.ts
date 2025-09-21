@@ -24,11 +24,10 @@ export interface Client {
 }
 
 @Component({
-  selector: 'app-client-modal',
-  standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, ModalComponent],
-  templateUrl: `client-modal.component.html`,
-  styleUrl: `client-modal.component.css`,
+    selector: 'app-client-modal',
+    imports: [CommonModule, FormsModule, ReactiveFormsModule, ModalComponent],
+    templateUrl: `client-modal.component.html`,
+    styleUrl: `client-modal.component.css`
 })
 export class ClientModalComponent implements OnInit, OnChanges {
   @Input() isOpen = false;

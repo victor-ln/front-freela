@@ -12,11 +12,10 @@ interface Column {
 }
 
 @Component({
-  selector: 'app-kanban',
-  standalone: true,
-  imports: [CommonModule, DragDropModule, TaskModalComponent, ConfirmModalComponent],
-  templateUrl: `./kanban.component.html`,
-  styleUrl: `./kanban.component.css`
+    selector: 'app-kanban',
+    imports: [CommonModule, DragDropModule, TaskModalComponent, ConfirmModalComponent],
+    templateUrl: `./kanban.component.html`,
+    styleUrl: `./kanban.component.css`
 })
 export class KanbanComponent {
   columns: Column[] = [

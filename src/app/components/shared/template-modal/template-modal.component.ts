@@ -16,11 +16,10 @@ export interface Template {
 }
 
 @Component({
-  selector: 'app-template-modal',
-  standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, ModalComponent],
-  templateUrl: `template-modal.component.html`,
-  styleUrl: `template-modal.component.css`,
+    selector: 'app-template-modal',
+    imports: [CommonModule, FormsModule, ReactiveFormsModule, ModalComponent],
+    templateUrl: `template-modal.component.html`,
+    styleUrl: `template-modal.component.css`
 })
 export class TemplateModalComponent implements OnInit, OnChanges {
   @Input() isOpen = false;

@@ -18,11 +18,10 @@ export interface Proposal {
 }
 
 @Component({
-  selector: 'app-proposal-modal',
-  standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, ModalComponent],
-  templateUrl: `proposal.component.html`,
-  styleUrl: `proposal.component.css`,
+    selector: 'app-proposal-modal',
+    imports: [CommonModule, FormsModule, ReactiveFormsModule, ModalComponent],
+    templateUrl: `proposal.component.html`,
+    styleUrl: `proposal.component.css`
 })
 export class ProposalModalComponent implements OnInit, OnChanges {
   @Input() isOpen = false;

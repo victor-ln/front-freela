@@ -10,11 +10,10 @@ export interface Category {
 }
 
 @Component({
-  selector: 'app-category-modal',
-  standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, ModalComponent],
-  templateUrl: './category-modal.component.html',
-  styleUrl: './category-modal.component.css'
+    selector: 'app-category-modal',
+    imports: [CommonModule, FormsModule, ReactiveFormsModule, ModalComponent],
+    templateUrl: './category-modal.component.html',
+    styleUrl: './category-modal.component.css'
 })
 export class CategoryModalComponent implements OnInit, OnChanges {
   @Input() isOpen = false;

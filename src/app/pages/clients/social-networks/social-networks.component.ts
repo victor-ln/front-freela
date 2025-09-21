@@ -4,11 +4,10 @@ import { SocialNetworkModalComponent, SocialNetwork } from '../../../components/
 import { ConfirmModalComponent } from '../../../components/shared/confirm-modal/confirm-modal.component';
 
 @Component({
-  selector: 'app-social-networks',
-  standalone: true,
-  imports: [CommonModule, SocialNetworkModalComponent, ConfirmModalComponent],
-  templateUrl: `./social-networks.component.html`,
-  styleUrl: `./social-networks.component.css`
+    selector: 'app-social-networks',
+    imports: [CommonModule, SocialNetworkModalComponent, ConfirmModalComponent],
+    templateUrl: `./social-networks.component.html`,
+    styleUrl: `./social-networks.component.css`
 })
 export class SocialNetworksComponent {
   mockSocialNetworks: SocialNetwork[] = [

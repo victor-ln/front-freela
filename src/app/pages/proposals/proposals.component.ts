@@ -5,11 +5,10 @@ import { ProposalModalComponent, Proposal } from '../../components/shared/propos
 import { ConfirmModalComponent } from '../../components/shared/confirm-modal/confirm-modal.component';
 
 @Component({
-  selector: 'app-proposals',
-  standalone: true,
-  imports: [CommonModule, FormsModule, ProposalModalComponent, ConfirmModalComponent],
-  templateUrl: './proposals.component.html',
-  styleUrls: ['./proposals.component.css']
+    selector: 'app-proposals',
+    imports: [CommonModule, FormsModule, ProposalModalComponent, ConfirmModalComponent],
+    templateUrl: './proposals.component.html',
+    styleUrls: ['./proposals.component.css']
 })
 export class ProposalsComponent {
   selectedStatus = '';

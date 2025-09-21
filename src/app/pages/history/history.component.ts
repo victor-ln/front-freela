@@ -3,11 +3,10 @@ import { CommonModule } from '@angular/common';
 import { Proposal } from '../../components/shared/proposal/proposal.component';
 
 @Component({
-  selector: 'app-history',
-  standalone: true,
-  imports: [CommonModule],
-  templateUrl: './history.component.html',
-  styleUrls: ['./history.component.css']
+    selector: 'app-history',
+    imports: [CommonModule],
+    templateUrl: './history.component.html',
+    styleUrls: ['./history.component.css']
 })
 export class HistoryComponent {
   // Mock data representing proposals that have been accepted/completed.

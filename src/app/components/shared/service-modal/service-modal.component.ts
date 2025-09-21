@@ -16,11 +16,10 @@ export interface Service {
 }
 
 @Component({
-  selector: 'app-service-modal',
-  standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, ModalComponent],
-  templateUrl: `service-modal.component.html`,
-  styleUrl: `service-modal.component.css`,
+    selector: 'app-service-modal',
+    imports: [CommonModule, FormsModule, ReactiveFormsModule, ModalComponent],
+    templateUrl: `service-modal.component.html`,
+    styleUrl: `service-modal.component.css`
 })
 export class ServiceModalComponent implements OnInit, OnChanges {
   @Input() isOpen = false;

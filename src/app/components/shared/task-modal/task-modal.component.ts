@@ -16,11 +16,10 @@ export interface Task {
 }
 
 @Component({
-  selector: 'app-task-modal',
-  standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, ModalComponent],
-  templateUrl: `task-modal.component.html`,
-  styleUrl: `task-modal.component.css`
+    selector: 'app-task-modal',
+    imports: [CommonModule, FormsModule, ReactiveFormsModule, ModalComponent],
+    templateUrl: `task-modal.component.html`,
+    styleUrl: `task-modal.component.css`
 })
 export class TaskModalComponent implements OnInit, OnChanges {
   @Input() isOpen = false;

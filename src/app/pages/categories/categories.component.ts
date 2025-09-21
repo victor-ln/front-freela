@@ -4,11 +4,10 @@ import { CategoryModalComponent, Category } from '../../components/shared/catego
 import { ConfirmModalComponent } from '../../components/shared/confirm-modal/confirm-modal.component';
 
 @Component({
-  selector: 'app-categories',
-  standalone: true,
-  imports: [CommonModule, CategoryModalComponent, ConfirmModalComponent],
-  templateUrl: `categories.component.html`,
-  styleUrl: `categories.component.css`
+    selector: 'app-categories',
+    imports: [CommonModule, CategoryModalComponent, ConfirmModalComponent],
+    templateUrl: `categories.component.html`,
+    styleUrl: `categories.component.css`
 })
 export class CategoriesComponent {
   mockCategories = [

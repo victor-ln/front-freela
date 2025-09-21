@@ -5,11 +5,10 @@ import { ClientModalComponent, Client } from '../../components/shared/client-mod
 import { ConfirmModalComponent } from '../../components/shared/confirm-modal/confirm-modal.component';
 
 @Component({
-  selector: 'app-clients',
-  standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, ClientModalComponent, ConfirmModalComponent],
-  templateUrl: `./clients.component.html`,
-  styleUrl: `./clients.component.css`
+    selector: 'app-clients',
+    imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, ClientModalComponent, ConfirmModalComponent],
+    templateUrl: `./clients.component.html`,
+    styleUrl: `./clients.component.css`
 })
 export class ClientsComponent {
   mockClients: Client[] = [

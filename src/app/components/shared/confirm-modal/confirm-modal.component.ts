@@ -3,11 +3,10 @@ import { CommonModule } from '@angular/common';
 import { ModalComponent } from '../modal/modal.component';
 
 @Component({
-  selector: 'app-confirm-modal',
-  standalone: true,
-  imports: [CommonModule, ModalComponent],
-  templateUrl: `confirm-modal.component.html`,
-  styleUrl: `confirm-modal.component.css`
+    selector: 'app-confirm-modal',
+    imports: [CommonModule, ModalComponent],
+    templateUrl: `confirm-modal.component.html`,
+    styleUrl: `confirm-modal.component.css`
 })
 export class ConfirmModalComponent {
   @Input() isOpen = false;

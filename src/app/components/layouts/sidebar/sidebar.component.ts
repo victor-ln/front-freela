@@ -18,16 +18,15 @@ interface MenuItem {
 }
 
 @Component({
-  selector: 'app-sidebar',
-  standalone: true,
-  imports: [
-    CommonModule,
-    RouterLink,
-    RouterLinkActive,
-    LucideAngularModule // Mantenha isso para que o template reconheça <lucide-icon>
-  ],
-  templateUrl: `./sidebar.component.html`,
-  styleUrls: [`./sidebar.component.css`],
+    selector: 'app-sidebar',
+    imports: [
+        CommonModule,
+        RouterLink,
+        RouterLinkActive,
+        LucideAngularModule // Mantenha isso para que o template reconheça <lucide-icon>
+    ],
+    templateUrl: `./sidebar.component.html`,
+    styleUrls: [`./sidebar.component.css`]
 })
 export class SidebarComponent {
   menuItems: MenuItem[] = [
