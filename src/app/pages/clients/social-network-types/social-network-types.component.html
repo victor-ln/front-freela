@@ -1,7 +1,7 @@
 <div class="social-network-types-content">
   <div class="content-header">
     <h2>Tipos de Redes Sociais</h2>
-    <button class="btn-primary">
+    <button class="btn-primary" (click)="openNewSocialNetworkTypeModal()">
       <svg viewBox="0 0 24 24" fill="currentColor">
         <path d="M12 5v14m-7-7h14" />
       </svg>
@@ -31,7 +31,7 @@
       </div>
 
       <div class="type-actions">
-        <button class="btn-icon" title="Editar">
+        <button class="btn-icon" title="Editar" (click)="openEditSocialNetworkTypeModal(type)">
           <svg viewBox="0 0 24 24" fill="currentColor">
             <path
               d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
@@ -44,6 +44,7 @@
           [class.danger]="type.usage === 0"
           [disabled]="type.usage > 0"
           title="Excluir"
+          (click)="confirmDeleteSocialNetworkType(type)"
         >
           <svg viewBox="0 0 24 24" fill="currentColor">
             <path
@@ -54,7 +55,7 @@
       </div>
     </div>
 
-    <div class="add-type-card">
+    <div class="add-type-card" (click)="openNewSocialNetworkTypeModal()">
       <div class="add-content">
         <div class="add-icon">
           <svg viewBox="0 0 24 24" fill="currentColor">
@@ -68,3 +69,18 @@
     </div>
   </div>
 </div>
+
+<app-social-network-type-modal
+  [isOpen]="isSocialNetworkTypeModalOpen"
+  [socialNetworkType]="selectedSocialNetworkType"
+  (closed)="closeSocialNetworkTypeModal()"
+  (socialNetworkTypeSaved)="handleSocialNetworkTypeSaved($event)">
+</app-social-network-type-modal>
+
+<app-confirm-modal
+  [isOpen]="isConfirmModalOpen"
+  title="Confirmar Exclusão"
+  message="Tem certeza que deseja excluir este tipo de rede social?"
+  (confirmed)="deleteSocialNetworkTypeConfirmed()"
+  (closed)="closeConfirmModal()">
+</app-confirm-modal>

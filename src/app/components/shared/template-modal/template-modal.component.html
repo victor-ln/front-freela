@@ -1,0 +1,180 @@
+<app-modal
+  [isOpen]="isOpen"
+  [title]="template?.id ? 'Editar Template' : 'Novo Template'"
+  size="lg"
+  (closed)="onModalClose()"
+>
+  <form
+    [formGroup]="templateForm"
+    (ngSubmit)="onSubmit()"
+    class="template-form"
+  >
+    <div class="form-grid">
+      <div class="form-group full-width">
+        <label for="name"
+          >Nome do Template <span class="required">*</span></label
+        >
+        <input
+          type="text"
+          id="name"
+          formControlName="name"
+          class="form-input"
+          [class.error]="isFieldInvalid('name')"
+          placeholder="Digite o nome do template"
+        />
+        <div class="error-message" *ngIf="isFieldInvalid('name')">
+          Nome é obrigatório
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="type"
+          >Tipo do Template <span class="required">*</span></label
+        >
+        <select
+          id="type"
+          formControlName="type"
+          class="form-select"
+          [class.error]="isFieldInvalid('type')"
+        >
+          <option value="">Selecione o tipo</option>
+          <option value="Contrato">Contrato</option>
+          <option value="Proposta">Proposta</option>
+          <option value="Acordo">Acordo</option>
+          <option value="Orçamento">Orçamento</option>
+        </select>
+        <div class="error-message" *ngIf="isFieldInvalid('type')">
+          Tipo é obrigatório
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="status">Status</label>
+        <select
+          id="status"
+          formControlName="status"
+          class="form-select"
+          [disabled]="!template?.id"
+        >
+          <option value="review">Em Revisão</option>
+          <option value="approved">Aprovado</option>
+          <option value="draft">Rascunho</option>
+        </select>
+        <small class="form-help" *ngIf="!template?.id">
+          Novos templates são criados com status "Em Revisão"
+        </small>
+      </div>
+
+      <div class="form-group full-width">
+        <label for="fileAttachment">
+          Arquivo do Template
+          <span class="required" *ngIf="!template?.id">*</span>
+        </label>
+        <div class="file-input-wrapper">
+          <input
+            type="file"
+            id="fileAttachment"
+            (change)="onFileSelect($event)"
+            class="file-input"
+            accept=".docx,.doc"
+            [class.error]="isFileRequired && !selectedFile && !template?.id"
+          />
+          <div class="file-input-display">
+            <div class="file-icon">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path
+                  d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"
+                />
+                <polyline points="14,2 14,8 20,8" />
+              </svg>
+            </div>
+            <div class="file-content">
+              <span class="file-name" *ngIf="selectedFile">{{
+                selectedFile.name
+              }}</span>
+              <span
+                class="file-placeholder"
+                *ngIf="!selectedFile && !template?.id"
+              >
+                Clique para selecionar ou arraste um arquivo DOCX
+              </span>
+              <span class="file-existing" *ngIf="!selectedFile && template?.id">
+                Arquivo existente: {{ template?.name }}.docx
+              </span>
+              <small class="file-help">
+                Apenas arquivos .docx ou .doc são aceitos
+              </small>
+            </div>
+          </div>
+        </div>
+        <div
+          class="error-message"
+          *ngIf="isFileRequired && !selectedFile && !template?.id"
+        >
+          Arquivo é obrigatório para novos templates
+        </div>
+      </div>
+
+      <div class="form-group full-width" *ngIf="template">
+        <label for="variables">Variáveis Identificadas</label>
+        <div class="variables-display">
+          <span
+            *ngFor="let variable of template.variables"
+            class="variable-tag"
+          >
+            {{ variable }}
+          </span>
+          <span
+            *ngIf="!template.variables || template.variables.length === 0"
+            class="no-variables"
+          >
+            Nenhuma variável identificada
+          </span>
+        </div>
+        <small class="form-help">
+          As variáveis são identificadas automaticamente no formato
+          {{ "{VARIAVEL}" }}
+        </small>
+      </div>
+    </div>
+
+    <div class="template-info">
+      <div class="info-icon">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <circle cx="12" cy="12" r="10" />
+          <path d="M12 16v-4M12 8h.01" />
+        </svg>
+      </div>
+      <div class="info-content">
+        <p><strong>Como usar variáveis no template:</strong></p>
+        <ul>
+          <li>{{ "{CLIENTE_NOME}" }} - Nome do cliente</li>
+          <li>{{ "{CLIENTE_EMAIL}" }} - Email do cliente</li>
+          <li>{{ "{VALOR_TOTAL}" }} - Valor total da proposta</li>
+          <li>{{ "{SERVICOS}" }} - Lista de serviços</li>
+          <li>{{ "{PRAZO_ENTREGA}" }} - Prazo de entrega</li>
+          <li>{{ "{DATA_ATUAL}" }} - Data atual</li>
+        </ul>
+        <p>
+          <strong>Dica:</strong> Use as variáveis entre chaves no seu documento
+          Word para substituição automática.
+        </p>
+      </div>
+    </div>
+  </form>
+
+  <div slot="footer" class="modal-actions">
+    <button type="button" class="btn-secondary" (click)="onCancel()">
+      Cancelar
+    </button>
+    <button
+      type="submit"
+      class="btn-primary"
+      (click)="onSubmit()"
+      [disabled]="templateForm.invalid || isSubmitting"
+    >
+      <span *ngIf="isSubmitting" class="loading-spinner"></span>
+      {{ template?.id ? "Atualizar" : "Criar" }} Template
+    </button>
+  </div>
+</app-modal>

@@ -1,0 +1,190 @@
+<app-modal
+  [isOpen]="isOpen"
+  [title]="isViewMode ? 'Visualizar Proposta' : (proposal?.id ? 'Editar Proposta' : 'Nova Proposta')"
+  size="lg"
+  (closed)="onModalClose()"
+>
+  <form
+    [formGroup]="proposalForm"
+    (ngSubmit)="onSubmit()"
+    class="proposal-form"
+  >
+    <div class="form-grid">
+      <div class="form-group full-width">
+        <label for="title"
+          >Título da Proposta <span class="required">*</span></label
+        >
+        <input
+          type="text"
+          id="title"
+          formControlName="title"
+          class="form-input"
+          [class.error]="isFieldInvalid('title')"
+          placeholder="Digite o título da proposta"
+        />
+        <div class="error-message" *ngIf="isFieldInvalid('title')">
+          Título é obrigatório
+        </div>
+      </div>
+
+      <div class="form-group full-width">
+        <label for="description"
+          >Descrição <span class="required">*</span></label
+        >
+        <textarea
+          id="description"
+          formControlName="description"
+          class="form-textarea"
+          [class.error]="isFieldInvalid('description')"
+          rows="4"
+          placeholder="Descreva detalhadamente a proposta"
+        ></textarea>
+        <div class="error-message" *ngIf="isFieldInvalid('description')">
+          Descrição é obrigatória
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="clientName">Cliente <span class="required">*</span></label>
+        <select
+          id="clientName"
+          formControlName="clientName"
+          class="form-select"
+          [class.error]="isFieldInvalid('clientName')"
+        >
+          <option value="">Selecione um cliente</option>
+          <option value="Empresa ABC Ltda">Empresa ABC Ltda</option>
+          <option value="Startup XYZ">Startup XYZ</option>
+          <option value="Loja 123">Loja 123</option>
+          <option value="Tech Inovação">Tech Inovação</option>
+          <option value="Moda Fashion">Moda Fashion</option>
+        </select>
+        <div class="error-message" *ngIf="isFieldInvalid('clientName')">
+          Cliente é obrigatório
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="template">Template Associado</label>
+        <select id="template" formControlName="template" class="form-select">
+          <option value="">Nenhum template</option>
+          <option value="Contrato Desenvolvimento Web">
+            Contrato Desenvolvimento Web
+          </option>
+          <option value="Contrato Design Gráfico">
+            Contrato Design Gráfico
+          </option>
+          <option value="Contrato App Mobile">Contrato App Mobile</option>
+          <option value="Contrato Consultoria">Contrato Consultoria</option>
+        </select>
+      </div>
+
+      <div class="form-group full-width">
+        <label for="services"
+          >Serviços Incluídos <span class="required">*</span></label
+        >
+        <div class="services-selection">
+          <div
+            class="service-checkbox"
+            *ngFor="let service of availableServices"
+          >
+            <label class="checkbox-label">
+              <input
+                type="checkbox"
+                [value]="service"
+                (change)="onServiceChange(service, $event)"
+                [checked]="selectedServices.includes(service)"
+                class="service-input"
+                [disabled]="isViewMode"
+              />
+              <span class="checkbox-custom"></span>
+              <span class="service-name">{{ service }}</span>
+            </label>
+          </div>
+        </div>
+        <div
+          class="error-message"
+          *ngIf="
+            selectedServices.length === 0 &&
+            proposalForm.get('services')?.touched
+          "
+        >
+          Selecione pelo menos um serviço
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="totalValue"
+          >Valor Total (R$) <span class="required">*</span></label
+        >
+        <input
+          type="number"
+          id="totalValue"
+          formControlName="totalValue"
+          class="form-input"
+          [class.error]="isFieldInvalid('totalValue')"
+          placeholder="5500.00"
+          min="0"
+          step="0.01"
+        />
+        <div class="error-message" *ngIf="isFieldInvalid('totalValue')">
+          Valor total é obrigatório
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="status">Status</label>
+        <select
+          id="status"
+          formControlName="status"
+          class="form-select"
+        >
+          <option value="pending">Pendente</option>
+          <option value="accepted">Aceita</option>
+          <option value="rejected">Rejeitada</option>
+          <option value="negotiation">Em Negociação</option>
+        </select>
+        <small class="form-help" *ngIf="!proposal?.id">
+          Novas propostas são criadas com status "Pendente"
+        </small>
+      </div>
+    </div>
+
+    <div class="selected-services-summary" *ngIf="selectedServices.length > 0">
+      <h4>Serviços Selecionados ({{ selectedServices.length }})</h4>
+      <div class="services-tags">
+        <span *ngFor="let service of selectedServices" class="service-tag">
+          {{ service }}
+          <button
+            type="button"
+            class="remove-service"
+            (click)="removeService(service)"
+            title="Remover serviço"
+            *ngIf="!isViewMode"
+          >
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M18 6L6 18M6 6l12 12" />
+            </svg>
+          </button>
+        </span>
+      </div>
+    </div>
+  </form>
+
+  <div slot="footer" class="modal-actions" *ngIf="!isViewMode">
+    <button type="button" class="btn-secondary" (click)="onCancel()">
+      Cancelar
+    </button>
+    <button
+      type="submit"
+      class="btn-primary"
+      (click)="onSubmit()"
+      [disabled]="
+        proposalForm.invalid || selectedServices.length === 0 || isSubmitting
+      "
+    >
+      <span *ngIf="isSubmitting" class="loading-spinner"></span>
+      {{ proposal?.id ? "Atualizar" : "Criar" }} Proposta
+    </button>
+  </div>
+</app-modal>

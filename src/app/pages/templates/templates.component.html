@@ -7,7 +7,7 @@
         propostas
       </p>
     </div>
-    <button class="btn-primary">
+    <button class="btn-primary" (click)="openNewTemplateModal()">
       <svg viewBox="0 0 24 24" fill="currentColor">
         <path d="M12 5v14m-7-7h14" />
       </svg>
@@ -54,14 +54,14 @@
           </svg>
         </div>
         <div class="template-actions">
-          <button class="btn-icon" title="Download">
+          <button class="btn-icon" title="Download" (click)="downloadTemplate(template)">
             <svg viewBox="0 0 24 24" fill="currentColor">
               <path
                 d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4m4-5l5 5 5-5m-5 5V3"
               />
             </svg>
           </button>
-          <button class="btn-icon" title="Editar">
+          <button class="btn-icon" title="Editar" (click)="openEditTemplateModal(template)">
             <svg viewBox="0 0 24 24" fill="currentColor">
               <path
                 d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
@@ -71,7 +71,7 @@
               />
             </svg>
           </button>
-          <button class="btn-icon danger" title="Excluir">
+          <button class="btn-icon danger" title="Excluir" (click)="confirmDeleteTemplate(template)">
             <svg viewBox="0 0 24 24" fill="currentColor">
               <path
                 d="M3 6h18m-2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
@@ -145,7 +145,7 @@
       </div>
     </div>
 
-    <div class="add-template-card">
+    <div class="add-template-card" (click)="openNewTemplateModal()">
       <div class="add-content">
         <div class="add-icon">
           <svg viewBox="0 0 24 24" fill="currentColor">
@@ -201,3 +201,18 @@
     </div>
   </div>
 </div>
+
+<app-template-modal
+  [isOpen]="isTemplateModalOpen"
+  [template]="selectedTemplate"
+  (closed)="closeTemplateModal()"
+  (templateSaved)="handleTemplateSaved($event)">
+</app-template-modal>
+
+<app-confirm-modal
+  [isOpen]="isConfirmModalOpen"
+  title="Confirmar Exclusão"
+  message="Tem certeza que deseja excluir este template?"
+  (confirmed)="deleteTemplateConfirmed()"
+  (closed)="closeConfirmModal()">
+</app-confirm-modal>

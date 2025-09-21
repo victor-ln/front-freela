@@ -1,41 +1,53 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { SocialNetworkTypeModalComponent, SocialNetworkType } from '../../../components/shared/social-network-type-modal/social-network-type-modal.component';
+import { ConfirmModalComponent } from '../../../components/shared/confirm-modal/confirm-modal.component';
 
 @Component({
   selector: 'app-social-network-types',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, SocialNetworkTypeModalComponent, ConfirmModalComponent],
   templateUrl: `social-network-types.component.html`,
   styleUrl: `social-network-types.component.css`
 })
 export class SocialNetworkTypesComponent {
-  mockTypes = [
+  mockTypes: any[] = [
     {
+      id: '1',
       name: 'Facebook',
       status: 'active',
       usage: 3
     },
     {
+      id: '2',
       name: 'Instagram',
       status: 'active',
       usage: 5
     },
     {
+      id: '3',
       name: 'LinkedIn',
       status: 'active',
       usage: 2
     },
     {
+      id: '4',
       name: 'Twitter',
       status: 'active',
       usage: 1
     },
     {
+      id: '5',
       name: 'TikTok',
       status: 'inactive',
       usage: 0
     }
   ];
+
+  isSocialNetworkTypeModalOpen = false;
+  isConfirmModalOpen = false;
+  selectedSocialNetworkType: SocialNetworkType | null = null;
+  socialNetworkTypeToDelete: any | null = null;
 
   getTypeIcon(typeName: string): string {
     const icons: { [key: string]: string } = {
@@ -45,7 +57,51 @@ export class SocialNetworkTypesComponent {
       'Twitter': '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/></svg>',
       'TikTok': '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 12a4 4 0 1 0 4 4V2a9 9 0 0 1 9 9"/></svg>'
     };
-    
+
     return icons[typeName] || '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg>';
+  }
+
+  openNewSocialNetworkTypeModal() {
+    this.selectedSocialNetworkType = null;
+    this.isSocialNetworkTypeModalOpen = true;
+  }
+
+  openEditSocialNetworkTypeModal(socialNetworkType: any) {
+    this.selectedSocialNetworkType = { ...socialNetworkType };
+    this.isSocialNetworkTypeModalOpen = true;
+  }
+
+  closeSocialNetworkTypeModal() {
+    this.isSocialNetworkTypeModalOpen = false;
+    this.selectedSocialNetworkType = null;
+  }
+
+  handleSocialNetworkTypeSaved(socialNetworkType: SocialNetworkType) {
+    if (this.selectedSocialNetworkType?.id) {
+      const index = this.mockTypes.findIndex(t => t.id === socialNetworkType.id);
+      if (index > -1) {
+        this.mockTypes[index] = { ...this.mockTypes[index], ...socialNetworkType };
+      }
+    } else {
+      this.mockTypes.push({ ...socialNetworkType, usage: 0 });
+    }
+    this.closeSocialNetworkTypeModal();
+  }
+
+  confirmDeleteSocialNetworkType(socialNetworkType: any) {
+    this.socialNetworkTypeToDelete = socialNetworkType;
+    this.isConfirmModalOpen = true;
+  }
+
+  deleteSocialNetworkTypeConfirmed() {
+    if (this.socialNetworkTypeToDelete) {
+      this.mockTypes = this.mockTypes.filter(t => t.id !== this.socialNetworkTypeToDelete!.id);
+    }
+    this.closeConfirmModal();
+  }
+
+  closeConfirmModal() {
+    this.isConfirmModalOpen = false;
+    this.socialNetworkTypeToDelete = null;
   }
 }

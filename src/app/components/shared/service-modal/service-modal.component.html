@@ -1,0 +1,171 @@
+<app-modal
+  [isOpen]="isOpen"
+  [title]="service?.id ? 'Editar Serviço' : 'Novo Serviço'"
+  size="lg"
+  (closed)="onModalClose()"
+>
+  <form [formGroup]="serviceForm" (ngSubmit)="onSubmit()" class="service-form">
+    <div class="form-grid">
+      <div class="form-group full-width">
+        <label for="name"
+          >Nome do Serviço <span class="required">*</span></label
+        >
+        <input
+          type="text"
+          id="name"
+          formControlName="name"
+          class="form-input"
+          [class.error]="isFieldInvalid('name')"
+          placeholder="Digite o nome do serviço"
+        />
+        <div class="error-message" *ngIf="isFieldInvalid('name')">
+          Nome é obrigatório
+        </div>
+      </div>
+
+      <div class="form-group full-width">
+        <label for="description"
+          >Descrição <span class="required">*</span></label
+        >
+        <textarea
+          id="description"
+          formControlName="description"
+          class="form-textarea"
+          [class.error]="isFieldInvalid('description')"
+          rows="3"
+          placeholder="Descreva o serviço oferecido"
+        ></textarea>
+        <div class="error-message" *ngIf="isFieldInvalid('description')">
+          Descrição é obrigatória
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="category">Categoria <span class="required">*</span></label>
+        <select
+          id="category"
+          formControlName="category"
+          class="form-select"
+          [class.error]="isFieldInvalid('category')"
+        >
+          <option value="">Selecione uma categoria</option>
+          <option value="Desenvolvimento">Desenvolvimento</option>
+          <option value="Design">Design</option>
+          <option value="Consultoria">Consultoria</option>
+          <option value="Marketing">Marketing</option>
+        </select>
+        <div class="error-message" *ngIf="isFieldInvalid('category')">
+          Categoria é obrigatória
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="deliveryTime"
+          >Prazo de Entrega <span class="required">*</span></label
+        >
+        <input
+          type="number"
+          id="deliveryTime"
+          formControlName="deliveryTime"
+          class="form-input"
+          [class.error]="isFieldInvalid('deliveryTime')"
+          placeholder="15"
+          min="1"
+        />
+        <div class="error-message" *ngIf="isFieldInvalid('deliveryTime')">
+          Prazo de entrega é obrigatório
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="timeUnit"
+          >Unidade de Tempo <span class="required">*</span></label
+        >
+        <select
+          id="timeUnit"
+          formControlName="timeUnit"
+          class="form-select"
+          [class.error]="isFieldInvalid('timeUnit')"
+        >
+          <option value="">Selecione</option>
+          <option value="horas">Horas</option>
+          <option value="dias">Dias</option>
+          <option value="semanas">Semanas</option>
+          <option value="meses">Meses</option>
+        </select>
+        <div class="error-message" *ngIf="isFieldInvalid('timeUnit')">
+          Unidade de tempo é obrigatória
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="templateBase">Template Base</label>
+        <select
+          id="templateBase"
+          formControlName="templateBase"
+          class="form-select"
+        >
+          <option value="">Nenhum template</option>
+          <option value="Contrato Desenvolvimento Web">
+            Contrato Desenvolvimento Web
+          </option>
+          <option value="Contrato Design Gráfico">
+            Contrato Design Gráfico
+          </option>
+          <option value="Contrato App Mobile">Contrato App Mobile</option>
+          <option value="Contrato Consultoria">Contrato Consultoria</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="status">Status <span class="required">*</span></label>
+        <select
+          id="status"
+          formControlName="status"
+          class="form-select"
+          [class.error]="isFieldInvalid('status')"
+        >
+          <option value="active">Ativo</option>
+          <option value="inactive">Inativo</option>
+        </select>
+        <div class="error-message" *ngIf="isFieldInvalid('status')">
+          Status é obrigatório
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="basePrice"
+          >Preço Base (R$) <span class="required">*</span></label
+        >
+        <input
+          type="number"
+          id="basePrice"
+          formControlName="basePrice"
+          class="form-input"
+          [class.error]="isFieldInvalid('basePrice')"
+          placeholder="1500.00"
+          min="0"
+          step="0.01"
+        />
+        <div class="error-message" *ngIf="isFieldInvalid('basePrice')">
+          Preço base é obrigatório
+        </div>
+      </div>
+    </div>
+  </form>
+
+  <div slot="footer" class="modal-actions">
+    <button type="button" class="btn-secondary" (click)="onCancel()">
+      Cancelar
+    </button>
+    <button
+      type="submit"
+      class="btn-primary"
+      (click)="onSubmit()"
+      [disabled]="serviceForm.invalid || isSubmitting"
+    >
+      <span *ngIf="isSubmitting" class="loading-spinner"></span>
+      {{ service?.id ? "Atualizar" : "Criar" }} Serviço
+    </button>
+  </div>
+</app-modal>

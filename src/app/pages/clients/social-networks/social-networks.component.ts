@@ -1,40 +1,51 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { SocialNetworkModalComponent, SocialNetwork } from '../../../components/shared/social-network-modal/social-network-modal.component';
+import { ConfirmModalComponent } from '../../../components/shared/confirm-modal/confirm-modal.component';
 
 @Component({
   selector: 'app-social-networks',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, SocialNetworkModalComponent, ConfirmModalComponent],
   templateUrl: `./social-networks.component.html`,
   styleUrl: `./social-networks.component.css`
 })
 export class SocialNetworksComponent {
-  mockSocialNetworks = [
+  mockSocialNetworks: SocialNetwork[] = [
     {
+      id: '1',
       clientName: 'Empresa ABC',
       name: '@empresaabc',
       type: 'Instagram',
       url: 'https://instagram.com/empresaabc'
     },
     {
+      id: '2',
       clientName: 'Empresa ABC',
       name: 'Empresa ABC Ltda',
       type: 'LinkedIn',
       url: 'https://linkedin.com/company/empresaabc'
     },
     {
+      id: '3',
       clientName: 'Startup XYZ',
       name: '@startupxyz',
       type: 'Twitter',
       url: 'https://twitter.com/startupxyz'
     },
     {
+      id: '4',
       clientName: 'Loja 123',
       name: 'Loja123Official',
       type: 'Facebook',
       url: 'https://facebook.com/loja123official'
     }
   ];
+
+  isSocialNetworkModalOpen = false;
+  isConfirmModalOpen = false;
+  selectedSocialNetwork: SocialNetwork | null = null;
+  socialNetworkToDelete: SocialNetwork | null = null;
 
   getInitials(name: string): string {
     return name.split(' ')
@@ -51,7 +62,51 @@ export class SocialNetworksComponent {
       'LinkedIn': '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/></svg>',
       'Twitter': '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/></svg>'
     };
-    
+
     return icons[type] || '';
+  }
+
+  openNewSocialNetworkModal() {
+    this.selectedSocialNetwork = null;
+    this.isSocialNetworkModalOpen = true;
+  }
+
+  openEditSocialNetworkModal(socialNetwork: SocialNetwork) {
+    this.selectedSocialNetwork = { ...socialNetwork };
+    this.isSocialNetworkModalOpen = true;
+  }
+
+  closeSocialNetworkModal() {
+    this.isSocialNetworkModalOpen = false;
+    this.selectedSocialNetwork = null;
+  }
+
+  handleSocialNetworkSaved(socialNetwork: SocialNetwork) {
+    if (this.selectedSocialNetwork?.id) {
+      const index = this.mockSocialNetworks.findIndex(s => s.id === socialNetwork.id);
+      if (index > -1) {
+        this.mockSocialNetworks[index] = socialNetwork;
+      }
+    } else {
+      this.mockSocialNetworks.push(socialNetwork);
+    }
+    this.closeSocialNetworkModal();
+  }
+
+  confirmDeleteSocialNetwork(socialNetwork: SocialNetwork) {
+    this.socialNetworkToDelete = socialNetwork;
+    this.isConfirmModalOpen = true;
+  }
+
+  deleteSocialNetworkConfirmed() {
+    if (this.socialNetworkToDelete) {
+      this.mockSocialNetworks = this.mockSocialNetworks.filter(s => s.id !== this.socialNetworkToDelete!.id);
+    }
+    this.closeConfirmModal();
+  }
+
+  closeConfirmModal() {
+    this.isConfirmModalOpen = false;
+    this.socialNetworkToDelete = null;
   }
 }

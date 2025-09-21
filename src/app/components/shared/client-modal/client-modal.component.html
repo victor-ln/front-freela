@@ -1,0 +1,276 @@
+<app-modal
+  [isOpen]="isOpen"
+  [title]="isViewMode ? 'Visualizar Cliente' : (client?.id ? 'Editar Cliente' : 'Novo Cliente')"
+  size="lg"
+  (closed)="onModalClose()"
+>
+  <form [formGroup]="clientForm" (ngSubmit)="onSubmit()" class="client-form">
+    <div class="form-grid">
+      <div class="form-group">
+        <label for="status">Status <span class="required">*</span></label>
+        <select
+          id="status"
+          formControlName="status"
+          class="form-select"
+          [class.error]="isFieldInvalid('status')"
+        >
+          <option value="active">Ativo</option>
+          <option value="inactive">Inativo</option>
+        </select>
+        <div class="error-message" *ngIf="isFieldInvalid('status')">
+          Status é obrigatório
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="name"
+          >Nome/Razão Social <span class="required">*</span></label
+        >
+        <input
+          type="text"
+          id="name"
+          formControlName="name"
+          class="form-input"
+          [class.error]="isFieldInvalid('name')"
+          placeholder="Digite o nome ou razão social"
+        />
+        <div class="error-message" *ngIf="isFieldInvalid('name')">
+          Nome é obrigatório
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="responsible">Responsável</label>
+        <input
+          type="text"
+          id="responsible"
+          formControlName="responsible"
+          class="form-input"
+          placeholder="Nome do responsável"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="primaryPhone"
+          >Telefone Principal <span class="required">*</span></label
+        >
+        <input
+          type="tel"
+          id="primaryPhone"
+          formControlName="primaryPhone"
+          class="form-input"
+          [class.error]="isFieldInvalid('primaryPhone')"
+          placeholder="(11) 99999-8888"
+        />
+        <div class="error-message" *ngIf="isFieldInvalid('primaryPhone')">
+          Telefone principal é obrigatório
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="secondaryPhone">Telefone Secundário</label>
+        <input
+          type="tel"
+          id="secondaryPhone"
+          formControlName="secondaryPhone"
+          class="form-input"
+          placeholder="(11) 88888-7777"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="document">CPF/CNPJ <span class="required">*</span></label>
+        <input
+          type="text"
+          id="document"
+          formControlName="document"
+          class="form-input"
+          [class.error]="isFieldInvalid('document')"
+          placeholder="000.000.000-00 ou 00.000.000/0001-00"
+        />
+        <div class="error-message" *ngIf="isFieldInvalid('document')">
+          CPF/CNPJ é obrigatório
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email <span class="required">*</span></label>
+        <input
+          type="email"
+          id="email"
+          formControlName="email"
+          class="form-input"
+          [class.error]="isFieldInvalid('email')"
+          placeholder="cliente@email.com"
+        />
+        <div class="error-message" *ngIf="isFieldInvalid('email')">
+          <span *ngIf="clientForm.get('email')?.errors?.['required']"
+            >Email é obrigatório</span
+          >
+          <span *ngIf="clientForm.get('email')?.errors?.['email']"
+            >Email deve ser válido</span
+          >
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="cep">CEP <span class="required">*</span></label>
+        <input
+          type="text"
+          id="cep"
+          formControlName="cep"
+          class="form-input"
+          [class.error]="isFieldInvalid('cep')"
+          placeholder="00000-000"
+        />
+        <div class="error-message" *ngIf="isFieldInvalid('cep')">
+          CEP é obrigatório
+        </div>
+      </div>
+
+      <div class="form-group span-2">
+        <label for="street">Rua/Avenida <span class="required">*</span></label>
+        <input
+          type="text"
+          id="street"
+          formControlName="street"
+          class="form-input"
+          [class.error]="isFieldInvalid('street')"
+          placeholder="Nome da rua ou avenida"
+        />
+        <div class="error-message" *ngIf="isFieldInvalid('street')">
+          Rua/Avenida é obrigatória
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="number">Número <span class="required">*</span></label>
+        <input
+          type="text"
+          id="number"
+          formControlName="number"
+          class="form-input"
+          [class.error]="isFieldInvalid('number')"
+          placeholder="123"
+        />
+        <div class="error-message" *ngIf="isFieldInvalid('number')">
+          Número é obrigatório
+        </div>
+      </div>
+
+      <div class="form-group span-2">
+        <label for="complement">Complemento</label>
+        <input
+          type="text"
+          id="complement"
+          formControlName="complement"
+          class="form-input"
+          placeholder="Apartamento, sala, etc."
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="neighborhood">Bairro <span class="required">*</span></label>
+        <input
+          type="text"
+          id="neighborhood"
+          formControlName="neighborhood"
+          class="form-input"
+          [class.error]="isFieldInvalid('neighborhood')"
+          placeholder="Nome do bairro"
+        />
+        <div class="error-message" *ngIf="isFieldInvalid('neighborhood')">
+          Bairro é obrigatório
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="city">Cidade <span class="required">*</span></label>
+        <input
+          type="text"
+          id="city"
+          formControlName="city"
+          class="form-input"
+          [class.error]="isFieldInvalid('city')"
+          placeholder="Nome da cidade"
+        />
+        <div class="error-message" *ngIf="isFieldInvalid('city')">
+          Cidade é obrigatória
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="state">Estado <span class="required">*</span></label>
+        <select
+          id="state"
+          formControlName="state"
+          class="form-select"
+          [class.error]="isFieldInvalid('state')"
+        >
+          <option value="">Selecione o estado</option>
+          <option value="AC">Acre</option>
+          <option value="AL">Alagoas</option>
+          <option value="AP">Amapá</option>
+          <option value="AM">Amazonas</option>
+          <option value="BA">Bahia</option>
+          <option value="CE">Ceará</option>
+          <option value="DF">Distrito Federal</option>
+          <option value="ES">Espírito Santo</option>
+          <option value="GO">Goiás</option>
+          <option value="MA">Maranhão</option>
+          <option value="MT">Mato Grosso</option>
+          <option value="MS">Mato Grosso do Sul</option>
+          <option value="MG">Minas Gerais</option>
+          <option value="PA">Pará</option>
+          <option value="PB">Paraíba</option>
+          <option value="PR">Paraná</option>
+          <option value="PE">Pernambuco</option>
+          <option value="PI">Piauí</option>
+          <option value="RJ">Rio de Janeiro</option>
+          <option value="RN">Rio Grande do Norte</option>
+          <option value="RS">Rio Grande do Sul</option>
+          <option value="RO">Rondônia</option>
+          <option value="RR">Roraima</option>
+          <option value="SC">Santa Catarina</option>
+          <option value="SP">São Paulo</option>
+          <option value="SE">Sergipe</option>
+          <option value="TO">Tocantins</option>
+        </select>
+        <div class="error-message" *ngIf="isFieldInvalid('state')">
+          Estado é obrigatório
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="country">País <span class="required">*</span></label>
+        <input
+          type="text"
+          id="country"
+          formControlName="country"
+          class="form-input"
+          [class.error]="isFieldInvalid('country')"
+          placeholder="Brasil"
+          value="Brasil"
+        />
+        <div class="error-message" *ngIf="isFieldInvalid('country')">
+          País é obrigatório
+        </div>
+      </div>
+    </div>
+  </form>
+
+  <div slot="footer" class="modal-actions" *ngIf="!isViewMode">
+    <button type="button" class="btn-secondary" (click)="onCancel()">
+      Cancelar
+    </button>
+    <button
+      type="submit"
+      class="btn-primary"
+      (click)="onSubmit()"
+      [disabled]="clientForm.invalid || isSubmitting"
+    >
+      <span *ngIf="isSubmitting" class="loading-spinner"></span>
+      {{ client?.id ? "Atualizar" : "Criar" }} Cliente
+    </button>
+  </div>
+</app-modal>

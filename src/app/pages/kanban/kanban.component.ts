@@ -1,17 +1,8 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
-interface Task {
-  id: string;
-  title: string;
-  description: string;
-  status: string;
-  startDate?: Date;
-  dueDate?: Date;
-  priority: 'low' | 'medium' | 'high';
-  proposal: string;
-  client: string;
-}
+import { CdkDragDrop, moveItemInArray, transferArrayItem, DragDropModule } from '@angular/cdk/drag-drop';
+import { TaskModalComponent, Task } from '../../components/shared/task-modal/task-modal.component';
+import { ConfirmModalComponent } from '../../components/shared/confirm-modal/confirm-modal.component';
 
 interface Column {
   id: string;
@@ -23,7 +14,7 @@ interface Column {
 @Component({
   selector: 'app-kanban',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, DragDropModule, TaskModalComponent, ConfirmModalComponent],
   templateUrl: `./kanban.component.html`,
   styleUrl: `./kanban.component.css`
 })
@@ -116,52 +107,116 @@ export class KanbanComponent {
     }
   ];
 
+  isTaskModalOpen = false;
+  isConfirmModalOpen = false;
+  isViewModalOpen = false;
+  selectedTask: Task | null = null;
+  taskToDelete: Task | null = null;
+
+  drop(event: CdkDragDrop<Task[]>) {
+    if (event.previousContainer === event.container) {
+      moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
+    } else {
+      transferArrayItem(
+        event.previousContainer.data,
+        event.container.data,
+        event.previousIndex,
+        event.currentIndex,
+      );
+      const movedTask = event.container.data[event.currentIndex];
+      movedTask.status = event.container.id;
+    }
+  }
+
+  openNewTaskModal(status: string) {
+    this.selectedTask = null;
+    this.isTaskModalOpen = true;
+  }
+
+  openEditTaskModal(task: Task) {
+    this.selectedTask = { ...task };
+    this.isTaskModalOpen = true;
+  }
+
+  openViewTaskModal(task: Task) {
+    this.selectedTask = { ...task };
+    this.isViewModalOpen = true;
+  }
+
+  closeTaskModal() {
+    this.isTaskModalOpen = false;
+    this.isViewModalOpen = false;
+    this.selectedTask = null;
+  }
+
+  handleTaskSaved(task: Task) {
+    const index = this.columns.flatMap(c => c.tasks).findIndex(t => t.id === task.id);
+    if (index > -1) {
+      this.columns.forEach(c => c.tasks = c.tasks.filter(t => t.id !== task.id));
+      const column = this.columns.find(c => c.id === task.status);
+      if (column) {
+        column.tasks.push(task);
+      }
+    } else {
+      const column = this.columns.find(c => c.id === task.status);
+      if (column) {
+        column.tasks.push(task);
+      }
+    }
+    this.closeTaskModal();
+  }
+
+  confirmDeleteTask(task: Task) {
+    this.taskToDelete = task;
+    this.isConfirmModalOpen = true;
+  }
+
+  deleteTaskConfirmed() {
+    if (this.taskToDelete) {
+      this.columns.forEach(c => c.tasks = c.tasks.filter(t => t.id !== this.taskToDelete!.id));
+    }
+    this.closeConfirmModal();
+  }
+
+  closeConfirmModal() {
+    this.isConfirmModalOpen = false;
+    this.taskToDelete = null;
+  }
+
   getTotalTasks(): number {
-    return this.columns.reduce((total, column) => total + column.tasks.length, 0);
+    return this.columns.reduce((acc, column) => acc + column.tasks.length, 0);
   }
 
   getTasksByStatus(status: string): Task[] {
-    const column = this.columns.find(col => col.id === status);
+    const column = this.columns.find(c => c.id === status);
     return column ? column.tasks : [];
   }
 
   getOverdueTasks(): Task[] {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    
-    return this.columns
-      .flatMap(column => column.tasks)
-      .filter(task => task.dueDate && task.dueDate < today && task.status !== 'concluido');
+    return this.columns.flatMap(c => c.tasks).filter(t => t.dueDate && new Date(t.dueDate) < today && t.status !== 'concluido');
   }
 
   getCompletionRate(): number {
-    const completed = this.getTasksByStatus('concluido').length;
     const total = this.getTotalTasks();
-    return total > 0 ? Math.round((completed / total) * 100) : 0;
+    if (total === 0) return 0;
+    const completed = this.getTasksByStatus('concluido').length;
+    return Math.round((completed / total) * 100);
   }
 
   isOverdue(task: Task): boolean {
-    if (!task.dueDate || task.status === 'concluido') return false;
-    
+    if (!task.dueDate) return false;
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    
-    return task.dueDate < today;
+    return new Date(task.dueDate) < today;
   }
 
-  moveTask(task: Task, newStatus: string): void {
-    // Remove task from current column
-    const currentColumn = this.columns.find(col => col.id === task.status);
-    if (currentColumn) {
-      const taskIndex = currentColumn.tasks.findIndex(t => t.id === task.id);
-      if (taskIndex > -1) {
-        currentColumn.tasks.splice(taskIndex, 1);
-      }
-    }
-
-    // Add task to new column
-    const newColumn = this.columns.find(col => col.id === newStatus);
-    if (newColumn) {
+  moveTask(task: Task, newStatus: string) {
+    const oldColumn = this.columns.find(c => c.id === task.status);
+    const newColumn = this.columns.find(c => c.id === newStatus);
+    if (oldColumn && newColumn) {
+      oldColumn.tasks = oldColumn.tasks.filter(t => t.id !== task.id);
       task.status = newStatus;
       newColumn.tasks.push(task);
     }

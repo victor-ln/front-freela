@@ -1,7 +1,7 @@
 <div class="social-networks-content">
   <div class="content-header">
     <h2>Redes Sociais dos Clientes</h2>
-    <button class="btn-primary">
+    <button class="btn-primary" (click)="openNewSocialNetworkModal()">
       <svg viewBox="0 0 24 24" fill="currentColor">
         <path d="M12 5v14m-7-7h14" />
       </svg>
@@ -65,7 +65,7 @@
           </td>
           <td>
             <div class="actions">
-              <button class="btn-icon" title="Editar">
+              <button class="btn-icon" title="Editar" (click)="openEditSocialNetworkModal(network)">
                 <svg viewBox="0 0 24 24" fill="currentColor">
                   <path
                     d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
@@ -75,7 +75,7 @@
                   />
                 </svg>
               </button>
-              <button class="btn-icon danger" title="Excluir">
+              <button class="btn-icon danger" title="Excluir" (click)="confirmDeleteSocialNetwork(network)">
                 <svg viewBox="0 0 24 24" fill="currentColor">
                   <path
                     d="M3 6h18m-2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
@@ -89,3 +89,18 @@
     </table>
   </div>
 </div>
+
+<app-social-network-modal
+  [isOpen]="isSocialNetworkModalOpen"
+  [socialNetwork]="selectedSocialNetwork"
+  (closed)="closeSocialNetworkModal()"
+  (socialNetworkSaved)="handleSocialNetworkSaved($event)">
+</app-social-network-modal>
+
+<app-confirm-modal
+  [isOpen]="isConfirmModalOpen"
+  title="Confirmar Exclusão"
+  message="Tem certeza que deseja excluir esta rede social?"
+  (confirmed)="deleteSocialNetworkConfirmed()"
+  (closed)="closeConfirmModal()">
+</app-confirm-modal>

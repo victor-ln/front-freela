@@ -57,4 +57,29 @@ export class ProfileComponent {
       .join('')
       .toUpperCase();
   }
+
+  changeAvatar() {
+    console.log('Alterar foto clicado');
+  }
+
+  changePassword() {
+    console.log('Alterar senha clicado');
+  }
+
+  deleteAccount() {
+    console.log('Excluir conta clicado');
+  }
+
+  cancelChanges() {
+    console.log('Cancelar alterações clicado');
+    // Here you would typically reset the form to its original state
+  }
+
+  saveChanges() {
+    console.log('Salvar alterações clicado', {
+      freelancerData: this.freelancerData,
+      settings: this.settings
+    });
+    // Here you would typically save the data to a backend service
+  }
 }

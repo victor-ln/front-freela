@@ -6,7 +6,7 @@
         Cadastre e gerencie seus clientes e suas redes sociais
       </p>
     </div>
-    <button class="btn-primary">
+    <button class="btn-primary" (click)="openNewClientModal()">
       <svg viewBox="0 0 24 24" fill="currentColor">
         <path d="M12 5v14m-7-7h14" />
       </svg>
@@ -44,7 +44,6 @@
   <div class="content-area">
     <router-outlet></router-outlet>
 
-    <!-- Conteúdo padrão quando nenhuma subrota está ativa -->
     <div class="clients-list" *ngIf="!hasActiveSubRoute()">
       <div class="filter-section">
         <div class="search-box">
@@ -98,7 +97,7 @@
               </td>
               <td>
                 <div class="actions">
-                  <button class="btn-icon" title="Editar">
+                  <button class="btn-icon" title="Editar" (click)="openEditClientModal(client)">
                     <svg viewBox="0 0 24 24" fill="currentColor">
                       <path
                         d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
@@ -108,13 +107,7 @@
                       />
                     </svg>
                   </button>
-                  <button class="btn-icon" title="Visualizar">
-                    <svg viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
-                      <circle cx="12" cy="12" r="3" />
-                    </svg>
-                  </button>
-                  <button class="btn-icon danger" title="Excluir">
+                  <button class="btn-icon danger" title="Excluir" (click)="confirmDeleteClient(client)">
                     <svg viewBox="0 0 24 24" fill="currentColor">
                       <path
                         d="M3 6h18m-2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
@@ -130,3 +123,18 @@
     </div>
   </div>
 </div>
+
+<app-client-modal
+  [isOpen]="isClientModalOpen"
+  [client]="selectedClient"
+  (closed)="closeClientModal()"
+  (clientSaved)="handleClientSaved($event)">
+</app-client-modal>
+
+<app-confirm-modal
+  [isOpen]="isConfirmModalOpen"
+  title="Confirmar Exclusão"
+  message="Tem certeza que deseja excluir este cliente?"
+  (confirmed)="deleteClientConfirmed()"
+  (closed)="closeConfirmModal()">
+</app-confirm-modal>

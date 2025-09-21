@@ -6,7 +6,7 @@
         Organize seus serviços por categorias para facilitar a gestão
       </p>
     </div>
-    <button class="btn-primary">
+    <button class="btn-primary" (click)="openNewCategoryModal()">
       <svg viewBox="0 0 24 24" fill="currentColor">
         <path d="M12 5v14m-7-7h14" />
       </svg>
@@ -21,7 +21,7 @@
           <i [innerHTML]="getCategoryIcon(category.type)"></i>
         </div>
         <div class="category-actions">
-          <button class="btn-icon" title="Editar">
+          <button class="btn-icon" title="Editar" (click)="openEditCategoryModal(category)">
             <svg viewBox="0 0 24 24" fill="currentColor">
               <path
                 d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
@@ -36,6 +36,7 @@
             [class.danger]="category.servicesCount === 0"
             [disabled]="category.servicesCount > 0"
             title="Excluir"
+            (click)="confirmDeleteCategory(category)"
           >
             <svg viewBox="0 0 24 24" fill="currentColor">
               <path
@@ -72,7 +73,7 @@
       </div>
     </div>
 
-    <div class="add-category-card">
+    <div class="add-category-card" (click)="openNewCategoryModal()">
       <div class="add-content">
         <div class="add-icon">
           <svg viewBox="0 0 24 24" fill="currentColor">
@@ -137,3 +138,18 @@
     </div>
   </div>
 </div>
+
+<app-category-modal
+  [isOpen]="isCategoryModalOpen"
+  [category]="selectedCategory"
+  (closed)="closeCategoryModal()"
+  (categorySaved)="handleCategorySaved($event)">
+</app-category-modal>
+
+<app-confirm-modal
+  [isOpen]="isConfirmModalOpen"
+  title="Confirmar Exclusão"
+  message="Tem certeza que deseja excluir esta categoria?"
+  (confirmed)="deleteCategoryConfirmed()"
+  (closed)="closeConfirmModal()">
+</app-confirm-modal>

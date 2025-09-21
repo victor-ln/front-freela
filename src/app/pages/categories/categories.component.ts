@@ -1,16 +1,19 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { CategoryModalComponent, Category } from '../../components/shared/category-modal/category-modal.component';
+import { ConfirmModalComponent } from '../../components/shared/confirm-modal/confirm-modal.component';
 
 @Component({
   selector: 'app-categories',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, CategoryModalComponent, ConfirmModalComponent],
   templateUrl: `categories.component.html`,
   styleUrl: `categories.component.css`
 })
 export class CategoriesComponent {
   mockCategories = [
     {
+      id: '1',
       type: 'Desenvolvimento',
       status: 'active',
       servicesCount: 8,
@@ -18,6 +21,7 @@ export class CategoriesComponent {
       recentServices: ['Website Corporativo', 'App Mobile', 'E-commerce']
     },
     {
+      id: '2',
       type: 'Design',
       status: 'active',
       servicesCount: 5,
@@ -25,6 +29,7 @@ export class CategoriesComponent {
       recentServices: ['Identidade Visual', 'UI/UX Design', 'Material Gráfico']
     },
     {
+      id: '3',
       type: 'Consultoria',
       status: 'active',
       servicesCount: 3,
@@ -32,6 +37,7 @@ export class CategoriesComponent {
       recentServices: ['Consultoria UX', 'Auditoria SEO']
     },
     {
+      id: '4',
       type: 'Marketing',
       status: 'inactive',
       servicesCount: 0,
@@ -39,6 +45,11 @@ export class CategoriesComponent {
       recentServices: []
     }
   ];
+
+  isCategoryModalOpen = false;
+  isConfirmModalOpen = false;
+  selectedCategory: Category | null = null;
+  categoryToDelete: any | null = null;
 
   getCategoryIcon(type: string): string {
     const icons: { [key: string]: string } = {
@@ -49,5 +60,49 @@ export class CategoriesComponent {
     };
     
     return icons[type] || '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg>';
+  }
+
+  openNewCategoryModal() {
+    this.selectedCategory = null;
+    this.isCategoryModalOpen = true;
+  }
+
+  openEditCategoryModal(category: any) {
+    this.selectedCategory = { ...category };
+    this.isCategoryModalOpen = true;
+  }
+
+  closeCategoryModal() {
+    this.isCategoryModalOpen = false;
+    this.selectedCategory = null;
+  }
+
+  handleCategorySaved(category: Category) {
+    if (this.selectedCategory?.id) {
+      const index = this.mockCategories.findIndex(c => c.id === category.id);
+      if (index > -1) {
+        this.mockCategories[index] = { ...this.mockCategories[index], ...category };
+      }
+    } else {
+      this.mockCategories.push({ ...category, servicesCount: 0, proposalsCount: 0, recentServices: [] });
+    }
+    this.closeCategoryModal();
+  }
+
+  confirmDeleteCategory(category: any) {
+    this.categoryToDelete = category;
+    this.isConfirmModalOpen = true;
+  }
+
+  deleteCategoryConfirmed() {
+    if (this.categoryToDelete) {
+      this.mockCategories = this.mockCategories.filter(c => c.id !== this.categoryToDelete!.id);
+    }
+    this.closeConfirmModal();
+  }
+
+  closeConfirmModal() {
+    this.isConfirmModalOpen = false;
+    this.categoryToDelete = null;
   }
 }

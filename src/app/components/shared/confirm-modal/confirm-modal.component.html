@@ -1,0 +1,52 @@
+<app-modal
+  [isOpen]="isOpen"
+  [title]="title"
+  size="sm"
+  (closed)="onModalClose()"
+>
+  <div class="confirm-content">
+    <div class="confirm-icon" [class]="type">
+      <svg *ngIf="type === 'danger'" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 9v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      <svg *ngIf="type === 'warning'" viewBox="0 0 24 24" fill="currentColor">
+        <path
+          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.96-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
+        />
+      </svg>
+      <svg *ngIf="type === 'info'" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+    </div>
+
+    <div class="confirm-text">
+      <h4 class="confirm-title">{{ confirmTitle }}</h4>
+      <p class="confirm-message">{{ message }}</p>
+
+      <div class="confirm-details" *ngIf="details">
+        <p class="details-text">{{ details }}</p>
+      </div>
+    </div>
+  </div>
+
+  <div slot="footer" class="modal-actions">
+    <button
+      type="button"
+      class="btn-secondary"
+      (click)="onCancel()"
+      [disabled]="isProcessing"
+    >
+      {{ cancelText }}
+    </button>
+    <button
+      type="button"
+      class="btn-confirm"
+      [class]="'btn-' + type"
+      (click)="onConfirm()"
+      [disabled]="isProcessing"
+    >
+      <span *ngIf="isProcessing" class="loading-spinner"></span>
+      {{ confirmText }}
+    </button>
+  </div>
+</app-modal>

@@ -1,0 +1,134 @@
+<app-modal
+  [isOpen]="isOpen"
+  [title]="socialNetwork?.id ? 'Editar Rede Social' : 'Nova Rede Social'"
+  size="lg"
+  (closed)="onModalClose()"
+>
+  <form
+    [formGroup]="socialNetworkForm"
+    (ngSubmit)="onSubmit()"
+    class="social-network-form"
+  >
+    <div class="form-grid">
+      <div class="form-group">
+        <label for="clientName">Cliente <span class="required">*</span></label>
+        <select
+          id="clientName"
+          formControlName="clientName"
+          class="form-select"
+          [class.error]="isFieldInvalid('clientName')"
+        >
+          <option value="">Selecione um cliente</option>
+          <option value="Empresa ABC Ltda">Empresa ABC Ltda</option>
+          <option value="Startup XYZ">Startup XYZ</option>
+          <option value="Loja 123">Loja 123</option>
+          <option value="Tech Inovação">Tech Inovação</option>
+          <option value="Moda Fashion">Moda Fashion</option>
+        </select>
+        <div class="error-message" *ngIf="isFieldInvalid('clientName')">
+          Cliente é obrigatório
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="type"
+          >Tipo de Rede Social <span class="required">*</span></label
+        >
+        <select
+          id="type"
+          formControlName="type"
+          class="form-select"
+          [class.error]="isFieldInvalid('type')"
+        >
+          <option value="">Selecione o tipo</option>
+          <option value="Facebook">Facebook</option>
+          <option value="Instagram">Instagram</option>
+          <option value="LinkedIn">LinkedIn</option>
+          <option value="Twitter">Twitter</option>
+          <option value="TikTok">TikTok</option>
+          <option value="YouTube">YouTube</option>
+          <option value="WhatsApp Business">WhatsApp Business</option>
+        </select>
+        <div class="error-message" *ngIf="isFieldInvalid('type')">
+          Tipo é obrigatório
+        </div>
+      </div>
+
+      <div class="form-group full-width">
+        <label for="name"
+          >Nome da Rede Social <span class="required">*</span></label
+        >
+        <input
+          type="text"
+          id="name"
+          formControlName="name"
+          class="form-input"
+          [class.error]="isFieldInvalid('name')"
+          placeholder="Ex: &#64;empresaabc, Empresa ABC Oficial"
+        />
+        <div class="error-message" *ngIf="isFieldInvalid('name')">
+          Nome é obrigatório
+        </div>
+      </div>
+
+      <div class="form-group full-width">
+        <label for="url"
+          >URL da Rede Social <span class="required">*</span></label
+        >
+        <input
+          type="url"
+          id="url"
+          formControlName="url"
+          class="form-input"
+          [class.error]="isFieldInvalid('url')"
+          placeholder="https://instagram.com/empresaabc"
+        />
+        <div class="error-message" *ngIf="isFieldInvalid('url')">
+          <span *ngIf="socialNetworkForm.get('url')?.errors?.['required']"
+            >URL é obrigatória</span
+          >
+          <span *ngIf="socialNetworkForm.get('url')?.errors?.['url']"
+            >URL deve ser válida</span
+          >
+        </div>
+      </div>
+    </div>
+
+    <div class="form-info">
+      <div class="info-icon">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <circle cx="12" cy="12" r="10" />
+          <path d="M12 16v-4M12 8h.01" />
+        </svg>
+      </div>
+      <div class="info-content">
+        <p><strong>Dicas para preenchimento:</strong></p>
+        <ul>
+          <li>
+            <strong>Nome:</strong> Use o nome de usuário ou nome da página (ex:
+            &#64;empresaabc)
+          </li>
+          <li>
+            <strong>URL:</strong> Cole o link completo da rede social do cliente
+          </li>
+          <li>Certifique-se de que a URL está correta e acessível</li>
+        </ul>
+      </div>
+    </div>
+  </form>
+
+  <div slot="footer" class="modal-actions">
+    <button type="button" class="btn-secondary" (click)="onCancel()">
+      Cancelar
+    </button>
+    <button
+      type="submit"
+      class="btn-primary"
+      (click)="onSubmit()"
+      [disabled]="socialNetworkForm.invalid || isSubmitting"
+    >
+      <span *ngIf="isSubmitting" class="loading-spinner"></span>
+      {{ socialNetwork?.id ? "Atualizar" : "Criar" }} Rede Social
+    </button>
+  </div>
+</app-modal>

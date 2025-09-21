@@ -6,7 +6,7 @@
         Cadastre e gerencie os serviços que você oferece aos seus clientes
       </p>
     </div>
-    <button class="btn-primary">
+    <button class="btn-primary" (click)="openNewServiceModal()">
       <svg viewBox="0 0 24 24" fill="currentColor">
         <path d="M12 5v14m-7-7h14" />
       </svg>
@@ -49,7 +49,7 @@
           </span>
         </div>
         <div class="service-actions">
-          <button class="btn-icon" title="Editar">
+          <button class="btn-icon" title="Editar" (click)="openEditServiceModal(service)">
             <svg viewBox="0 0 24 24" fill="currentColor">
               <path
                 d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
@@ -59,7 +59,7 @@
               />
             </svg>
           </button>
-          <button class="btn-icon danger" title="Excluir">
+          <button class="btn-icon danger" title="Excluir" (click)="confirmDeleteService(service)">
             <svg viewBox="0 0 24 24" fill="currentColor">
               <path
                 d="M3 6h18m-2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
@@ -83,7 +83,7 @@
           <div class="detail-row">
             <span class="detail-label">Template Base:</span>
             <span class="detail-value">{{
-              service.template || "Não definido"
+              service.templateBase || "Não definido"
             }}</span>
           </div>
         </div>
@@ -96,14 +96,10 @@
             service.basePrice | currency : "BRL" : "symbol" : "1.2-2"
           }}</span>
         </div>
-        <div class="service-usage">
-          <span class="usage-count">{{ service.proposalsCount }}</span>
-          <span class="usage-label">propostas</span>
-        </div>
       </div>
     </div>
 
-    <div class="add-service-card">
+    <div class="add-service-card" (click)="openNewServiceModal()">
       <div class="add-content">
         <div class="add-icon">
           <svg viewBox="0 0 24 24" fill="currentColor">
@@ -117,3 +113,18 @@
     </div>
   </div>
 </div>
+
+<app-service-modal
+  [isOpen]="isServiceModalOpen"
+  [service]="selectedService"
+  (closed)="closeServiceModal()"
+  (serviceSaved)="handleServiceSaved($event)">
+</app-service-modal>
+
+<app-confirm-modal
+  [isOpen]="isConfirmModalOpen"
+  title="Confirmar Exclusão"
+  message="Tem certeza que deseja excluir este serviço?"
+  (confirmed)="deleteServiceConfirmed()"
+  (closed)="closeConfirmModal()">
+</app-confirm-modal>

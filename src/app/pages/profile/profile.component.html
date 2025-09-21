@@ -15,7 +15,7 @@
           <div class="profile-avatar">
             <span class="avatar-initials">{{ getInitials() }}</span>
           </div>
-          <button class="btn-change-avatar">
+          <button class="btn-change-avatar" (click)="changeAvatar()">
             <svg viewBox="0 0 24 24" fill="currentColor">
               <path
                 d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"
@@ -83,7 +83,6 @@
       </div>
 
       <div class="tab-content">
-        <!-- Dados Pessoais -->
         <div *ngIf="activeTab === 'personal'" class="tab-panel">
           <h3>Informações Pessoais</h3>
           <form class="profile-form">
@@ -143,7 +142,6 @@
           </form>
         </div>
 
-        <!-- Endereço -->
         <div *ngIf="activeTab === 'address'" class="tab-panel">
           <h3>Endereço</h3>
           <form class="profile-form">
@@ -220,8 +218,7 @@
                   <option value="SP">São Paulo</option>
                   <option value="RJ">Rio de Janeiro</option>
                   <option value="MG">Minas Gerais</option>
-                  <!-- Adicionar outros estados -->
-                </select>
+                  </select>
               </div>
               <div class="form-group">
                 <label for="country">País</label>
@@ -239,7 +236,6 @@
           </form>
         </div>
 
-        <!-- Configurações -->
         <div *ngIf="activeTab === 'settings'" class="tab-panel">
           <h3>Configurações</h3>
           <div class="settings-section">
@@ -324,7 +320,6 @@
           </div>
         </div>
 
-        <!-- Segurança -->
         <div *ngIf="activeTab === 'security'" class="tab-panel">
           <h3>Segurança</h3>
           <div class="security-section">
@@ -350,7 +345,7 @@
                   class="form-input"
                 />
               </div>
-              <button type="button" class="btn-secondary">Alterar Senha</button>
+              <button type="button" class="btn-secondary" (click)="changePassword()">Alterar Senha</button>
             </form>
           </div>
 
@@ -373,7 +368,7 @@
           <div class="security-section danger">
             <h4>Zona de Perigo</h4>
             <div class="danger-actions">
-              <button class="btn-danger">Excluir Conta</button>
+              <button class="btn-danger" (click)="deleteAccount()">Excluir Conta</button>
               <p class="danger-description">
                 Esta ação é irreversível. Todos os seus dados serão
                 permanentemente removidos.
@@ -384,8 +379,8 @@
       </div>
 
       <div class="form-actions">
-        <button class="btn-secondary">Cancelar</button>
-        <button class="btn-primary">Salvar Alterações</button>
+        <button class="btn-secondary" (click)="cancelChanges()">Cancelar</button>
+        <button class="btn-primary" (click)="saveChanges()">Salvar Alterações</button>
       </div>
     </div>
   </div>

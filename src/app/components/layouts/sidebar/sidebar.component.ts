@@ -32,6 +32,7 @@ interface MenuItem {
 export class SidebarComponent {
   menuItems: MenuItem[] = [
     // Usamos os nomes dos ícones em "kebab-case" (tudo minúsculo e separado por traço)
+    { title: 'Dashboard', route: '/dashboard', icon: 'layout-dashboard' },
     { title: 'Tasks', route: '/kanban', icon: 'trello' },
     { title: 'Clientes', route: '/clients', icon: 'users' },
     { title: 'Serviços/Produtos', route: '/services', icon: 'briefcase' },

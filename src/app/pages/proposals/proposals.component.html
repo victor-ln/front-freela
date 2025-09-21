@@ -4,7 +4,7 @@
       <h1>Gerenciamento de Propostas</h1>
       <p class="subtitle">Crie, gerencie e acompanhe suas propostas comerciais</p>
     </div>
-    <button class="btn-primary">
+    <button class="btn-primary" (click)="openNewProposalModal()">
       <svg viewBox="0 0 24 24" fill="currentColor">
         <path d="M12 5v14m-7-7h14"/>
       </svg>
@@ -95,33 +95,34 @@
       <div class="proposal-header">
         <div class="proposal-info">
           <h3>{{ proposal.title }}</h3>
-          <p class="client-name">{{ proposal.client }}</p>
+          <p class="client-name">{{ proposal.clientName }}</p>
         </div>
         <div class="proposal-status-actions">
           <span class="status" [class]="proposal.status">
             {{ getStatusLabel(proposal.status) }}
           </span>
           <div class="proposal-actions">
-            <button *ngIf="proposal.status === 'pending'" 
-                    class="btn-icon" 
-                    title="Marcar como Aceita">
+            <button *ngIf="proposal.status === 'pending'"
+                    class="btn-icon"
+                    title="Marcar como Aceita"
+                    (click)="markAsAccepted(proposal)">
               <svg viewBox="0 0 24 24" fill="currentColor">
                 <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
               </svg>
             </button>
-            <button class="btn-icon" title="Editar">
+            <button class="btn-icon" title="Editar" (click)="openEditProposalModal(proposal)">
               <svg viewBox="0 0 24 24" fill="currentColor">
                 <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
                 <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
               </svg>
             </button>
-            <button class="btn-icon" title="Visualizar">
+            <button class="btn-icon" title="Visualizar" (click)="openViewProposalModal(proposal)">
               <svg viewBox="0 0 24 24" fill="currentColor">
                 <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
                 <circle cx="12" cy="12" r="3"/>
               </svg>
             </button>
-            <button class="btn-icon danger" title="Excluir">
+            <button class="btn-icon danger" title="Excluir" (click)="confirmDeleteProposal(proposal)">
               <svg viewBox="0 0 24 24" fill="currentColor">
                 <path d="M3 6h18m-2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
               </svg>
@@ -132,7 +133,7 @@
 
       <div class="proposal-content">
         <p class="proposal-description">{{ proposal.description }}</p>
-        
+
         <div class="proposal-services">
           <h4>Serviços Incluídos:</h4>
           <div class="services-list">
@@ -170,7 +171,7 @@
           <span class="value-amount">{{ proposal.totalValue | currency:'BRL':'symbol':'1.2-2' }}</span>
         </div>
         <div class="proposal-contract" *ngIf="proposal.status === 'accepted'">
-          <button class="btn-contract">
+          <button class="btn-contract" (click)="generateContract(proposal)">
             <svg viewBox="0 0 24 24" fill="currentColor">
               <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
               <polyline points="14,2 14,8 20,8"/>
@@ -211,3 +212,25 @@
     </div>
   </div>
 </div>
+
+<app-proposal-modal
+  [isOpen]="isProposalModalOpen"
+  [proposal]="selectedProposal"
+  (closed)="closeProposalModal()"
+  (proposalSaved)="handleProposalSaved($event)">
+</app-proposal-modal>
+
+<app-proposal-modal
+  [isOpen]="isViewModalOpen"
+  [proposal]="selectedProposal"
+  [isViewMode]="true"
+  (closed)="closeProposalModal()">
+</app-proposal-modal>
+
+<app-confirm-modal
+  [isOpen]="isConfirmModalOpen"
+  title="Confirmar Exclusão"
+  message="Tem certeza que deseja excluir esta proposta?"
+  (confirmed)="deleteProposalConfirmed()"
+  (closed)="closeConfirmModal()">
+</app-confirm-modal>

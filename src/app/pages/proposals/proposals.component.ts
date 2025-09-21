@@ -1,21 +1,24 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ProposalModalComponent, Proposal } from '../../components/shared/proposal/proposal.component';
+import { ConfirmModalComponent } from '../../components/shared/confirm-modal/confirm-modal.component';
 
 @Component({
   selector: 'app-proposals',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ProposalModalComponent, ConfirmModalComponent],
   templateUrl: './proposals.component.html',
   styleUrls: ['./proposals.component.css']
 })
 export class ProposalsComponent {
   selectedStatus = '';
 
-  mockProposals = [
+  mockProposals: Proposal[] = [
     {
+      id: '1',
       title: 'Website Corporativo - Empresa ABC',
-      client: 'Empresa ABC Ltda',
+      clientName: 'Empresa ABC Ltda',
       description: 'Desenvolvimento de website institucional responsivo com sistema de gerenciamento de conteúdo.',
       services: ['Desenvolvimento Web', 'Design Responsivo', 'CMS'],
       template: 'Contrato Desenvolvimento Web',
@@ -26,8 +29,9 @@ export class ProposalsComponent {
       acceptedAt: new Date('2024-01-18')
     },
     {
+      id: '2',
       title: 'Aplicativo Mobile - Startup XYZ',
-      client: 'Startup XYZ',
+      clientName: 'Startup XYZ',
       description: 'Desenvolvimento de aplicativo nativo para iOS e Android com funcionalidades de e-commerce.',
       services: ['App iOS', 'App Android', 'Backend API'],
       template: 'Contrato App Mobile',
@@ -35,11 +39,11 @@ export class ProposalsComponent {
       status: 'pending',
       createdAt: new Date('2024-02-01'),
       updatedAt: new Date('2024-02-05'),
-      acceptedAt: null
     },
     {
+      id: '3',
       title: 'Identidade Visual - Loja 123',
-      client: 'Loja 123',
+      clientName: 'Loja 123',
       description: 'Criação completa de identidade visual incluindo logotipo, paleta de cores e manual de marca.',
       services: ['Design de Logo', 'Identidade Visual', 'Manual de Marca'],
       template: 'Contrato Design Gráfico',
@@ -47,23 +51,22 @@ export class ProposalsComponent {
       status: 'negotiation',
       createdAt: new Date('2024-01-28'),
       updatedAt: new Date('2024-02-08'),
-      acceptedAt: null
     },
     {
+      id: '4',
       title: 'E-commerce Completo - Moda Fashion',
-      client: 'Moda Fashion',
+      clientName: 'Moda Fashion',
       description: 'Loja virtual completa com sistema de pagamento integrado e painel administrativo.',
       services: ['E-commerce', 'Gateway Pagamento', 'Painel Admin'],
-      template: null,
       totalValue: 25000,
       status: 'rejected',
       createdAt: new Date('2024-01-10'),
       updatedAt: new Date('2024-01-25'),
-      acceptedAt: null
     },
     {
+      id: '5',
       title: 'Consultoria UX - Tech Inovação',
-      client: 'Tech Inovação',
+      clientName: 'Tech Inovação',
       description: 'Auditoria de UX e recomendações para melhoria da experiência do usuário.',
       services: ['Auditoria UX', 'Prototipação', 'Relatório de Melhorias'],
       template: 'Contrato Consultoria',
@@ -74,6 +77,12 @@ export class ProposalsComponent {
       acceptedAt: new Date('2024-01-28')
     }
   ];
+
+  isProposalModalOpen = false;
+  isConfirmModalOpen = false;
+  isViewModalOpen = false;
+  selectedProposal: Proposal | null = null;
+  proposalToDelete: Proposal | null = null;
 
   getProposalsByStatus(status: string) {
     return this.mockProposals.filter(proposal => proposal.status === status);
@@ -103,11 +112,68 @@ export class ProposalsComponent {
   getConversionRate(): number {
     const accepted = this.getProposalsByStatus('accepted').length;
     const total = this.mockProposals.length;
-    return Math.round((accepted / total) * 100);
+    return total > 0 ? Math.round((accepted / total) * 100) : 0;
   }
 
   getAverageValue(): number {
     const total = this.getTotalValue();
-    return total / this.mockProposals.length;
+    return this.mockProposals.length > 0 ? total / this.mockProposals.length : 0;
+  }
+
+  markAsAccepted(proposal: Proposal) {
+    proposal.status = 'accepted';
+    proposal.acceptedAt = new Date();
+  }
+
+  openNewProposalModal() {
+    this.selectedProposal = null;
+    this.isProposalModalOpen = true;
+  }
+
+  openEditProposalModal(proposal: Proposal) {
+    this.selectedProposal = { ...proposal };
+    this.isProposalModalOpen = true;
+  }
+
+  openViewProposalModal(proposal: Proposal) {
+    this.selectedProposal = { ...proposal };
+    this.isViewModalOpen = true;
+  }
+
+  closeProposalModal() {
+    this.isProposalModalOpen = false;
+    this.isViewModalOpen = false;
+    this.selectedProposal = null;
+  }
+
+  handleProposalSaved(proposal: Proposal) {
+    const index = this.mockProposals.findIndex(p => p.id === proposal.id);
+    if (index > -1) {
+      this.mockProposals[index] = proposal;
+    } else {
+      this.mockProposals.push(proposal);
+    }
+    this.closeProposalModal();
+  }
+
+  confirmDeleteProposal(proposal: Proposal) {
+    this.proposalToDelete = proposal;
+    this.isConfirmModalOpen = true;
+  }
+
+  deleteProposalConfirmed() {
+    if (this.proposalToDelete) {
+      this.mockProposals = this.mockProposals.filter(p => p.id !== this.proposalToDelete!.id);
+    }
+    this.closeConfirmModal();
+  }
+
+  closeConfirmModal() {
+    this.isConfirmModalOpen = false;
+    this.proposalToDelete = null;
+  }
+
+  generateContract(proposal: Proposal) {
+    console.log(`Gerando contrato para a proposta: ${proposal.title}`);
   }
 }

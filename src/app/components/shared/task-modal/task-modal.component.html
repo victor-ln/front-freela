@@ -1,0 +1,133 @@
+<app-modal
+  [isOpen]="isOpen"
+  [title]="isViewMode ? 'Visualizar Tarefa' : (task?.id ? 'Editar Tarefa' : 'Nova Tarefa')"
+  size="lg"
+  (closed)="onModalClose()"
+>
+  <form [formGroup]="taskForm" (ngSubmit)="onSubmit()" class="task-form">
+    <div class="form-grid">
+      <div class="form-group full-width">
+        <label for="title">
+          Título da Tarefa <span class="required">*</span>
+        </label>
+        <input
+          type="text"
+          id="title"
+          formControlName="title"
+          class="form-input"
+          [class.error]="isFieldInvalid('title')"
+          placeholder="Digite o título da tarefa"
+        />
+        <div class="error-message" *ngIf="isFieldInvalid('title')">
+          Título é obrigatório
+        </div>
+      </div>
+
+      <div class="form-group full-width">
+        <label for="description">Descrição</label>
+        <textarea
+          id="description"
+          formControlName="description"
+          class="form-textarea"
+          rows="3"
+          placeholder="Descreva os detalhes da tarefa"
+        ></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="client"> Cliente <span class="required">*</span> </label>
+        <select
+          id="client"
+          formControlName="client"
+          class="form-select"
+          [class.error]="isFieldInvalid('client')"
+        >
+          <option value="">Selecione um cliente</option>
+          <option value="Empresa ABC">Empresa ABC</option>
+          <option value="Startup XYZ">Startup XYZ</option>
+          <option value="Loja 123">Loja 123</option>
+          <option value="Tech Inovação">Tech Inovação</option>
+          <option value="Moda Fashion">Moda Fashion</option>
+        </select>
+        <div class="error-message" *ngIf="isFieldInvalid('client')">
+          Cliente é obrigatório
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="proposal">
+          Proposta/Projeto <span class="required">*</span>
+        </label>
+        <select
+          id="proposal"
+          formControlName="proposal"
+          class="form-select"
+          [class.error]="isFieldInvalid('proposal')"
+        >
+          <option value="">Selecione uma proposta</option>
+          <option value="Website Corporativo">Website Corporativo</option>
+          <option value="App Mobile">App Mobile</option>
+          <option value="Consultoria UX">Consultoria UX</option>
+          <option value="E-commerce">E-commerce</option>
+          <option value="Identidade Visual">Identidade Visual</option>
+        </select>
+        <div class="error-message" *ngIf="isFieldInvalid('proposal')">
+          Proposta é obrigatória
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="priority">Prioridade</label>
+        <select id="priority" formControlName="priority" class="form-select">
+          <option value="low">Baixa</option>
+          <option value="medium">Média</option>
+          <option value="high">Alta</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="status">Status</label>
+        <select id="status" formControlName="status" class="form-select">
+          <option value="a-fazer">A Fazer</option>
+          <option value="em-progresso">Em Progresso</option>
+          <option value="concluido">Concluído</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="startDate">Data de Início</label>
+        <input
+          type="date"
+          id="startDate"
+          formControlName="startDate"
+          class="form-input"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="dueDate">Data de Entrega</label>
+        <input
+          type="date"
+          id="dueDate"
+          formControlName="dueDate"
+          class="form-input"
+        />
+      </div>
+    </div>
+  </form>
+
+  <div slot="footer" class="modal-actions" *ngIf="!isViewMode">
+    <button type="button" class="btn-secondary" (click)="onCancel()">
+      Cancelar
+    </button>
+    <button
+      type="submit"
+      class="btn-primary"
+      (click)="onSubmit()"
+      [disabled]="taskForm.invalid || isSubmitting"
+    >
+      <span *ngIf="isSubmitting" class="loading-spinner"></span>
+      {{ task?.id ? "Atualizar" : "Criar" }} Tarefa
+    </button>
+  </div>
+</app-modal>
