@@ -385,3 +385,12 @@
     </div>
   </div>
 </div>
+
+<app-confirm-modal
+  [isOpen]="isConfirmModalOpen"
+  title="Confirmar Exclusão da Conta"
+  message="Tem certeza que deseja excluir sua conta? Todos os seus dados, incluindo clientes, propostas e serviços, serão perdidos permanentemente."
+  confirmText="Sim, excluir minha conta"
+  (confirmed)="deleteAccountConfirmed()"
+  (closed)="closeConfirmModal()">
+</app-confirm-modal>

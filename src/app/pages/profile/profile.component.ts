@@ -1,15 +1,18 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ConfirmModalComponent } from '../../components/shared/confirm-modal/confirm-modal.component';
 
 @Component({
-    selector: 'app-profile',
-    imports: [CommonModule, FormsModule],
-    templateUrl: `./profile.component.html`,
-    styleUrl: `./profile.component.css`
+  selector: 'app-profile',
+  standalone: true,
+  imports: [CommonModule, FormsModule, ConfirmModalComponent],
+  templateUrl: `./profile.component.html`,
+  styleUrl: `./profile.component.css`
 })
 export class ProfileComponent {
   activeTab = 'personal';
+  isConfirmModalOpen = false;
 
   freelancerData = {
     name: 'João Silva',
@@ -66,12 +69,20 @@ export class ProfileComponent {
   }
 
   deleteAccount() {
-    console.log('Excluir conta clicado');
+    this.isConfirmModalOpen = true;
+  }
+
+  deleteAccountConfirmed() {
+    console.log('Exclusão de conta confirmada');
+    this.closeConfirmModal();
+  }
+
+  closeConfirmModal() {
+    this.isConfirmModalOpen = false;
   }
 
   cancelChanges() {
     console.log('Cancelar alterações clicado');
-    // Here you would typically reset the form to its original state
   }
 
   saveChanges() {
@@ -79,6 +90,5 @@ export class ProfileComponent {
       freelancerData: this.freelancerData,
       settings: this.settings
     });
-    // Here you would typically save the data to a backend service
   }
 }
