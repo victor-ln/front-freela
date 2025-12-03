@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://sua-api-em-producao.com/api',
+  apiUrl: 'https://localhost:3000/api',
 };

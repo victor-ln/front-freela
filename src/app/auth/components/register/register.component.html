@@ -1,0 +1,44 @@
+<div class="auth-container">
+  <div class="auth-card">
+    <div class="auth-header">
+      <img src="assets/freelaflow.png" alt="FreelaFlow Logo" class="logo" />
+      <h2>Crie sua Conta</h2>
+      <p>Comece a gerenciar seus projetos com eficiência.</p>
+    </div>
+
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="auth-form">
+      <div class="form-group">
+        <label for="nome">Nome Completo</label>
+        <input type="text" id="nome" formControlName="nome" class="form-input" placeholder="Seu nome completo" />
+      </div>
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" formControlName="email" class="form-input" placeholder="seu@email.com" />
+      </div>
+       <div class="form-group">
+        <label for="cpfCnpj">CPF/CNPJ</label>
+        <input type="text" id="cpfCnpj" formControlName="cpfCnpj" class="form-input" placeholder="Seu documento" />
+      </div>
+      <div class="form-group">
+        <label for="senha">Senha</label>
+        <input type="password" id="senha" formControlName="senha" class="form-input" placeholder="Mínimo 6 caracteres" />
+      </div>
+
+      <div *ngIf="errorMessage" class="error-message">
+        {{ errorMessage }}
+      </div>
+       <div *ngIf="successMessage" class="success-message">
+        {{ successMessage }}
+      </div>
+
+      <button type="submit" class="btn-primary" [disabled]="registerForm.invalid || isSubmitting">
+        <span *ngIf="!isSubmitting">Criar Conta</span>
+        <span *ngIf="isSubmitting" class="loading-spinner"></span>
+      </button>
+    </form>
+
+    <div class="auth-footer">
+      <p>Já tem uma conta? <a routerLink="/login">Faça login</a></p>
+    </div>
+  </div>
+</div>

@@ -1,7 +1,8 @@
 import { ApplicationConfig, importProvidersFrom } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { routes } from './app.routes';
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { JwtInterceptor } from './core/interceptors/jwt.interceptor';
 
 import {
   LucideAngularModule,
@@ -20,7 +21,8 @@ import {
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes),
-    provideHttpClient(),
+    provideHttpClient(withInterceptors([(req, next) => next(req)])),
+    JwtInterceptor,
 
     importProvidersFrom(
       LucideAngularModule.pick({
@@ -35,6 +37,6 @@ export const appConfig: ApplicationConfig = {
         ChevronDown,
         History,
       })
-    )
-  ]
+    ),
+  ],
 };
