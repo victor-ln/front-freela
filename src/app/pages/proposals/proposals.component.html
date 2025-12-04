@@ -66,7 +66,7 @@
   </div>
 
   <app-filter-bar
-    [data]="mockProposals"
+    [data]="proposals"
     [searchFields]="searchFields"
     [selectFilters]="selectFilters"
     searchPlaceholder="Buscar por título, cliente ou descrição..."
@@ -166,7 +166,7 @@
     </div>
   </div>
 
-  <div class="proposals-insights" *ngIf="mockProposals.length > 0">
+  <div class="proposals-insights" *ngIf="proposals.length > 0">
     <div class="insights-header">
       <h2>Insights das Propostas</h2>
     </div>

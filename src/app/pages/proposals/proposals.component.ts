@@ -77,9 +77,9 @@ export class ProposalsComponent implements OnInit {
   private mapProposalFromApi(proposalDto: ProposalResponseDto): Proposal {
     const statusMap: Record<ProposalStatus, string> = {
       [ProposalStatus.PENDING]: 'pending',
+      [ProposalStatus.SENT]: 'pending',
+      [ProposalStatus.CANCELED]: 'rejected',
       [ProposalStatus.ACCEPTED]: 'accepted',
-      [ProposalStatus.REJECTED]: 'rejected',
-      [ProposalStatus.IN_NEGOTIATION]: 'negotiation',
     };
 
     return {

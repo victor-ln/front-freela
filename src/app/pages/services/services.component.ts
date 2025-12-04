@@ -89,7 +89,7 @@ export class ServicesComponent implements OnInit {
       timeUnit: serviceDto.unidadeTempoEntrega,
       templateBase: serviceDto.templateBase?.nome || '',
       basePrice: serviceDto.precoBase,
-      status: serviceDto.status === ServiceStatus.ACTIVE ? 'active' : 'inactive',
+      status: serviceDto.status === ServiceStatus.ATIVO ? 'active' : 'inactive',
     };
   }
 
@@ -123,7 +123,7 @@ export class ServicesComponent implements OnInit {
       unidadeTempoEntrega: service.timeUnit as TimeUnit,
       templateBaseId: service.templateBaseId || 1, // TODO: Ajustar modal
       precoBase: service.basePrice,
-      status: service.status === 'active' ? ServiceStatus.ACTIVE : ServiceStatus.INACTIVE,
+      status: service.status === 'active' ? ServiceStatus.ATIVO : ServiceStatus.INATIVO,
     };
 
     if (service.id && service.id !== 'new') {

@@ -47,7 +47,7 @@
     <div class="clients-list" *ngIf="!hasActiveSubRoute()">
       
       <app-filter-bar
-        [data]="mockClients"
+        [data]="clients"
         [searchFields]="searchFields"
         [selectFilters]="selectFilters"
         searchPlaceholder="Buscar por nome, e-mail, documento..."
