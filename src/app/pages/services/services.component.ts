@@ -9,6 +9,10 @@ import {
   FilterBarComponent,
   SelectFilter,
 } from '../../components/shared/filter-bar/filter-bar.component';
+import { ServiceService } from '../../core/services/service.service';
+import { ServiceResponseDto } from '../../core/dto/service.dto';
+import { ServiceStatus } from '../../core/enums/service-status.enum';
+import { TimeUnit } from '../../core/enums/time-unit.enum';
 
 @Component({
   selector: 'app-services',
@@ -23,70 +27,9 @@ import {
   styleUrls: [`./services.component.css`],
 })
 export class ServicesComponent implements OnInit {
-  mockServices: Service[] = [
-    {
-      id: '1',
-      name: 'Desenvolvimento de Website',
-      description:
-        'Criação de websites responsivos e modernos com as melhores tecnologias do mercado.',
-      category: 'Desenvolvimento',
-      deliveryTime: 15,
-      timeUnit: 'dias',
-      templateBase: 'Contrato Desenvolvimento Web',
-      basePrice: 5500,
-      status: 'active',
-    },
-    {
-      id: '2',
-      name: 'Design de Identidade Visual',
-      description:
-        'Criação completa de identidade visual incluindo logo, cores, tipografia e manual de marca.',
-      category: 'Design',
-      deliveryTime: 10,
-      timeUnit: 'dias',
-      templateBase: 'Contrato Design Gráfico',
-      basePrice: 2800,
-      status: 'active',
-    },
-    {
-      id: '3',
-      name: 'Aplicativo Mobile',
-      description:
-        'Desenvolvimento de aplicativos nativos para iOS e Android com design moderno.',
-      category: 'Desenvolvimento',
-      deliveryTime: 30,
-      timeUnit: 'dias',
-      templateBase: 'Contrato App Mobile',
-      basePrice: 12000,
-      status: 'active',
-    },
-    {
-      id: '4',
-      name: 'Consultoria em UX',
-      description:
-        'Análise e otimização da experiência do usuário em produtos digitais.',
-      category: 'Consultoria',
-      deliveryTime: 5,
-      timeUnit: 'dias',
-      templateBase: 'Contrato Consultoria',
-      basePrice: 3500,
-      status: 'active',
-    },
-    {
-      id: '5',
-      name: 'E-commerce Completo',
-      description:
-        'Loja virtual completa com sistema de pagamento, gestão de produtos e painel administrativo.',
-      category: 'Desenvolvimento',
-      deliveryTime: 45,
-      timeUnit: 'dias',
-      templateBase: '',
-      basePrice: 18000,
-      status: 'inactive',
-    },
-  ];
-
+  services: Service[] = [];
   filteredServices: Service[] = [];
+  isLoading = false;
 
   // Configuração para o FilterBarComponent
   searchFields: (keyof Service)[] = ['name', 'description'];
@@ -115,8 +58,39 @@ export class ServicesComponent implements OnInit {
   selectedService: Service | null = null;
   serviceToDelete: Service | null = null;
 
+  constructor(private serviceService: ServiceService) {}
+
   ngOnInit(): void {
-    this.filteredServices = [...this.mockServices];
+    this.loadServices();
+  }
+
+  loadServices(): void {
+    this.isLoading = true;
+    this.serviceService.findAll({ page: 1, limit: 100 }).subscribe({
+      next: (response) => {
+        this.services = response.data.map(this.mapServiceFromApi);
+        this.filteredServices = [...this.services];
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Erro ao carregar serviços:', error);
+        this.isLoading = false;
+      }
+    });
+  }
+
+  private mapServiceFromApi(serviceDto: ServiceResponseDto): Service {
+    return {
+      id: serviceDto.id.toString(),
+      name: serviceDto.nome,
+      description: serviceDto.descricao,
+      category: serviceDto.categoria.tipo,
+      deliveryTime: serviceDto.prazoEntrega,
+      timeUnit: serviceDto.unidadeTempoEntrega,
+      templateBase: serviceDto.templateBase?.nome || '',
+      basePrice: serviceDto.precoBase,
+      status: serviceDto.status === ServiceStatus.ACTIVE ? 'active' : 'inactive',
+    };
   }
 
   handleFilteredData(data: Service[]): void {
@@ -138,15 +112,44 @@ export class ServicesComponent implements OnInit {
     this.selectedService = null;
   }
 
-  handleServiceSaved(service: Service) {
-    const index = this.mockServices.findIndex((s) => s.id === service.id);
-    if (index > -1) {
-      this.mockServices[index] = service;
+  handleServiceSaved(service: any) {
+    // TODO: O modal precisa enviar categoriaId e templateBaseId ao invés de strings
+    // Por enquanto, esta implementação espera que o modal já envie os dados corretos
+    const serviceDto = {
+      nome: service.name,
+      descricao: service.description,
+      categoriaId: service.categoryId || parseInt(service.category), // TODO: Ajustar modal
+      prazoEntrega: service.deliveryTime,
+      unidadeTempoEntrega: service.timeUnit as TimeUnit,
+      templateBaseId: service.templateBaseId || 1, // TODO: Ajustar modal
+      precoBase: service.basePrice,
+      status: service.status === 'active' ? ServiceStatus.ACTIVE : ServiceStatus.INACTIVE,
+    };
+
+    if (service.id && service.id !== 'new') {
+      // Atualizar serviço existente
+      const id = parseInt(service.id);
+      this.serviceService.update(id, serviceDto).subscribe({
+        next: () => {
+          this.loadServices();
+          this.closeServiceModal();
+        },
+        error: (error) => {
+          console.error('Erro ao atualizar serviço:', error);
+        }
+      });
     } else {
-      this.mockServices.unshift(service);
+      // Criar novo serviço
+      this.serviceService.create(serviceDto).subscribe({
+        next: () => {
+          this.loadServices();
+          this.closeServiceModal();
+        },
+        error: (error) => {
+          console.error('Erro ao criar serviço:', error);
+        }
+      });
     }
-    this.handleFilteredData(this.mockServices);
-    this.closeServiceModal();
   }
 
   confirmDeleteService(service: Service) {
@@ -155,13 +158,19 @@ export class ServicesComponent implements OnInit {
   }
 
   deleteServiceConfirmed() {
-    if (this.serviceToDelete) {
-      this.mockServices = this.mockServices.filter(
-        (s) => s.id !== this.serviceToDelete!.id
-      );
-      this.handleFilteredData(this.mockServices);
+    if (this.serviceToDelete && this.serviceToDelete.id) {
+      const id = parseInt(this.serviceToDelete.id);
+      this.serviceService.remove(id).subscribe({
+        next: () => {
+          this.loadServices();
+          this.closeConfirmModal();
+        },
+        error: (error) => {
+          console.error('Erro ao deletar serviço:', error);
+          this.closeConfirmModal();
+        }
+      });
     }
-    this.closeConfirmModal();
   }
 
   closeConfirmModal() {

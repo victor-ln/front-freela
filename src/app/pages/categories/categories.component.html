@@ -15,10 +15,14 @@
   </div>
 
   <div class="categories-grid">
-    <div *ngFor="let category of mockCategories" class="category-card">
+    <div *ngIf="isLoading" class="loading-message">
+      Carregando categorias...
+    </div>
+
+    <div *ngFor="let category of categories" class="category-card">
       <div class="category-header">
-        <div class="category-icon" [class]="category.type.toLowerCase()">
-          <i [innerHTML]="getCategoryIcon(category.type)"></i>
+        <div class="category-icon" [class]="category.tipo.toLowerCase()">
+          <i [innerHTML]="getCategoryIcon(category.tipo)"></i>
         </div>
         <div class="category-actions">
           <button class="btn-icon" title="Editar" (click)="openEditCategoryModal(category)">
@@ -32,9 +36,7 @@
             </svg>
           </button>
           <button
-            class="btn-icon"
-            [class.danger]="category.servicesCount === 0"
-            [disabled]="category.servicesCount > 0"
+            class="btn-icon danger"
             title="Excluir"
             (click)="confirmDeleteCategory(category)"
           >
@@ -48,28 +50,10 @@
       </div>
 
       <div class="category-content">
-        <h3>{{ category.type }}</h3>
-        <span class="status" [class]="category.status">
-          {{ category.status === "active" ? "Ativo" : "Inativo" }}
+        <h3>{{ category.tipo }}</h3>
+        <span class="status" [class]="category.status ? 'active' : 'inactive'">
+          {{ category.status ? "Ativo" : "Inativo" }}
         </span>
-      </div>
-
-      <div class="category-stats">
-        <div class="stat">
-          <span class="stat-number">{{ category.servicesCount }}</span>
-          <span class="stat-label">Serviços</span>
-        </div>
-        <div class="stat">
-          <span class="stat-number">{{ category.proposalsCount }}</span>
-          <span class="stat-label">Propostas</span>
-        </div>
-      </div>
-
-      <div class="category-services" *ngIf="category.recentServices.length > 0">
-        <h4>Serviços Recentes:</h4>
-        <ul>
-          <li *ngFor="let service of category.recentServices">{{ service }}</li>
-        </ul>
       </div>
     </div>
 

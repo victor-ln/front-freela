@@ -16,6 +16,8 @@ import {
   FilterBarComponent,
   SelectFilter,
 } from '../../components/shared/filter-bar/filter-bar.component';
+import { ClientService } from '../../core/services/client.service';
+import { ClientResponseDto } from '../../core/dto/client.dto';
 
 @Component({
   selector: 'app-clients',
@@ -34,65 +36,9 @@ import {
   styleUrls: [`./clients.component.css`],
 })
 export class ClientsComponent implements OnInit {
-  mockClients: Client[] = [
-    {
-      id: '1',
-      status: 'active',
-      name: 'Empresa ABC Ltda',
-      responsible: 'João Silva',
-      phone: '(11) 99999-8888',
-      document: '12.345.678/0001-90',
-      email: 'joao@empresaabc.com',
-      address: {
-        cep: '01234-567',
-        street: 'Rua das Flores',
-        number: '123',
-        complement: 'Sala 45',
-        neighborhood: 'Centro',
-        city: 'São Paulo',
-        state: 'SP',
-        country: 'Brasil',
-      },
-    },
-    {
-      id: '2',
-      status: 'active',
-      name: 'Startup XYZ',
-      responsible: 'Maria Santos',
-      phone: '(11) 88888-7777',
-      document: '98.765.432/0001-10',
-      email: 'maria@startupxyz.com',
-      address: {
-        cep: '04567-890',
-        street: 'Avenida Paulista',
-        number: '456',
-        neighborhood: 'Bela Vista',
-        city: 'São Paulo',
-        state: 'SP',
-        country: 'Brasil',
-      },
-    },
-    {
-      id: '3',
-      status: 'inactive',
-      name: 'Loja 123',
-      responsible: 'Pedro Costa',
-      phone: '(11) 77777-6666',
-      document: '456.789.123-45',
-      email: 'pedro@loja123.com',
-      address: {
-        cep: '05678-901',
-        street: 'Rua Augusta',
-        number: '789',
-        neighborhood: 'Consolação',
-        city: 'São Paulo',
-        state: 'SP',
-        country: 'Brasil',
-      },
-    },
-  ];
-
+  clients: Client[] = [];
   filteredClients: Client[] = [];
+  isLoading = false;
 
   // Configuração para o FilterBarComponent
   searchFields: (keyof Client)[] = ['name', 'responsible', 'email', 'document'];
@@ -113,10 +59,47 @@ export class ClientsComponent implements OnInit {
   selectedClient: Client | null = null;
   clientToDelete: Client | null = null;
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private clientService: ClientService) {}
 
   ngOnInit(): void {
-    this.filteredClients = [...this.mockClients];
+    this.loadClients();
+  }
+
+  loadClients(): void {
+    this.isLoading = true;
+    this.clientService.findAll({ page: 1, limit: 100 }).subscribe({
+      next: (response) => {
+        this.clients = response.data.map(this.mapClientFromApi);
+        this.filteredClients = [...this.clients];
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Erro ao carregar clientes:', error);
+        this.isLoading = false;
+      }
+    });
+  }
+
+  private mapClientFromApi(clientDto: ClientResponseDto): Client {
+    return {
+      id: clientDto.id.toString(),
+      status: clientDto.status,
+      name: clientDto.nomeRazaoSocial,
+      responsible: clientDto.responsavel || '',
+      phone: clientDto.telefonePrincipal,
+      document: clientDto.cpfCnpj,
+      email: clientDto.email,
+      address: {
+        cep: clientDto.endereco.cep,
+        street: clientDto.endereco.ruaAvenida,
+        number: clientDto.endereco.numero,
+        complement: clientDto.endereco.complemento || '',
+        neighborhood: clientDto.endereco.bairro,
+        city: clientDto.endereco.cidade,
+        state: clientDto.endereco.estado,
+        country: clientDto.endereco.pais,
+      },
+    };
   }
 
   handleFilteredData(data: Client[]): void {
@@ -158,14 +141,49 @@ export class ClientsComponent implements OnInit {
   }
 
   handleClientSaved(client: Client) {
-    const index = this.mockClients.findIndex((c) => c.id === client.id);
-    if (index > -1) {
-      this.mockClients[index] = client;
+    const clientDto = {
+      status: client.status,
+      nomeRazaoSocial: client.name,
+      responsavel: client.responsible,
+      telefonePrincipal: client.phone,
+      cpfCnpj: client.document,
+      email: client.email,
+      endereco: {
+        cep: client.address.cep,
+        ruaAvenida: client.address.street,
+        numero: client.address.number,
+        complemento: client.address.complement,
+        bairro: client.address.neighborhood,
+        cidade: client.address.city,
+        estado: client.address.state,
+        pais: client.address.country,
+      },
+    };
+
+    if (client.id && client.id !== 'new') {
+      // Atualizar cliente existente
+      const id = parseInt(client.id);
+      this.clientService.update(id, clientDto).subscribe({
+        next: () => {
+          this.loadClients();
+          this.closeClientModal();
+        },
+        error: (error) => {
+          console.error('Erro ao atualizar cliente:', error);
+        }
+      });
     } else {
-      this.mockClients.unshift(client); // Add to the beginning
+      // Criar novo cliente
+      this.clientService.create(clientDto).subscribe({
+        next: () => {
+          this.loadClients();
+          this.closeClientModal();
+        },
+        error: (error) => {
+          console.error('Erro ao criar cliente:', error);
+        }
+      });
     }
-    this.handleFilteredData(this.mockClients); // Refresh list
-    this.closeClientModal();
   }
 
   confirmDeleteClient(client: Client) {
@@ -174,13 +192,19 @@ export class ClientsComponent implements OnInit {
   }
 
   deleteClientConfirmed() {
-    if (this.clientToDelete) {
-      this.mockClients = this.mockClients.filter(
-        (c) => c.id !== this.clientToDelete!.id
-      );
-      this.handleFilteredData(this.mockClients); // Refresh list
+    if (this.clientToDelete && this.clientToDelete.id) {
+      const id = parseInt(this.clientToDelete.id);
+      this.clientService.remove(id).subscribe({
+        next: () => {
+          this.loadClients();
+          this.closeConfirmModal();
+        },
+        error: (error) => {
+          console.error('Erro ao deletar cliente:', error);
+          this.closeConfirmModal();
+        }
+      });
     }
-    this.closeConfirmModal();
   }
 
   closeConfirmModal() {

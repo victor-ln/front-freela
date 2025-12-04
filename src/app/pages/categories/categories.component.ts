@@ -1,7 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CategoryModalComponent, Category } from '../../components/shared/category-modal/category-modal.component';
 import { ConfirmModalComponent } from '../../components/shared/confirm-modal/confirm-modal.component';
+import { CategoryService } from '../../core/services/category.service';
+import { CategoryResponseDto } from '../../core/dto/category.dto';
 
 @Component({
     selector: 'app-categories',
@@ -9,46 +11,34 @@ import { ConfirmModalComponent } from '../../components/shared/confirm-modal/con
     templateUrl: `categories.component.html`,
     styleUrl: `categories.component.css`
 })
-export class CategoriesComponent {
-  mockCategories = [
-    {
-      id: '1',
-      type: 'Desenvolvimento',
-      status: 'active',
-      servicesCount: 8,
-      proposalsCount: 24,
-      recentServices: ['Website Corporativo', 'App Mobile', 'E-commerce']
-    },
-    {
-      id: '2',
-      type: 'Design',
-      status: 'active',
-      servicesCount: 5,
-      proposalsCount: 15,
-      recentServices: ['Identidade Visual', 'UI/UX Design', 'Material Gráfico']
-    },
-    {
-      id: '3',
-      type: 'Consultoria',
-      status: 'active',
-      servicesCount: 3,
-      proposalsCount: 8,
-      recentServices: ['Consultoria UX', 'Auditoria SEO']
-    },
-    {
-      id: '4',
-      type: 'Marketing',
-      status: 'inactive',
-      servicesCount: 0,
-      proposalsCount: 0,
-      recentServices: []
-    }
-  ];
+export class CategoriesComponent implements OnInit {
+  categories: CategoryResponseDto[] = [];
+  isLoading = false;
 
   isCategoryModalOpen = false;
   isConfirmModalOpen = false;
   selectedCategory: Category | null = null;
-  categoryToDelete: any | null = null;
+  categoryToDelete: CategoryResponseDto | null = null;
+
+  constructor(private categoryService: CategoryService) {}
+
+  ngOnInit() {
+    this.loadCategories();
+  }
+
+  loadCategories() {
+    this.isLoading = true;
+    this.categoryService.findAll({ page: 1, limit: 100 }).subscribe({
+      next: (response) => {
+        this.categories = response.data;
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Erro ao carregar categorias:', error);
+        this.isLoading = false;
+      }
+    });
+  }
 
   getCategoryIcon(type: string): string {
     const icons: { [key: string]: string } = {
@@ -66,8 +56,12 @@ export class CategoriesComponent {
     this.isCategoryModalOpen = true;
   }
 
-  openEditCategoryModal(category: any) {
-    this.selectedCategory = { ...category };
+  openEditCategoryModal(category: CategoryResponseDto) {
+    this.selectedCategory = {
+      id: category.id.toString(),
+      type: category.tipo,
+      status: category.status ? 'active' : 'inactive'
+    };
     this.isCategoryModalOpen = true;
   }
 
@@ -77,27 +71,55 @@ export class CategoriesComponent {
   }
 
   handleCategorySaved(category: Category) {
+    const categoryDto = {
+      tipo: category.type,
+      status: category.status === 'active'
+    };
+
     if (this.selectedCategory?.id) {
-      const index = this.mockCategories.findIndex(c => c.id === category.id);
-      if (index > -1) {
-        this.mockCategories[index] = { ...this.mockCategories[index], ...category };
-      }
+      // Atualizar categoria existente
+      const id = parseInt(this.selectedCategory.id);
+      this.categoryService.update(id, categoryDto).subscribe({
+        next: () => {
+          this.loadCategories();
+          this.closeCategoryModal();
+        },
+        error: (error) => {
+          console.error('Erro ao atualizar categoria:', error);
+        }
+      });
     } else {
-      this.mockCategories.push({ ...category, servicesCount: 0, proposalsCount: 0, recentServices: [] });
+      // Criar nova categoria
+      this.categoryService.create(categoryDto).subscribe({
+        next: () => {
+          this.loadCategories();
+          this.closeCategoryModal();
+        },
+        error: (error) => {
+          console.error('Erro ao criar categoria:', error);
+        }
+      });
     }
-    this.closeCategoryModal();
   }
 
-  confirmDeleteCategory(category: any) {
+  confirmDeleteCategory(category: CategoryResponseDto) {
     this.categoryToDelete = category;
     this.isConfirmModalOpen = true;
   }
 
   deleteCategoryConfirmed() {
     if (this.categoryToDelete) {
-      this.mockCategories = this.mockCategories.filter(c => c.id !== this.categoryToDelete!.id);
+      this.categoryService.remove(this.categoryToDelete.id).subscribe({
+        next: () => {
+          this.loadCategories();
+          this.closeConfirmModal();
+        },
+        error: (error) => {
+          console.error('Erro ao deletar categoria:', error);
+          this.closeConfirmModal();
+        }
+      });
     }
-    this.closeConfirmModal();
   }
 
   closeConfirmModal() {

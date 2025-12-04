@@ -10,6 +10,9 @@ import {
   FilterBarComponent,
   SelectFilter,
 } from '../../components/shared/filter-bar/filter-bar.component';
+import { ProposalService } from '../../core/services/proposal.service';
+import { ProposalResponseDto } from '../../core/dto/proposal.dto';
+import { ProposalStatus } from '../../core/enums/proposal-status.enum';
 
 @Component({
   selector: 'app-proposals',
@@ -25,76 +28,9 @@ import {
   styleUrls: ['./proposals.component.css'],
 })
 export class ProposalsComponent implements OnInit {
-  mockProposals: Proposal[] = [
-    {
-      id: '1',
-      title: 'Website Corporativo - Empresa ABC',
-      clientName: 'Empresa ABC Ltda',
-      description:
-        'Desenvolvimento de website institucional responsivo com sistema de gerenciamento de conteúdo.',
-      services: ['Desenvolvimento Web', 'Design Responsivo', 'CMS'],
-      template: 'Contrato Desenvolvimento Web',
-      totalValue: 8500,
-      status: 'accepted',
-      createdAt: new Date('2024-01-15'),
-      updatedAt: new Date('2024-01-20'),
-      acceptedAt: new Date('2024-01-18'),
-    },
-    {
-      id: '2',
-      title: 'Aplicativo Mobile - Startup XYZ',
-      clientName: 'Startup XYZ',
-      description:
-        'Desenvolvimento de aplicativo nativo para iOS e Android com funcionalidades de e-commerce.',
-      services: ['App iOS', 'App Android', 'Backend API'],
-      template: 'Contrato App Mobile',
-      totalValue: 18000,
-      status: 'pending',
-      createdAt: new Date('2024-02-01'),
-      updatedAt: new Date('2024-02-05'),
-    },
-    {
-      id: '3',
-      title: 'Identidade Visual - Loja 123',
-      clientName: 'Loja 123',
-      description:
-        'Criação completa de identidade visual incluindo logotipo, paleta de cores e manual de marca.',
-      services: ['Design de Logo', 'Identidade Visual', 'Manual de Marca'],
-      template: 'Contrato Design Gráfico',
-      totalValue: 3200,
-      status: 'negotiation',
-      createdAt: new Date('2024-01-28'),
-      updatedAt: new Date('2024-02-08'),
-    },
-    {
-      id: '4',
-      title: 'E-commerce Completo - Moda Fashion',
-      clientName: 'Moda Fashion',
-      description:
-        'Loja virtual completa com sistema de pagamento integrado e painel administrativo.',
-      services: ['E-commerce', 'Gateway Pagamento', 'Painel Admin'],
-      totalValue: 25000,
-      status: 'rejected',
-      createdAt: new Date('2024-01-10'),
-      updatedAt: new Date('2024-01-25'),
-    },
-    {
-      id: '5',
-      title: 'Consultoria UX - Tech Inovação',
-      clientName: 'Tech Inovação',
-      description:
-        'Auditoria de UX e recomendações para melhoria da experiência do usuário.',
-      services: ['Auditoria UX', 'Prototipação', 'Relatório de Melhorias'],
-      template: 'Contrato Consultoria',
-      totalValue: 4500,
-      status: 'accepted',
-      createdAt: new Date('2024-01-22'),
-      updatedAt: new Date('2024-01-30'),
-      acceptedAt: new Date('2024-01-28'),
-    },
-  ];
-
+  proposals: Proposal[] = [];
   filteredProposals: Proposal[] = [];
+  isLoading = false;
 
   // Configuração para o FilterBarComponent
   searchFields: (keyof Proposal)[] = ['title', 'clientName', 'description'];
@@ -117,8 +53,47 @@ export class ProposalsComponent implements OnInit {
   selectedProposal: Proposal | null = null;
   proposalToDelete: Proposal | null = null;
 
+  constructor(private proposalService: ProposalService) {}
+
   ngOnInit(): void {
-    this.filteredProposals = [...this.mockProposals];
+    this.loadProposals();
+  }
+
+  loadProposals(): void {
+    this.isLoading = true;
+    this.proposalService.findAll({ page: 1, limit: 100 }).subscribe({
+      next: (response) => {
+        this.proposals = response.data.map(this.mapProposalFromApi);
+        this.filteredProposals = [...this.proposals];
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Erro ao carregar propostas:', error);
+        this.isLoading = false;
+      }
+    });
+  }
+
+  private mapProposalFromApi(proposalDto: ProposalResponseDto): Proposal {
+    const statusMap: Record<ProposalStatus, string> = {
+      [ProposalStatus.PENDING]: 'pending',
+      [ProposalStatus.ACCEPTED]: 'accepted',
+      [ProposalStatus.REJECTED]: 'rejected',
+      [ProposalStatus.IN_NEGOTIATION]: 'negotiation',
+    };
+
+    return {
+      id: proposalDto.id.toString(),
+      title: proposalDto.titulo,
+      clientName: proposalDto.cliente.nomeRazaoSocial,
+      description: proposalDto.descricao,
+      services: proposalDto.servicos.map(s => s.nome),
+      template: proposalDto.template.nome,
+      totalValue: proposalDto.valorTotal,
+      status: statusMap[proposalDto.status] || 'pending',
+      createdAt: new Date(proposalDto.createdAt),
+      updatedAt: new Date(proposalDto.updatedAt),
+    };
   }
 
   handleFilteredData(data: Proposal[]): void {
@@ -126,11 +101,11 @@ export class ProposalsComponent implements OnInit {
   }
 
   getProposalsByStatus(status: string) {
-    return this.mockProposals.filter((proposal) => proposal.status === status);
+    return this.proposals.filter((proposal) => proposal.status === status);
   }
 
   getTotalValue(): number {
-    return this.mockProposals.reduce(
+    return this.proposals.reduce(
       (total, proposal) => total + proposal.totalValue,
       0
     );
@@ -148,21 +123,27 @@ export class ProposalsComponent implements OnInit {
 
   getConversionRate(): number {
     const accepted = this.getProposalsByStatus('accepted').length;
-    const total = this.mockProposals.length;
+    const total = this.proposals.length;
     return total > 0 ? Math.round((accepted / total) * 100) : 0;
   }
 
   getAverageValue(): number {
     const total = this.getTotalValue();
-    return this.mockProposals.length > 0
-      ? total / this.mockProposals.length
+    return this.proposals.length > 0
+      ? total / this.proposals.length
       : 0;
   }
 
   markAsAccepted(proposal: Proposal) {
-    proposal.status = 'accepted';
-    proposal.acceptedAt = new Date();
-    this.handleFilteredData(this.mockProposals);
+    const id = parseInt(proposal.id);
+    this.proposalService.acceptProposal(id, { evidenciaAceite: '' }).subscribe({
+      next: () => {
+        this.loadProposals();
+      },
+      error: (error) => {
+        console.error('Erro ao aceitar proposta:', error);
+      }
+    });
   }
 
   openNewProposalModal() {
@@ -186,15 +167,40 @@ export class ProposalsComponent implements OnInit {
     this.selectedProposal = null;
   }
 
-  handleProposalSaved(proposal: Proposal) {
-    const index = this.mockProposals.findIndex((p) => p.id === proposal.id);
-    if (index > -1) {
-      this.mockProposals[index] = proposal;
+  handleProposalSaved(proposal: any) {
+    // TODO: Modal precisa enviar clienteId, servicosIds e templateId
+    const proposalDto = {
+      titulo: proposal.title,
+      descricao: proposal.description,
+      clienteId: proposal.clientId || 1, // TODO: Ajustar modal
+      servicosIds: proposal.servicosIds || [], // TODO: Ajustar modal
+      templateId: proposal.templateId || 1, // TODO: Ajustar modal
+      valorTotal: proposal.totalValue,
+      status: ProposalStatus.PENDING,
+    };
+
+    if (proposal.id && proposal.id !== 'new') {
+      const id = parseInt(proposal.id);
+      this.proposalService.update(id, proposalDto).subscribe({
+        next: () => {
+          this.loadProposals();
+          this.closeProposalModal();
+        },
+        error: (error) => {
+          console.error('Erro ao atualizar proposta:', error);
+        }
+      });
     } else {
-      this.mockProposals.unshift(proposal);
+      this.proposalService.create(proposalDto).subscribe({
+        next: () => {
+          this.loadProposals();
+          this.closeProposalModal();
+        },
+        error: (error) => {
+          console.error('Erro ao criar proposta:', error);
+        }
+      });
     }
-    this.handleFilteredData(this.mockProposals);
-    this.closeProposalModal();
   }
 
   confirmDeleteProposal(proposal: Proposal) {
@@ -203,13 +209,19 @@ export class ProposalsComponent implements OnInit {
   }
 
   deleteProposalConfirmed() {
-    if (this.proposalToDelete) {
-      this.mockProposals = this.mockProposals.filter(
-        (p) => p.id !== this.proposalToDelete!.id
-      );
-      this.handleFilteredData(this.mockProposals);
+    if (this.proposalToDelete && this.proposalToDelete.id) {
+      const id = parseInt(this.proposalToDelete.id);
+      this.proposalService.remove(id).subscribe({
+        next: () => {
+          this.loadProposals();
+          this.closeConfirmModal();
+        },
+        error: (error) => {
+          console.error('Erro ao deletar proposta:', error);
+          this.closeConfirmModal();
+        }
+      });
     }
-    this.closeConfirmModal();
   }
 
   closeConfirmModal() {
@@ -218,6 +230,15 @@ export class ProposalsComponent implements OnInit {
   }
 
   generateContract(proposal: Proposal) {
-    console.log(`Gerando contrato para a proposta: ${proposal.title}`);
+    const id = parseInt(proposal.id);
+    this.proposalService.generateContract(id, {}).subscribe({
+      next: () => {
+        console.log('Contrato gerado com sucesso');
+        this.loadProposals();
+      },
+      error: (error) => {
+        console.error('Erro ao gerar contrato:', error);
+      }
+    });
   }
 }
