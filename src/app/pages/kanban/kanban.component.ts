@@ -1,8 +1,12 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CdkDragDrop, moveItemInArray, transferArrayItem, DragDropModule } from '@angular/cdk/drag-drop';
 import { TaskModalComponent, Task } from '../../components/shared/task-modal/task-modal.component';
 import { ConfirmModalComponent } from '../../components/shared/confirm-modal/confirm-modal.component';
+import { KanbanService } from '../../core/services/kanban.service';
+import { TaskResponseDto } from '../../core/dto/task.dto';
+import { TaskStatus } from '../../core/enums/task-status.enum';
+import { TaskPriority } from '../../core/enums/task-priority.enum';
 
 interface Column {
   id: string;
@@ -17,114 +21,159 @@ interface Column {
     templateUrl: `./kanban.component.html`,
     styleUrl: `./kanban.component.css`
 })
-export class KanbanComponent {
+export class KanbanComponent implements OnInit {
   columns: Column[] = [
     {
       id: 'a-fazer',
       title: 'A Fazer',
       color: '#ffc107',
-      tasks: [
-        {
-          id: '1',
-          title: 'Configurar ambiente de desenvolvimento',
-          description: 'Instalar e configurar todas as ferramentas necessárias para o projeto',
-          status: 'a-fazer',
-          priority: 'high',
-          proposal: 'Website Corporativo',
-          client: 'Empresa ABC',
-          dueDate: new Date('2024-02-20')
-        },
-        {
-          id: '2',
-          title: 'Análise de requisitos UX',
-          description: 'Realizar auditoria completa da experiência do usuário atual',
-          status: 'a-fazer',
-          priority: 'medium',
-          proposal: 'Consultoria UX',
-          client: 'Tech Inovação',
-          dueDate: new Date('2024-02-25')
-        }
-      ]
+      tasks: []
     },
     {
       id: 'em-progresso',
       title: 'Em Progresso',
       color: '#007bff',
-      tasks: [
-        {
-          id: '3',
-          title: 'Desenvolvimento da API backend',
-          description: 'Criar endpoints REST para integração com o frontend',
-          status: 'em-progresso',
-          priority: 'high',
-          proposal: 'Website Corporativo',
-          client: 'Empresa ABC',
-          startDate: new Date('2024-02-10'),
-          dueDate: new Date('2024-02-18')
-        },
-        {
-          id: '4',
-          title: 'Design das telas principais',
-          description: 'Criar layouts responsivos para as páginas principais',
-          status: 'em-progresso',
-          priority: 'medium',
-          proposal: 'Website Corporativo',
-          client: 'Empresa ABC',
-          startDate: new Date('2024-02-12'),
-          dueDate: new Date('2024-02-22')
-        }
-      ]
+      tasks: []
     },
     {
       id: 'concluido',
       title: 'Concluído',
       color: '#28a745',
-      tasks: [
-        {
-          id: '5',
-          title: 'Prototipação inicial',
-          description: 'Criar wireframes e protótipos de baixa fidelidade',
-          status: 'concluido',
-          priority: 'low',
-          proposal: 'Website Corporativo',
-          client: 'Empresa ABC',
-          startDate: new Date('2024-02-01'),
-          dueDate: new Date('2024-02-08')
-        },
-        {
-          id: '6',
-          title: 'Definição da arquitetura',
-          description: 'Documentar a arquitetura técnica do projeto',
-          status: 'concluido',
-          priority: 'high',
-          proposal: 'Website Corporativo',
-          client: 'Empresa ABC',
-          startDate: new Date('2024-02-05'),
-          dueDate: new Date('2024-02-10')
-        }
-      ]
+      tasks: []
     }
   ];
 
+  isLoading = false;
+  kanbanId: number | null = null;
   isTaskModalOpen = false;
   isConfirmModalOpen = false;
   isViewModalOpen = false;
   selectedTask: Task | null = null;
   taskToDelete: Task | null = null;
 
+  constructor(private kanbanService: KanbanService) {}
+
+  ngOnInit(): void {
+    this.loadKanban();
+  }
+
+  loadKanban(): void {
+    this.isLoading = true;
+    // Busca todos os kanbans e usa o primeiro ativo
+    // TODO: Permitir selecionar kanban específico via rota ou dropdown
+    this.kanbanService.findAll({ page: 1, limit: 1 }).subscribe({
+      next: (response) => {
+        if (response.data.length > 0) {
+          this.kanbanId = response.data[0].id;
+          this.loadTasks();
+        } else {
+          this.isLoading = false;
+        }
+      },
+      error: (error) => {
+        console.error('Erro ao carregar kanban:', error);
+        this.isLoading = false;
+      }
+    });
+  }
+
+  loadTasks(): void {
+    if (!this.kanbanId) return;
+
+    this.kanbanService.findAllTasks(this.kanbanId).subscribe({
+      next: (tasks) => {
+        this.distributeTasksInColumns(tasks);
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Erro ao carregar tarefas:', error);
+        this.isLoading = false;
+      }
+    });
+  }
+
+  private distributeTasksInColumns(tasks: TaskResponseDto[]): void {
+    // Limpa as colunas
+    this.columns.forEach(col => col.tasks = []);
+
+    // Distribui tarefas nas colunas baseado no status
+    tasks.forEach(taskDto => {
+      const task = this.mapTaskFromApi(taskDto);
+      const column = this.columns.find(c => c.id === task.status);
+      if (column) {
+        column.tasks.push(task);
+      }
+    });
+  }
+
+  private mapTaskFromApi(taskDto: TaskResponseDto): Task {
+    const statusMap: Record<TaskStatus, string> = {
+      [TaskStatus.TODO]: 'a-fazer',
+      [TaskStatus.IN_PROGRESS]: 'em-progresso',
+      [TaskStatus.DONE]: 'concluido',
+    };
+
+    const priorityMap: Record<TaskPriority, string> = {
+      [TaskPriority.LOW]: 'low',
+      [TaskPriority.MEDIUM]: 'medium',
+      [TaskPriority.HIGH]: 'high',
+    };
+
+    return {
+      id: taskDto.id.toString(),
+      title: taskDto.titulo,
+      description: taskDto.descricao || '',
+      status: statusMap[taskDto.status] || 'a-fazer',
+      priority: priorityMap[taskDto.prioridade] || 'medium',
+      proposal: '', // TODO: API não retorna proposta no task
+      client: '', // TODO: API não retorna cliente no task
+      startDate: taskDto.dataInicio ? new Date(taskDto.dataInicio) : undefined,
+      dueDate: taskDto.dataVencimento ? new Date(taskDto.dataVencimento) : undefined,
+    };
+  }
+
   drop(event: CdkDragDrop<Task[]>) {
     if (event.previousContainer === event.container) {
       moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
     } else {
+      const movedTask = event.previousContainer.data[event.previousIndex];
+      const newStatus = event.container.id;
+
+      // Move localmente primeiro para feedback visual imediato
       transferArrayItem(
         event.previousContainer.data,
         event.container.data,
         event.previousIndex,
         event.currentIndex,
       );
-      const movedTask = event.container.data[event.currentIndex];
-      movedTask.status = event.container.id;
+      movedTask.status = newStatus;
+
+      // Atualiza no backend
+      this.updateTaskStatus(movedTask, newStatus);
     }
+  }
+
+  private updateTaskStatus(task: Task, newStatus: string): void {
+    if (!this.kanbanId) return;
+
+    const statusMap: Record<string, TaskStatus> = {
+      'a-fazer': TaskStatus.TODO,
+      'em-progresso': TaskStatus.IN_PROGRESS,
+      'concluido': TaskStatus.DONE,
+    };
+
+    const taskId = parseInt(task.id);
+    this.kanbanService.moveTask(this.kanbanId, taskId, {
+      novoStatus: statusMap[newStatus]
+    }).subscribe({
+      next: () => {
+        console.log('Tarefa movida com sucesso');
+      },
+      error: (error) => {
+        console.error('Erro ao mover tarefa:', error);
+        // TODO: Reverter movimento local se falhar
+      }
+    });
   }
 
   openNewTaskModal(status: string) {
@@ -148,21 +197,55 @@ export class KanbanComponent {
     this.selectedTask = null;
   }
 
-  handleTaskSaved(task: Task) {
-    const index = this.columns.flatMap(c => c.tasks).findIndex(t => t.id === task.id);
-    if (index > -1) {
-      this.columns.forEach(c => c.tasks = c.tasks.filter(t => t.id !== task.id));
-      const column = this.columns.find(c => c.id === task.status);
-      if (column) {
-        column.tasks.push(task);
-      }
+  handleTaskSaved(task: any) {
+    if (!this.kanbanId) return;
+
+    const statusMap: Record<string, TaskStatus> = {
+      'a-fazer': TaskStatus.TODO,
+      'em-progresso': TaskStatus.IN_PROGRESS,
+      'concluido': TaskStatus.DONE,
+    };
+
+    const priorityMap: Record<string, TaskPriority> = {
+      'low': TaskPriority.LOW,
+      'medium': TaskPriority.MEDIUM,
+      'high': TaskPriority.HIGH,
+    };
+
+    const taskDto = {
+      titulo: task.title,
+      descricao: task.description,
+      status: statusMap[task.status] || TaskStatus.TODO,
+      prioridade: priorityMap[task.priority] || TaskPriority.MEDIUM,
+      dataVencimento: task.dueDate ? new Date(task.dueDate).toISOString() : new Date().toISOString(),
+      dataInicio: task.startDate ? new Date(task.startDate).toISOString() : undefined,
+      kanbanId: this.kanbanId,
+    };
+
+    if (task.id && task.id !== 'new') {
+      // Atualizar tarefa existente
+      const taskId = parseInt(task.id);
+      this.kanbanService.updateTask(this.kanbanId, taskId, taskDto).subscribe({
+        next: () => {
+          this.loadTasks();
+          this.closeTaskModal();
+        },
+        error: (error) => {
+          console.error('Erro ao atualizar tarefa:', error);
+        }
+      });
     } else {
-      const column = this.columns.find(c => c.id === task.status);
-      if (column) {
-        column.tasks.push(task);
-      }
+      // Criar nova tarefa
+      this.kanbanService.createTask(this.kanbanId, taskDto).subscribe({
+        next: () => {
+          this.loadTasks();
+          this.closeTaskModal();
+        },
+        error: (error) => {
+          console.error('Erro ao criar tarefa:', error);
+        }
+      });
     }
-    this.closeTaskModal();
   }
 
   confirmDeleteTask(task: Task) {
@@ -171,10 +254,19 @@ export class KanbanComponent {
   }
 
   deleteTaskConfirmed() {
-    if (this.taskToDelete) {
-      this.columns.forEach(c => c.tasks = c.tasks.filter(t => t.id !== this.taskToDelete!.id));
+    if (this.taskToDelete && this.kanbanId) {
+      const taskId = parseInt(this.taskToDelete.id);
+      this.kanbanService.removeTask(this.kanbanId, taskId).subscribe({
+        next: () => {
+          this.loadTasks();
+          this.closeConfirmModal();
+        },
+        error: (error) => {
+          console.error('Erro ao deletar tarefa:', error);
+          this.closeConfirmModal();
+        }
+      });
     }
-    this.closeConfirmModal();
   }
 
   closeConfirmModal() {
@@ -218,6 +310,7 @@ export class KanbanComponent {
       oldColumn.tasks = oldColumn.tasks.filter(t => t.id !== task.id);
       task.status = newStatus;
       newColumn.tasks.push(task);
+      this.updateTaskStatus(task, newStatus);
     }
   }
 }

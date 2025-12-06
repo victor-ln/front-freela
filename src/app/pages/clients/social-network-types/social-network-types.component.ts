@@ -1,7 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SocialNetworkTypeModalComponent, SocialNetworkType } from '../../../components/shared/social-network-type-modal/social-network-type-modal.component';
 import { ConfirmModalComponent } from '../../../components/shared/confirm-modal/confirm-modal.component';
+import { SocialNetworkTypeService } from '../../../core/services/social-network-type.service';
+import { SocialNetworksTypeResponseDto } from '../../../core/dto/social-network-type.dto';
 
 @Component({
     selector: 'app-social-network-types',
@@ -9,44 +11,43 @@ import { ConfirmModalComponent } from '../../../components/shared/confirm-modal/
     templateUrl: `social-network-types.component.html`,
     styleUrl: `social-network-types.component.css`
 })
-export class SocialNetworkTypesComponent {
-  mockTypes: any[] = [
-    {
-      id: '1',
-      name: 'Facebook',
-      status: 'active',
-      usage: 3
-    },
-    {
-      id: '2',
-      name: 'Instagram',
-      status: 'active',
-      usage: 5
-    },
-    {
-      id: '3',
-      name: 'LinkedIn',
-      status: 'active',
-      usage: 2
-    },
-    {
-      id: '4',
-      name: 'Twitter',
-      status: 'active',
-      usage: 1
-    },
-    {
-      id: '5',
-      name: 'TikTok',
-      status: 'inactive',
-      usage: 0
-    }
-  ];
+export class SocialNetworkTypesComponent implements OnInit {
+  types: any[] = [];
+  isLoading = false;
 
   isSocialNetworkTypeModalOpen = false;
   isConfirmModalOpen = false;
   selectedSocialNetworkType: SocialNetworkType | null = null;
   socialNetworkTypeToDelete: any | null = null;
+
+  constructor(private socialNetworkTypeService: SocialNetworkTypeService) {}
+
+  ngOnInit(): void {
+    this.loadTypes();
+  }
+
+  loadTypes(): void {
+    this.isLoading = true;
+    this.socialNetworkTypeService.findAll({ page: 1, limit: 100 }).subscribe({
+      next: (response) => {
+        this.types = response.data.map(this.mapTypeFromApi);
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Erro ao carregar tipos de redes sociais:', error);
+        this.isLoading = false;
+      }
+    });
+  }
+
+  private mapTypeFromApi(dto: SocialNetworksTypeResponseDto): any {
+    return {
+      id: dto.id.toString(),
+      name: dto.tipo,
+      status: dto.status ? 'active' : 'inactive',
+      usage: 0, // TODO: API não retorna contador de uso
+    };
+  }
 
   getTypeIcon(typeName: string): string {
     const icons: { [key: string]: string } = {
@@ -76,15 +77,33 @@ export class SocialNetworkTypesComponent {
   }
 
   handleSocialNetworkTypeSaved(socialNetworkType: SocialNetworkType) {
-    if (this.selectedSocialNetworkType?.id) {
-      const index = this.mockTypes.findIndex(t => t.id === socialNetworkType.id);
-      if (index > -1) {
-        this.mockTypes[index] = { ...this.mockTypes[index], ...socialNetworkType };
-      }
+    const dto = {
+      tipo: socialNetworkType.name,
+      status: socialNetworkType.status === 'active',
+    };
+
+    if (socialNetworkType.id && socialNetworkType.id !== 'new') {
+      const id = parseInt(socialNetworkType.id);
+      this.socialNetworkTypeService.update(id, dto).subscribe({
+        next: () => {
+          this.loadTypes();
+          this.closeSocialNetworkTypeModal();
+        },
+        error: (error) => {
+          console.error('Erro ao atualizar tipo de rede social:', error);
+        }
+      });
     } else {
-      this.mockTypes.push({ ...socialNetworkType, usage: 0 });
+      this.socialNetworkTypeService.create(dto).subscribe({
+        next: () => {
+          this.loadTypes();
+          this.closeSocialNetworkTypeModal();
+        },
+        error: (error) => {
+          console.error('Erro ao criar tipo de rede social:', error);
+        }
+      });
     }
-    this.closeSocialNetworkTypeModal();
   }
 
   confirmDeleteSocialNetworkType(socialNetworkType: any) {
@@ -93,10 +112,19 @@ export class SocialNetworkTypesComponent {
   }
 
   deleteSocialNetworkTypeConfirmed() {
-    if (this.socialNetworkTypeToDelete) {
-      this.mockTypes = this.mockTypes.filter(t => t.id !== this.socialNetworkTypeToDelete!.id);
+    if (this.socialNetworkTypeToDelete && this.socialNetworkTypeToDelete.id) {
+      const id = parseInt(this.socialNetworkTypeToDelete.id);
+      this.socialNetworkTypeService.remove(id).subscribe({
+        next: () => {
+          this.loadTypes();
+          this.closeConfirmModal();
+        },
+        error: (error) => {
+          console.error('Erro ao deletar tipo de rede social:', error);
+          this.closeConfirmModal();
+        }
+      });
     }
-    this.closeConfirmModal();
   }
 
   closeConfirmModal() {

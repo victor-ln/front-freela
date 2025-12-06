@@ -10,6 +10,8 @@ import {
   FilterBarComponent,
   SelectFilter,
 } from '../../../components/shared/filter-bar/filter-bar.component';
+import { SocialNetworkService } from '../../../core/services/social-network.service';
+import { SocialNetworkResponseDto } from '../../../core/dto/social-network.dto';
 
 @Component({
   selector: 'app-social-networks',
@@ -25,59 +27,47 @@ import {
   styleUrls: [`./social-networks.component.css`],
 })
 export class SocialNetworksComponent implements OnInit {
-  mockSocialNetworks: SocialNetwork[] = [
-    {
-      id: '1',
-      clientName: 'Empresa ABC',
-      name: '@empresaabc',
-      type: 'Instagram',
-      url: 'https://instagram.com/empresaabc',
-    },
-    {
-      id: '2',
-      clientName: 'Empresa ABC',
-      name: 'Empresa ABC Ltda',
-      type: 'LinkedIn',
-      url: 'https://linkedin.com/company/empresaabc',
-    },
-    {
-      id: '3',
-      clientName: 'Startup XYZ',
-      name: '@startupxyz',
-      type: 'Twitter',
-      url: 'https://twitter.com/startupxyz',
-    },
-    {
-      id: '4',
-      clientName: 'Loja 123',
-      name: 'Loja123Official',
-      type: 'Facebook',
-      url: 'https://facebook.com/loja123official',
-    },
-  ];
-
+  socialNetworks: SocialNetwork[] = [];
   filteredSocialNetworks: SocialNetwork[] = [];
+  isLoading = false;
 
   searchFields: (keyof SocialNetwork)[] = ['name', 'clientName', 'url'];
-  selectFilters: SelectFilter[] = [
-    {
-      label: 'Todos os Clientes',
-      model: 'clientName',
-      options: [
-        { value: 'Empresa ABC', label: 'Empresa ABC' },
-        { value: 'Startup XYZ', label: 'Startup XYZ' },
-        { value: 'Loja 123', label: 'Loja 123' },
-      ],
-    },
-  ];
+  selectFilters: SelectFilter[] = [];
 
   isSocialNetworkModalOpen = false;
   isConfirmModalOpen = false;
   selectedSocialNetwork: SocialNetwork | null = null;
   socialNetworkToDelete: SocialNetwork | null = null;
 
+  constructor(private socialNetworkService: SocialNetworkService) {}
+
   ngOnInit(): void {
-    this.filteredSocialNetworks = [...this.mockSocialNetworks];
+    this.loadSocialNetworks();
+  }
+
+  loadSocialNetworks(): void {
+    this.isLoading = true;
+    this.socialNetworkService.findAll({ page: 1, limit: 100 }).subscribe({
+      next: (response) => {
+        this.socialNetworks = response.data.map(this.mapSocialNetworkFromApi);
+        this.filteredSocialNetworks = [...this.socialNetworks];
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Erro ao carregar redes sociais:', error);
+        this.isLoading = false;
+      }
+    });
+  }
+
+  private mapSocialNetworkFromApi(dto: SocialNetworkResponseDto): SocialNetwork {
+    return {
+      id: dto.id.toString(),
+      clientName: dto.cliente.nomeRazaoSocial,
+      name: dto.nome,
+      type: dto.tipo.tipo,
+      url: dto.url,
+    };
   }
 
   handleFilteredData(data: SocialNetwork[]): void {
@@ -123,18 +113,37 @@ export class SocialNetworksComponent implements OnInit {
     this.selectedSocialNetwork = null;
   }
 
-  handleSocialNetworkSaved(socialNetwork: SocialNetwork) {
-    if (this.selectedSocialNetwork?.id) {
-      const index = this.mockSocialNetworks.findIndex(
-        (s) => s.id === socialNetwork.id
-      );
-      if (index > -1) {
-        this.mockSocialNetworks[index] = socialNetwork;
-      }
+  handleSocialNetworkSaved(socialNetwork: any) {
+    // TODO: Modal precisa enviar clienteId e tipoId
+    const dto = {
+      nome: socialNetwork.name,
+      url: socialNetwork.url,
+      tipoId: socialNetwork.tipoId || 1, // TODO: Ajustar modal
+      clienteId: socialNetwork.clienteId || 1, // TODO: Ajustar modal
+    };
+
+    if (socialNetwork.id && socialNetwork.id !== 'new') {
+      const id = parseInt(socialNetwork.id);
+      this.socialNetworkService.update(id, dto).subscribe({
+        next: () => {
+          this.loadSocialNetworks();
+          this.closeSocialNetworkModal();
+        },
+        error: (error) => {
+          console.error('Erro ao atualizar rede social:', error);
+        }
+      });
     } else {
-      this.mockSocialNetworks.push(socialNetwork);
+      this.socialNetworkService.create(dto).subscribe({
+        next: () => {
+          this.loadSocialNetworks();
+          this.closeSocialNetworkModal();
+        },
+        error: (error) => {
+          console.error('Erro ao criar rede social:', error);
+        }
+      });
     }
-    this.closeSocialNetworkModal();
   }
 
   confirmDeleteSocialNetwork(socialNetwork: SocialNetwork) {
@@ -143,12 +152,19 @@ export class SocialNetworksComponent implements OnInit {
   }
 
   deleteSocialNetworkConfirmed() {
-    if (this.socialNetworkToDelete) {
-      this.mockSocialNetworks = this.mockSocialNetworks.filter(
-        (s) => s.id !== this.socialNetworkToDelete!.id
-      );
+    if (this.socialNetworkToDelete && this.socialNetworkToDelete.id) {
+      const id = parseInt(this.socialNetworkToDelete.id);
+      this.socialNetworkService.remove(id).subscribe({
+        next: () => {
+          this.loadSocialNetworks();
+          this.closeConfirmModal();
+        },
+        error: (error) => {
+          console.error('Erro ao deletar rede social:', error);
+          this.closeConfirmModal();
+        }
+      });
     }
-    this.closeConfirmModal();
   }
 
   closeConfirmModal() {

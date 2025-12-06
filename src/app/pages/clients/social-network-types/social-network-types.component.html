@@ -10,7 +10,7 @@
   </div>
 
   <div class="types-grid">
-    <div *ngFor="let type of mockTypes" class="type-card">
+    <div *ngFor="let type of types" class="type-card">
       <div class="type-header">
         <div class="type-icon" [class]="type.name.toLowerCase()">
           <i [innerHTML]="getTypeIcon(type.name)"></i>
