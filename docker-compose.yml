@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: freela-frontend-dev
+    ports:
+      - "4200:4200"
+    volumes:
+      # Monta o código fonte para hot-reload
+      - .:/app
+      # Evita sobrescrever node_modules do container
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      # Ajuste a URL da API conforme necessário
+      - API_URL=http://backend:3000/api
+    networks:
+      - freela-network
+    # Reinicia automaticamente se o processo falhar
+    restart: unless-stopped
+    # Dependência opcional - descomente se tiver backend
+    # depends_on:
+    #   - backend
+
+  # Exemplo de serviço backend (ajuste conforme necessário)
+  # backend:
+  #   image: seu-backend:latest
+  #   container_name: freela-backend-dev
+  #   ports:
+  #     - "3000:3000"
+  #   environment:
+  #     - NODE_ENV=development
+  #     - DATABASE_URL=postgresql://user:pass@db:5432/dbname
+  #   networks:
+  #     - freela-network
+  #   restart: unless-stopped
+
+networks:
+  freela-network:
+    driver: bridge
