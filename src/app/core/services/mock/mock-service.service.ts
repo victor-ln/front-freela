@@ -7,7 +7,7 @@ import { ServiceStatus } from '../../enums/service-status.enum';
 import { CategoryResponseDto } from '../../dto/category.dto';
 import { TemplateResponseDto } from '../../dto/template.dto';
 import { TimeUnit } from '../../enums/time-unit.enum';
-import { PaginatedResponseDto } from '../../dto/paginated-response.dto';
+import { PaginatedResponseDto } from '../../../common/dto/pagination.dto';
 
 @Injectable({
   providedIn: 'root'

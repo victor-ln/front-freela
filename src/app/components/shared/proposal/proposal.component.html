@@ -45,28 +45,28 @@
       </div>
 
       <div class="form-group">
-        <label for="clientName">Cliente <span class="required">*</span></label>
+        <label for="clientId">Cliente <span class="required">*</span></label>
         <select
-          id="clientName"
-          formControlName="clientName"
+          id="clientId"
+          formControlName="clientId"
           class="form-select"
-          [class.error]="isFieldInvalid('clientName')"
+          [class.error]="isFieldInvalid('clientId')"
         >
           <option value="">{{ isLoadingClients ? 'Carregando...' : 'Selecione um cliente' }}</option>
-          <option *ngFor="let client of clients" [value]="client.nomeRazaoSocial">
+          <option *ngFor="let client of clients" [value]="client.id">
             {{ client.nomeRazaoSocial }}
           </option>
         </select>
-        <div class="error-message" *ngIf="isFieldInvalid('clientName')">
+        <div class="error-message" *ngIf="isFieldInvalid('clientId')">
           Cliente é obrigatório
         </div>
       </div>
 
       <div class="form-group">
-        <label for="template">Template Associado</label>
-        <select id="template" formControlName="template" class="form-select">
+        <label for="templateId">Template Associado</label>
+        <select id="templateId" formControlName="templateId" class="form-select">
           <option value="">{{ isLoadingTemplates ? 'Carregando...' : 'Nenhum template' }}</option>
-          <option *ngFor="let template of templates" [value]="template.nome">
+          <option *ngFor="let template of templates" [value]="template.id">
             {{ template.nome }}
           </option>
         </select>
@@ -84,14 +84,14 @@
             <label class="checkbox-label">
               <input
                 type="checkbox"
-                [value]="service"
+                [value]="service.id"
                 (change)="onServiceChange(service, $event)"
-                [checked]="selectedServices.includes(service)"
+                [checked]="isServiceSelected(service)"
                 class="service-input"
                 [disabled]="isViewMode"
               />
               <span class="checkbox-custom"></span>
-              <span class="service-name">{{ service }}</span>
+              <span class="service-name">{{ service.nome }}</span>
             </label>
           </div>
         </div>
@@ -147,7 +147,7 @@
       <h4>Serviços Selecionados ({{ selectedServices.length }})</h4>
       <div class="services-tags">
         <span *ngFor="let service of selectedServices" class="service-tag">
-          {{ service }}
+          {{ service.nome }}
           <button
             type="button"
             class="remove-service"

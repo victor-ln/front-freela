@@ -4,7 +4,7 @@ import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } 
 import { ModalComponent } from '../modal/modal.component';
 import { MockServiceService } from '../../../core/services/mock/mock-service.service';
 import { MockClientService } from '../../../core/services/mock/mock-client.service';
-import { MockTemplateService } from '../../../core/services/mock/mock-template.service';
+import { TemplateService } from '../../../core/services/template.service';
 import { ServiceResponseDto } from '../../../core/dto/service.dto';
 import { ClientResponseDto } from '../../../core/dto/client.dto';
 import { TemplateResponseDto } from '../../../core/dto/template.dto';
@@ -14,8 +14,11 @@ export interface Proposal {
   title: string;
   description: string;
   clientName: string;
+  clientId?: number;
   services: string[];
+  servicosIds?: number[];
   template?: string;
+  templateId?: number;
   totalValue: number;
   status: string;
   createdAt: Date;
@@ -39,8 +42,8 @@ export class ProposalModalComponent implements OnInit, OnChanges {
 
   proposalForm!: FormGroup;
   isSubmitting = false;
-  selectedServices: string[] = [];
-  availableServices: string[] = [];
+  selectedServices: ServiceResponseDto[] = [];
+  availableServices: ServiceResponseDto[] = [];
   clients: ClientResponseDto[] = [];
   templates: TemplateResponseDto[] = [];
   isLoadingServices = false;
@@ -51,7 +54,7 @@ export class ProposalModalComponent implements OnInit, OnChanges {
     private fb: FormBuilder,
     private serviceService: MockServiceService,
     private clientService: MockClientService,
-    private templateService: MockTemplateService
+    private templateService: TemplateService
   ) {
     this.initForm();
   }
@@ -76,8 +79,8 @@ export class ProposalModalComponent implements OnInit, OnChanges {
     this.proposalForm = this.fb.group({
       title: ['', [Validators.required, Validators.minLength(5)]],
       description: ['', [Validators.required, Validators.minLength(20)]],
-      clientName: ['', Validators.required],
-      template: [''],
+      clientId: ['', Validators.required],
+      templateId: [''],
       services: [''],
       totalValue: ['', [Validators.required, Validators.min(0)]],
       status: [{value: 'pending', disabled: true}]
@@ -89,13 +92,18 @@ export class ProposalModalComponent implements OnInit, OnChanges {
       this.proposalForm.patchValue({
         title: this.proposal.title,
         description: this.proposal.description,
-        clientName: this.proposal.clientName,
-        template: this.proposal.template,
+        clientId: this.proposal.clientId,
+        templateId: this.proposal.templateId,
         totalValue: this.proposal.totalValue,
         status: this.proposal.status
       });
-      
-      this.selectedServices = [...this.proposal.services];
+
+      // Reconstruir selectedServices baseado nos servicosIds se disponível
+      if (this.proposal.servicosIds && this.availableServices.length > 0) {
+        this.selectedServices = this.availableServices.filter(s =>
+          this.proposal!.servicosIds!.includes(s.id)
+        );
+      }
       this.proposalForm.get('status')?.enable();
     }
   }
@@ -127,38 +135,49 @@ export class ProposalModalComponent implements OnInit, OnChanges {
     return !!(field && field.invalid && (field.dirty || field.touched));
   }
 
-  onServiceChange(service: string, event: Event) {
+  onServiceChange(service: ServiceResponseDto, event: Event) {
     if (this.isViewMode) return;
     const target = event.target as HTMLInputElement;
     if (target.checked) {
       this.selectedServices.push(service);
     } else {
-      this.selectedServices = this.selectedServices.filter(s => s !== service);
+      this.selectedServices = this.selectedServices.filter(s => s.id !== service.id);
     }
     this.proposalForm.get('services')?.markAsTouched();
   }
 
-  removeService(service: string) {
+  removeService(service: ServiceResponseDto) {
     if (this.isViewMode) return;
-    this.selectedServices = this.selectedServices.filter(s => s !== service);
+    this.selectedServices = this.selectedServices.filter(s => s.id !== service.id);
+  }
+
+  isServiceSelected(service: ServiceResponseDto): boolean {
+    return this.selectedServices.some(s => s.id === service.id);
   }
 
   onSubmit() {
     if (this.isViewMode) return;
     const isFormValid = this.proposalForm.valid && this.selectedServices.length > 0;
-    
+
     if (isFormValid && !this.isSubmitting) {
       this.isSubmitting = true;
-      
+
       const formValue = this.proposalForm.getRawValue();
-      
+
+      // Buscar o cliente selecionado para obter o nome
+      const selectedClient = this.clients.find(c => c.id == formValue.clientId);
+      const selectedTemplate = this.templates.find(t => t.id == formValue.templateId);
+
       const proposalData: Proposal = {
         id: this.proposal?.id || this.generateId(),
         title: formValue.title,
         description: formValue.description,
-        clientName: formValue.clientName,
-        services: [...this.selectedServices],
-        template: formValue.template,
+        clientId: parseInt(formValue.clientId),
+        clientName: selectedClient?.nomeRazaoSocial || '',
+        servicosIds: this.selectedServices.map(s => s.id),
+        services: this.selectedServices.map(s => s.nome),
+        templateId: formValue.templateId ? parseInt(formValue.templateId) : undefined,
+        template: selectedTemplate?.nome,
         totalValue: formValue.totalValue,
         status: this.proposal?.id ? formValue.status : 'pending',
         createdAt: this.proposal?.createdAt || new Date(),
@@ -195,7 +214,7 @@ export class ProposalModalComponent implements OnInit, OnChanges {
     this.isLoadingServices = true;
     this.serviceService.findActive().subscribe({
       next: (services) => {
-        this.availableServices = services.map(service => service.nome);
+        this.availableServices = services;
         this.isLoadingServices = false;
       },
       error: (error) => {

@@ -168,13 +168,12 @@ export class ProposalsComponent implements OnInit {
   }
 
   handleProposalSaved(proposal: any) {
-    // TODO: Modal precisa enviar clienteId, servicosIds e templateId
     const proposalDto = {
       titulo: proposal.title,
       descricao: proposal.description,
-      clienteId: proposal.clientId || 1, // TODO: Ajustar modal
-      servicosIds: proposal.servicosIds || [], // TODO: Ajustar modal
-      templateId: proposal.templateId || 1, // TODO: Ajustar modal
+      clienteId: proposal.clientId,
+      servicosIds: proposal.servicosIds || [],
+      templateId: proposal.templateId || undefined,
       valorTotal: proposal.totalValue,
       status: ProposalStatus.PENDING,
     };
