@@ -51,3 +51,34 @@
   color: var(--ff-gray-dark);
   font-weight: 500;
 }
+
+.btn-logout {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  margin-left: 1.5rem;
+  background-color: transparent;
+  color: var(--ff-gray-dark);
+  border: 1px solid var(--ff-gray-light);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.btn-logout svg {
+  width: 18px;
+  height: 18px;
+}
+
+.btn-logout:hover {
+  background-color: var(--ff-error-light);
+  color: var(--ff-error);
+  border-color: var(--ff-error);
+}
+
+.btn-logout:active {
+  transform: translateY(1px);
+}
