@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
 import { delay } from 'rxjs/operators';
 import { MockStorageService } from './mock-storage.service';
-import { SocialNetworkTypeResponseDto } from '../../dto/social-network-type.dto';
+import { SocialNetworksTypeResponseDto, CreateSocialNetworksTypeDto, UpdateSocialNetworksTypeDto } from '../../dto/social-network-type.dto';
+import { PaginatedResponseDto } from '../../../common/dto/pagination.dto';
 
 @Injectable({
   providedIn: 'root'
@@ -15,83 +16,77 @@ export class MockSocialNetworkTypeService {
   }
 
   private initializeDefaultData(): void {
-    const defaultTypes: SocialNetworkTypeResponseDto[] = [
-      {
-        id: 1,
-        tipo: 'Instagram',
-        descricao: 'Rede social de fotos e vídeos',
-        icone: 'instagram',
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        id: 2,
-        tipo: 'Facebook',
-        descricao: 'Rede social principal',
-        icone: 'facebook',
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        id: 3,
-        tipo: 'LinkedIn',
-        descricao: 'Rede social profissional',
-        icone: 'linkedin',
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        id: 4,
-        tipo: 'Twitter/X',
-        descricao: 'Microblog',
-        icone: 'twitter',
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        id: 5,
-        tipo: 'TikTok',
-        descricao: 'Vídeos curtos',
-        icone: 'tiktok',
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        id: 6,
-        tipo: 'YouTube',
-        descricao: 'Plataforma de vídeos',
-        icone: 'youtube',
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        id: 7,
-        tipo: 'Pinterest',
-        descricao: 'Rede de inspiração visual',
-        icone: 'pinterest',
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        id: 8,
-        tipo: 'WhatsApp Business',
-        descricao: 'Mensageiro empresarial',
-        icone: 'whatsapp',
-        createdAt: new Date(),
-        updatedAt: new Date()
-      }
+    const defaultTypes: SocialNetworksTypeResponseDto[] = [
+      { id: 1, tipo: 'Instagram', status: true, createdAt: new Date(), updatedAt: new Date() },
+      { id: 2, tipo: 'Facebook', status: true, createdAt: new Date(), updatedAt: new Date() },
+      { id: 3, tipo: 'LinkedIn', status: true, createdAt: new Date(), updatedAt: new Date() },
+      { id: 4, tipo: 'Twitter/X', status: true, createdAt: new Date(), updatedAt: new Date() },
+      { id: 5, tipo: 'TikTok', status: true, createdAt: new Date(), updatedAt: new Date() },
+      { id: 6, tipo: 'YouTube', status: true, createdAt: new Date(), updatedAt: new Date() },
+      { id: 7, tipo: 'Pinterest', status: true, createdAt: new Date(), updatedAt: new Date() },
+      { id: 8, tipo: 'WhatsApp Business', status: true, createdAt: new Date(), updatedAt: new Date() }
     ];
-
     this.storage.initializeIfEmpty(this.ENTITY, defaultTypes);
   }
 
-  findAll(): Observable<SocialNetworkTypeResponseDto[]> {
-    const types = this.storage.get<SocialNetworkTypeResponseDto>(this.ENTITY);
-    return of(types).pipe(delay(300));
+  create(createDto: CreateSocialNetworksTypeDto): Observable<SocialNetworksTypeResponseDto> {
+    const newType: SocialNetworksTypeResponseDto = {
+      id: 0,
+      tipo: createDto.tipo,
+      status: createDto.status !== undefined ? createDto.status : true,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    const saved = this.storage.add(this.ENTITY, newType);
+    return of(saved as SocialNetworksTypeResponseDto).pipe(delay(300));
   }
 
-  findOne(id: number): Observable<SocialNetworkTypeResponseDto | null> {
-    const type = this.storage.findById<SocialNetworkTypeResponseDto>(this.ENTITY, id);
+  findAll(pagination: any = {}): Observable<PaginatedResponseDto<SocialNetworksTypeResponseDto>> {
+    const types = this.storage.get<SocialNetworksTypeResponseDto>(this.ENTITY);
+    let filtered = types;
+    if (pagination.search) {
+      const search = pagination.search.toLowerCase();
+      filtered = types.filter(t => t.tipo.toLowerCase().includes(search));
+    }
+    const page = pagination.page || 1;
+    const limit = pagination.limit || 10;
+    const start = (page - 1) * limit;
+    const end = start + limit;
+    const data = filtered.slice(start, end);
+    const response: PaginatedResponseDto<SocialNetworksTypeResponseDto> = {
+      data,
+      meta: {
+        totalItems: filtered.length,
+        itemCount: data.length,
+        itemsPerPage: limit,
+        totalPages: Math.ceil(filtered.length / limit),
+        currentPage: page
+      }
+    };
+    return of(response).pipe(delay(300));
+  }
+
+  findOne(id: number): Observable<SocialNetworksTypeResponseDto> {
+    const type = this.storage.findById<SocialNetworksTypeResponseDto>(this.ENTITY, id);
+    if (!type) return throwError(() => new Error('Tipo de rede social não encontrado'));
     return of(type).pipe(delay(300));
+  }
+
+  update(id: number, updateDto: UpdateSocialNetworksTypeDto): Observable<SocialNetworksTypeResponseDto> {
+    const type = this.storage.findById<SocialNetworksTypeResponseDto>(this.ENTITY, id);
+    if (!type) return throwError(() => new Error('Tipo de rede social não encontrado'));
+    const updated = { ...type, ...updateDto, updatedAt: new Date() };
+    this.storage.update(this.ENTITY, id, updated);
+    return of(updated as SocialNetworksTypeResponseDto).pipe(delay(300));
+  }
+
+  toggleStatus(id: number, status: boolean): Observable<SocialNetworksTypeResponseDto> {
+    return this.update(id, { status });
+  }
+
+  remove(id: number): Observable<{ message: string }> {
+    const success = this.storage.delete(this.ENTITY, id);
+    if (!success) return throwError(() => new Error('Tipo de rede social não encontrado'));
+    return of({ message: 'Tipo de rede social removido com sucesso' }).pipe(delay(300));
   }
 }

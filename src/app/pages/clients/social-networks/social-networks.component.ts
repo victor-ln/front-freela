@@ -10,7 +10,7 @@ import {
   FilterBarComponent,
   SelectFilter,
 } from '../../../components/shared/filter-bar/filter-bar.component';
-import { SocialNetworkService } from '../../../core/services/social-network.service';
+import { MockSocialNetworkService } from '../../../core/services/social-network.service';
 import { SocialNetworkResponseDto } from '../../../core/dto/social-network.dto';
 
 @Component({
@@ -39,7 +39,7 @@ export class SocialNetworksComponent implements OnInit {
   selectedSocialNetwork: SocialNetwork | null = null;
   socialNetworkToDelete: SocialNetwork | null = null;
 
-  constructor(private socialNetworkService: SocialNetworkService) {}
+  constructor(private socialNetworkService: MockSocialNetworkService) {}
 
   ngOnInit(): void {
     this.loadSocialNetworks();

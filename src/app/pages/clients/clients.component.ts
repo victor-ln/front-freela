@@ -16,7 +16,7 @@ import {
   FilterBarComponent,
   SelectFilter,
 } from '../../components/shared/filter-bar/filter-bar.component';
-import { ClientService } from '../../core/services/client.service';
+import { MockClientService } from '../../core/services/client.service';
 import { ClientResponseDto } from '../../core/dto/client.dto';
 
 @Component({
@@ -59,7 +59,7 @@ export class ClientsComponent implements OnInit {
   selectedClient: Client | null = null;
   clientToDelete: Client | null = null;
 
-  constructor(private router: Router, private clientService: ClientService) {}
+  constructor(private router: Router, private clientService: MockClientService) {}
 
   ngOnInit(): void {
     this.loadClients();

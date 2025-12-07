@@ -3,8 +3,8 @@ import { CommonModule } from '@angular/common';
 import { ServiceModalComponent, Service } from '../../components/shared/service-modal/service-modal.component';
 import { ConfirmModalComponent } from '../../components/shared/confirm-modal/confirm-modal.component';
 import { FilterBarComponent, SelectFilter } from '../../components/shared/filter-bar/filter-bar.component';
-import { ServiceService } from '../../core/services/service.service';
-import { CategoryService } from '../../core/services/category.service';
+import { MockServiceService } from '../../core/services/service.service';
+import { MockCategoryService } from '../../core/services/category.service';
 import { TemplateService } from '../../core/services/template.service';
 import { ServiceResponseDto } from '../../core/dto/service.dto';
 import { CategoryResponseDto } from '../../core/dto/category.dto';
@@ -54,8 +54,8 @@ export class ServicesComponent implements OnInit {
   serviceToDelete: Service | null = null;
 
   constructor(
-    private serviceService: ServiceService,
-    private categoryService: CategoryService,
+    private serviceService: MockServiceService,
+    private categoryService: MockCategoryService,
     private templateService: TemplateService
   ) {}
 

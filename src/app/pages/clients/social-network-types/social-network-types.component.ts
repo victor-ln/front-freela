@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SocialNetworkTypeModalComponent, SocialNetworkType } from '../../../components/shared/social-network-type-modal/social-network-type-modal.component';
 import { ConfirmModalComponent } from '../../../components/shared/confirm-modal/confirm-modal.component';
-import { SocialNetworkTypeService } from '../../../core/services/social-network-type.service';
+import { MockSocialNetworkTypeService } from '../../../core/services/social-network-type.service';
 import { SocialNetworksTypeResponseDto } from '../../../core/dto/social-network-type.dto';
 
 @Component({
@@ -20,7 +20,7 @@ export class SocialNetworkTypesComponent implements OnInit {
   selectedSocialNetworkType: SocialNetworkType | null = null;
   socialNetworkTypeToDelete: any | null = null;
 
-  constructor(private socialNetworkTypeService: SocialNetworkTypeService) {}
+  constructor(private socialNetworkTypeService: MockSocialNetworkTypeService) {}
 
   ngOnInit(): void {
     this.loadTypes();
