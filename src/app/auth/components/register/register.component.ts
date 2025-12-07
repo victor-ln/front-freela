@@ -124,9 +124,9 @@ export class RegisterComponent {
       nome: formValue.nome,
       email: formValue.email,
       senha: formValue.senha,
-      cpfCnpj: formValue.cpfCnpj.replace(/\D/g, ''),
+      cpfCnpj: formValue.cpfCnpj, // Backend aceita formatado
       endereco: {
-        cep: formValue.cep.replace(/\D/g, ''),
+        cep: formValue.cep, // Backend exige formato XXXXX-XXX
         ruaAvenida: formValue.ruaAvenida,
         numero: formValue.numero,
         complemento: formValue.complemento || undefined,
