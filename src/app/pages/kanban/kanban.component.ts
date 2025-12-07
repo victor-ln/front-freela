@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { CdkDragDrop, moveItemInArray, transferArrayItem, DragDropModule } from '@angular/cdk/drag-drop';
 import { TaskModalComponent, Task } from '../../components/shared/task-modal/task-modal.component';
 import { ConfirmModalComponent } from '../../components/shared/confirm-modal/confirm-modal.component';
@@ -17,7 +18,7 @@ interface Column {
 
 @Component({
     selector: 'app-kanban',
-    imports: [CommonModule, DragDropModule, TaskModalComponent, ConfirmModalComponent],
+    imports: [CommonModule, FormsModule, DragDropModule, TaskModalComponent, ConfirmModalComponent],
     templateUrl: `./kanban.component.html`,
     styleUrl: `./kanban.component.css`
 })
@@ -45,6 +46,8 @@ export class KanbanComponent implements OnInit {
 
   isLoading = false;
   kanbanId: number | null = null;
+  kanbans: any[] = [];
+  selectedKanbanId: string = '';
   isTaskModalOpen = false;
   isConfirmModalOpen = false;
   isViewModalOpen = false;
@@ -54,27 +57,41 @@ export class KanbanComponent implements OnInit {
   constructor(private kanbanService: KanbanService) {}
 
   ngOnInit(): void {
-    this.loadKanban();
+    this.loadKanbans();
   }
 
-  loadKanban(): void {
+  loadKanbans(): void {
     this.isLoading = true;
-    // Busca todos os kanbans e usa o primeiro ativo
-    // TODO: Permitir selecionar kanban específico via rota ou dropdown
-    this.kanbanService.findAll({ page: 1, limit: 1 }).subscribe({
+    this.kanbanService.findAll({ page: 1, limit: 100 }).subscribe({
       next: (response) => {
+        this.kanbans = response.data;
         if (response.data.length > 0) {
           this.kanbanId = response.data[0].id;
+          this.selectedKanbanId = response.data[0].id.toString();
           this.loadTasks();
         } else {
           this.isLoading = false;
         }
       },
       error: (error) => {
-        console.error('Erro ao carregar kanban:', error);
+        console.error('Erro ao carregar kanbans:', error);
         this.isLoading = false;
       }
     });
+  }
+
+  onKanbanChange(event: Event): void {
+    const target = event.target as HTMLSelectElement;
+    const value = target.value;
+
+    if (value === '') {
+      // "Todos os Projetos" selecionado - pode carregar todos ou mostrar mensagem
+      this.kanbanId = null;
+      this.columns.forEach(col => col.tasks = []);
+    } else {
+      this.kanbanId = parseInt(value);
+      this.loadTasks();
+    }
   }
 
   loadTasks(): void {

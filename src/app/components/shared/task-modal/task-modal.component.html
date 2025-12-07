@@ -42,12 +42,10 @@
           class="form-select"
           [class.error]="isFieldInvalid('client')"
         >
-          <option value="">Selecione um cliente</option>
-          <option value="Empresa ABC">Empresa ABC</option>
-          <option value="Startup XYZ">Startup XYZ</option>
-          <option value="Loja 123">Loja 123</option>
-          <option value="Tech Inovação">Tech Inovação</option>
-          <option value="Moda Fashion">Moda Fashion</option>
+          <option value="">{{ isLoadingClients ? 'Carregando...' : 'Selecione um cliente' }}</option>
+          <option *ngFor="let client of clients" [value]="client.nomeRazaoSocial">
+            {{ client.nomeRazaoSocial }}
+          </option>
         </select>
         <div class="error-message" *ngIf="isFieldInvalid('client')">
           Cliente é obrigatório
@@ -64,12 +62,10 @@
           class="form-select"
           [class.error]="isFieldInvalid('proposal')"
         >
-          <option value="">Selecione uma proposta</option>
-          <option value="Website Corporativo">Website Corporativo</option>
-          <option value="App Mobile">App Mobile</option>
-          <option value="Consultoria UX">Consultoria UX</option>
-          <option value="E-commerce">E-commerce</option>
-          <option value="Identidade Visual">Identidade Visual</option>
+          <option value="">{{ isLoadingProposals ? 'Carregando...' : 'Selecione uma proposta' }}</option>
+          <option *ngFor="let proposal of proposals" [value]="proposal.titulo">
+            {{ proposal.titulo }}
+          </option>
         </select>
         <div class="error-message" *ngIf="isFieldInvalid('proposal')">
           Proposta é obrigatória

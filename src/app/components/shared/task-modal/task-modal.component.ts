@@ -2,6 +2,10 @@ import { Component, Input, Output, EventEmitter, OnChanges, OnInit } from '@angu
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ModalComponent } from '../modal/modal.component';
+import { ClientService } from '../../../core/services/client.service';
+import { ProposalService } from '../../../core/services/proposal.service';
+import { ClientResponseDto } from '../../../core/dto/client.dto';
+import { ProposalResponseDto } from '../../../core/dto/proposal.dto';
 
 export interface Task {
   id: string;
@@ -25,19 +29,29 @@ export class TaskModalComponent implements OnInit, OnChanges {
   @Input() isOpen = false;
   @Input() task: Task | null = null;
   @Input() isViewMode = false;
-  
+
   @Output() closed = new EventEmitter<void>();
   @Output() taskSaved = new EventEmitter<Task>();
 
   taskForm!: FormGroup;
   isSubmitting = false;
+  clients: ClientResponseDto[] = [];
+  proposals: ProposalResponseDto[] = [];
+  isLoadingClients = false;
+  isLoadingProposals = false;
 
-  constructor(private fb: FormBuilder) {
+  constructor(
+    private fb: FormBuilder,
+    private clientService: ClientService,
+    private proposalService: ProposalService
+  ) {
     this.initForm();
   }
 
   ngOnInit() {
     this.initForm();
+    this.loadClients();
+    this.loadProposals();
   }
 
   ngOnChanges() {
@@ -146,6 +160,34 @@ export class TaskModalComponent implements OnInit, OnChanges {
     this.resetForm();
     this.isSubmitting = false;
     this.closed.emit();
+  }
+
+  private loadClients(): void {
+    this.isLoadingClients = true;
+    this.clientService.findAll({ page: 1, limit: 100 }).subscribe({
+      next: (response) => {
+        this.clients = response.data;
+        this.isLoadingClients = false;
+      },
+      error: (error) => {
+        console.error('Erro ao carregar clientes:', error);
+        this.isLoadingClients = false;
+      }
+    });
+  }
+
+  private loadProposals(): void {
+    this.isLoadingProposals = true;
+    this.proposalService.findAll({ page: 1, limit: 100 }).subscribe({
+      next: (response) => {
+        this.proposals = response.data;
+        this.isLoadingProposals = false;
+      },
+      error: (error) => {
+        console.error('Erro ao carregar propostas:', error);
+        this.isLoadingProposals = false;
+      }
+    });
   }
 
   private generateId(): string {

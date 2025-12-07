@@ -2,6 +2,8 @@ import { Component, Input, Output, EventEmitter, OnChanges, OnInit } from '@angu
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ModalComponent } from '../modal/modal.component';
+import { ServiceService } from '../../../core/services/service.service';
+import { ServiceResponseDto } from '../../../core/dto/service.dto';
 
 export interface Proposal {
   id: string;
@@ -27,33 +29,26 @@ export class ProposalModalComponent implements OnInit, OnChanges {
   @Input() isOpen = false;
   @Input() proposal: Proposal | null = null;
   @Input() isViewMode = false;
-  
+
   @Output() closed = new EventEmitter<void>();
   @Output() proposalSaved = new EventEmitter<Proposal>();
 
   proposalForm!: FormGroup;
   isSubmitting = false;
   selectedServices: string[] = [];
+  availableServices: string[] = [];
+  isLoadingServices = false;
 
-  availableServices = [
-    'Website Corporativo',
-    'App Mobile',
-    'Design Gráfico',
-    'Identidade Visual',
-    'E-commerce',
-    'Consultoria UX',
-    'Desenvolvimento Backend',
-    'Desenvolvimento Frontend',
-    'SEO',
-    'Marketing Digital'
-  ];
-
-  constructor(private fb: FormBuilder) {
+  constructor(
+    private fb: FormBuilder,
+    private serviceService: ServiceService
+  ) {
     this.initForm();
   }
 
   ngOnInit() {
     this.initForm();
+    this.loadServices();
   }
 
   ngOnChanges() {
@@ -182,6 +177,20 @@ export class ProposalModalComponent implements OnInit, OnChanges {
     this.resetForm();
     this.isSubmitting = false;
     this.closed.emit();
+  }
+
+  private loadServices(): void {
+    this.isLoadingServices = true;
+    this.serviceService.findActive().subscribe({
+      next: (services) => {
+        this.availableServices = services.map(service => service.nome);
+        this.isLoadingServices = false;
+      },
+      error: (error) => {
+        console.error('Erro ao carregar serviços:', error);
+        this.isLoadingServices = false;
+      }
+    });
   }
 
   private generateId(): string {

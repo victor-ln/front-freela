@@ -7,11 +7,11 @@
       </p>
     </div>
     <div class="header-actions">
-      <select class="project-select">
+      <select class="project-select" [(ngModel)]="selectedKanbanId" (change)="onKanbanChange($event)">
         <option value="">Todos os Projetos</option>
-        <option value="projeto1">Website Corporativo - Empresa ABC</option>
-        <option value="projeto2">Consultoria UX - Tech Inovação</option>
-        <option value="projeto3">App Mobile - Startup XYZ</option>
+        <option *ngFor="let kanban of kanbans" [value]="kanban.id">
+          {{ kanban.titulo }} - {{ kanban.proposta?.cliente?.nomeRazaoSocial || 'Sem cliente' }}
+        </option>
       </select>
       <button class="btn-primary" (click)="openNewTaskModal('a-fazer')">
         <svg viewBox="0 0 24 24" fill="currentColor">
@@ -167,32 +167,8 @@
         </div>
       </div>
 
-      <div class="insight-card">
-        <div class="insight-icon">
-          <svg viewBox="0 0 24 24" fill="currentColor">
-            <circle cx="12" cy="12" r="10" />
-            <path d="M12 6v6l4 2" />
-          </svg>
-        </div>
-        <div class="insight-content">
-          <h4>Tempo Médio</h4>
-          <p class="insight-value">3.2 dias</p>
-          <span class="insight-description">por tarefa</span>
-        </div>
-      </div>
-
-      <div class="insight-card">
-        <div class="insight-icon">
-          <svg viewBox="0 0 24 24" fill="currentColor">
-            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
-          </svg>
-        </div>
-        <div class="insight-content">
-          <h4>Produtividade</h4>
-          <p class="insight-value">+15%</p>
-          <span class="insight-description">vs. mês anterior</span>
-        </div>
-      </div>
+      <!-- Métricas removidas: Tempo Médio e Produtividade -->
+      <!-- TODO: Implementar cálculo real de métricas no backend -->
     </div>
   </div>
 </div>
