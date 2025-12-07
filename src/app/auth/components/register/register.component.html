@@ -6,88 +6,210 @@
       <p>Comece a gerenciar seus projetos com eficiência.</p>
     </div>
 
+    <!-- Stepper -->
+    <div class="stepper">
+      <div class="step" [class.active]="currentStep === 1" [class.completed]="currentStep > 1">
+        <div class="step-number">1</div>
+        <div class="step-label">Dados Pessoais</div>
+      </div>
+      <div class="step-line" [class.completed]="currentStep > 1"></div>
+      <div class="step" [class.active]="currentStep === 2">
+        <div class="step-number">2</div>
+        <div class="step-label">Endereço</div>
+      </div>
+    </div>
+
     <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="auth-form">
-      <div class="form-group">
-        <label for="nome">Nome Completo</label>
-        <input type="text" id="nome" formControlName="nome" class="form-input" placeholder="Seu nome completo" />
+      <!-- Etapa 1: Dados Pessoais -->
+      <div *ngIf="currentStep === 1" class="step-content">
+        <div class="form-group">
+          <label for="nome">Nome Completo</label>
+          <input
+            type="text"
+            id="nome"
+            formControlName="nome"
+            class="form-input"
+            [class.input-error]="isFieldInvalid('nome')"
+            placeholder="Seu nome completo"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input
+            type="email"
+            id="email"
+            formControlName="email"
+            class="form-input"
+            [class.input-error]="isFieldInvalid('email')"
+            placeholder="seu@email.com"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="cpfCnpj">CPF/CNPJ</label>
+          <input
+            type="text"
+            id="cpfCnpj"
+            formControlName="cpfCnpj"
+            class="form-input"
+            [class.input-error]="isFieldInvalid('cpfCnpj')"
+            placeholder="000.000.000-00"
+            (input)="formatCpfCnpj($event)"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="senha">Senha</label>
+          <input
+            type="password"
+            id="senha"
+            formControlName="senha"
+            class="form-input"
+            [class.input-error]="isFieldInvalid('senha')"
+            placeholder="Mínimo 6 caracteres"
+          />
+        </div>
       </div>
 
-      <div class="form-group">
-        <label for="email">Email</label>
-        <input type="email" id="email" formControlName="email" class="form-input" placeholder="seu@email.com" />
-      </div>
-
-      <div class="form-group">
-        <label for="cpfCnpj">CPF/CNPJ</label>
-        <input type="text" id="cpfCnpj" formControlName="cpfCnpj" class="form-input" placeholder="000.000.000-00" />
-      </div>
-
-      <div class="form-group">
-        <label for="senha">Senha</label>
-        <input type="password" id="senha" formControlName="senha" class="form-input" placeholder="Mínimo 6 caracteres" />
-      </div>
-
-      <div class="form-section">
-        <h3>Endereço</h3>
-
-        <div class="form-row">
-          <div class="form-group form-group-small">
-            <label for="cep">CEP</label>
-            <input type="text" id="cep" formControlName="cep" class="form-input" placeholder="00000-000" />
-          </div>
+      <!-- Etapa 2: Endereço -->
+      <div *ngIf="currentStep === 2" class="step-content">
+        <div class="form-group">
+          <label for="cep">CEP</label>
+          <input
+            type="text"
+            id="cep"
+            formControlName="cep"
+            class="form-input"
+            [class.input-error]="isFieldInvalid('cep')"
+            placeholder="00000-000"
+            (input)="formatCep($event)"
+          />
         </div>
 
         <div class="form-group">
           <label for="ruaAvenida">Rua/Avenida</label>
-          <input type="text" id="ruaAvenida" formControlName="ruaAvenida" class="form-input" placeholder="Nome da rua ou avenida" />
+          <input
+            type="text"
+            id="ruaAvenida"
+            formControlName="ruaAvenida"
+            class="form-input"
+            [class.input-error]="isFieldInvalid('ruaAvenida')"
+            placeholder="Nome da rua ou avenida"
+          />
         </div>
 
-        <div class="form-row">
-          <div class="form-group form-group-small">
-            <label for="numero">Número</label>
-            <input type="text" id="numero" formControlName="numero" class="form-input" placeholder="123" />
-          </div>
+        <div class="form-group">
+          <label for="numero">Número</label>
+          <input
+            type="text"
+            id="numero"
+            formControlName="numero"
+            class="form-input"
+            [class.input-error]="isFieldInvalid('numero')"
+            placeholder="123"
+          />
+        </div>
 
-          <div class="form-group form-group-large">
-            <label for="complemento">Complemento (opcional)</label>
-            <input type="text" id="complemento" formControlName="complemento" class="form-input" placeholder="Apto, Bloco, etc" />
-          </div>
+        <div class="form-group">
+          <label for="complemento">Complemento (opcional)</label>
+          <input
+            type="text"
+            id="complemento"
+            formControlName="complemento"
+            class="form-input"
+            placeholder="Apto, Bloco, etc"
+          />
         </div>
 
         <div class="form-group">
           <label for="bairro">Bairro</label>
-          <input type="text" id="bairro" formControlName="bairro" class="form-input" placeholder="Nome do bairro" />
+          <input
+            type="text"
+            id="bairro"
+            formControlName="bairro"
+            class="form-input"
+            [class.input-error]="isFieldInvalid('bairro')"
+            placeholder="Nome do bairro"
+          />
         </div>
 
-        <div class="form-row">
-          <div class="form-group form-group-large">
-            <label for="cidade">Cidade</label>
-            <input type="text" id="cidade" formControlName="cidade" class="form-input" placeholder="Nome da cidade" />
-          </div>
+        <div class="form-group">
+          <label for="cidade">Cidade</label>
+          <input
+            type="text"
+            id="cidade"
+            formControlName="cidade"
+            class="form-input"
+            [class.input-error]="isFieldInvalid('cidade')"
+            placeholder="Nome da cidade"
+          />
+        </div>
 
-          <div class="form-group form-group-small">
-            <label for="estado">Estado</label>
-            <input type="text" id="estado" formControlName="estado" class="form-input" placeholder="UF" maxlength="2" />
-          </div>
+        <div class="form-group">
+          <label for="estado">Estado</label>
+          <select
+            id="estado"
+            formControlName="estado"
+            class="form-input"
+            [class.input-error]="isFieldInvalid('estado')"
+          >
+            <option value="">Selecione...</option>
+            <option *ngFor="let estado of estados" [value]="estado">{{ estado }}</option>
+          </select>
         </div>
 
         <div class="form-group">
           <label for="pais">País</label>
-          <input type="text" id="pais" formControlName="pais" class="form-input" placeholder="Brasil" />
+          <input
+            type="text"
+            id="pais"
+            formControlName="pais"
+            class="form-input"
+            placeholder="Brasil"
+          />
         </div>
       </div>
 
       <div *ngIf="errorMessage" class="error-message">
         {{ errorMessage }}
       </div>
-       <div *ngIf="successMessage" class="success-message">
+
+      <div *ngIf="successMessage" class="success-message">
         {{ successMessage }}
       </div>
 
-      <button type="submit" class="btn-primary" [disabled]="registerForm.invalid || isSubmitting">
-        <span *ngIf="!isSubmitting">Criar Conta</span>
-        <span *ngIf="isSubmitting" class="loading-spinner"></span>
-      </button>
+      <!-- Botões de navegação -->
+      <div class="button-group">
+        <button
+          *ngIf="currentStep > 1"
+          type="button"
+          class="btn-secondary"
+          (click)="previousStep()"
+          [disabled]="isSubmitting"
+        >
+          Voltar
+        </button>
+
+        <button
+          *ngIf="currentStep < totalSteps"
+          type="button"
+          class="btn-primary"
+          (click)="nextStep()"
+        >
+          Próximo
+        </button>
+
+        <button
+          *ngIf="currentStep === totalSteps"
+          type="submit"
+          class="btn-primary"
+          [disabled]="registerForm.invalid || isSubmitting"
+        >
+          <span *ngIf="!isSubmitting">Criar Conta</span>
+          <span *ngIf="isSubmitting" class="loading-spinner"></span>
+        </button>
+      </div>
     </form>
 
     <div class="auth-footer">
