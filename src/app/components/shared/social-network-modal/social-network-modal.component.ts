@@ -2,6 +2,10 @@ import { Component, Input, Output, EventEmitter, OnChanges, OnInit } from '@angu
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ModalComponent } from '../modal/modal.component';
+import { ClientService } from '../../../core/services/client.service';
+import { SocialNetworkTypeService } from '../../../core/services/social-network-type.service';
+import { ClientResponseDto } from '../../../core/dto/client.dto';
+import { SocialNetworksTypeResponseDto } from '../../../core/dto/social-network-type.dto';
 
 export interface SocialNetwork {
   id: string;
@@ -20,19 +24,29 @@ export interface SocialNetwork {
 export class SocialNetworkModalComponent implements OnInit, OnChanges {
   @Input() isOpen = false;
   @Input() socialNetwork: SocialNetwork | null = null;
-  
+
   @Output() closed = new EventEmitter<void>();
   @Output() socialNetworkSaved = new EventEmitter<SocialNetwork>();
 
   socialNetworkForm!: FormGroup;
   isSubmitting = false;
+  clients: ClientResponseDto[] = [];
+  socialNetworkTypes: SocialNetworksTypeResponseDto[] = [];
+  isLoadingClients = false;
+  isLoadingTypes = false;
 
-  constructor(private fb: FormBuilder) {
+  constructor(
+    private fb: FormBuilder,
+    private clientService: ClientService,
+    private socialNetworkTypeService: SocialNetworkTypeService
+  ) {
     this.initForm();
   }
 
   ngOnInit() {
     this.initForm();
+    this.loadClients();
+    this.loadSocialNetworkTypes();
   }
 
   ngOnChanges() {
@@ -116,6 +130,34 @@ export class SocialNetworkModalComponent implements OnInit, OnChanges {
     this.resetForm();
     this.isSubmitting = false;
     this.closed.emit();
+  }
+
+  private loadClients(): void {
+    this.isLoadingClients = true;
+    this.clientService.findAll({ page: 1, limit: 100 }).subscribe({
+      next: (response) => {
+        this.clients = response.data;
+        this.isLoadingClients = false;
+      },
+      error: (error) => {
+        console.error('Erro ao carregar clientes:', error);
+        this.isLoadingClients = false;
+      }
+    });
+  }
+
+  private loadSocialNetworkTypes(): void {
+    this.isLoadingTypes = true;
+    this.socialNetworkTypeService.findAll({ page: 1, limit: 100 }).subscribe({
+      next: (response) => {
+        this.socialNetworkTypes = response.data;
+        this.isLoadingTypes = false;
+      },
+      error: (error) => {
+        console.error('Erro ao carregar tipos de rede social:', error);
+        this.isLoadingTypes = false;
+      }
+    });
   }
 
   private generateId(): string {

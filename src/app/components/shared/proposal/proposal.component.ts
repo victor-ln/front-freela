@@ -3,7 +3,11 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ModalComponent } from '../modal/modal.component';
 import { ServiceService } from '../../../core/services/service.service';
+import { ClientService } from '../../../core/services/client.service';
+import { TemplateService } from '../../../core/services/template.service';
 import { ServiceResponseDto } from '../../../core/dto/service.dto';
+import { ClientResponseDto } from '../../../core/dto/client.dto';
+import { TemplateResponseDto } from '../../../core/dto/template.dto';
 
 export interface Proposal {
   id: string;
@@ -37,11 +41,17 @@ export class ProposalModalComponent implements OnInit, OnChanges {
   isSubmitting = false;
   selectedServices: string[] = [];
   availableServices: string[] = [];
+  clients: ClientResponseDto[] = [];
+  templates: TemplateResponseDto[] = [];
   isLoadingServices = false;
+  isLoadingClients = false;
+  isLoadingTemplates = false;
 
   constructor(
     private fb: FormBuilder,
-    private serviceService: ServiceService
+    private serviceService: ServiceService,
+    private clientService: ClientService,
+    private templateService: TemplateService
   ) {
     this.initForm();
   }
@@ -49,6 +59,8 @@ export class ProposalModalComponent implements OnInit, OnChanges {
   ngOnInit() {
     this.initForm();
     this.loadServices();
+    this.loadClients();
+    this.loadTemplates();
   }
 
   ngOnChanges() {
@@ -189,6 +201,34 @@ export class ProposalModalComponent implements OnInit, OnChanges {
       error: (error) => {
         console.error('Erro ao carregar serviços:', error);
         this.isLoadingServices = false;
+      }
+    });
+  }
+
+  private loadClients(): void {
+    this.isLoadingClients = true;
+    this.clientService.findAll({ page: 1, limit: 100 }).subscribe({
+      next: (response) => {
+        this.clients = response.data;
+        this.isLoadingClients = false;
+      },
+      error: (error) => {
+        console.error('Erro ao carregar clientes:', error);
+        this.isLoadingClients = false;
+      }
+    });
+  }
+
+  private loadTemplates(): void {
+    this.isLoadingTemplates = true;
+    this.templateService.findApproved().subscribe({
+      next: (templates) => {
+        this.templates = templates;
+        this.isLoadingTemplates = false;
+      },
+      error: (error) => {
+        console.error('Erro ao carregar templates:', error);
+        this.isLoadingTemplates = false;
       }
     });
   }

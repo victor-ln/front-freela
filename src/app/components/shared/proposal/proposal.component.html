@@ -52,12 +52,10 @@
           class="form-select"
           [class.error]="isFieldInvalid('clientName')"
         >
-          <option value="">Selecione um cliente</option>
-          <option value="Empresa ABC Ltda">Empresa ABC Ltda</option>
-          <option value="Startup XYZ">Startup XYZ</option>
-          <option value="Loja 123">Loja 123</option>
-          <option value="Tech Inovação">Tech Inovação</option>
-          <option value="Moda Fashion">Moda Fashion</option>
+          <option value="">{{ isLoadingClients ? 'Carregando...' : 'Selecione um cliente' }}</option>
+          <option *ngFor="let client of clients" [value]="client.nomeRazaoSocial">
+            {{ client.nomeRazaoSocial }}
+          </option>
         </select>
         <div class="error-message" *ngIf="isFieldInvalid('clientName')">
           Cliente é obrigatório
@@ -67,15 +65,10 @@
       <div class="form-group">
         <label for="template">Template Associado</label>
         <select id="template" formControlName="template" class="form-select">
-          <option value="">Nenhum template</option>
-          <option value="Contrato Desenvolvimento Web">
-            Contrato Desenvolvimento Web
+          <option value="">{{ isLoadingTemplates ? 'Carregando...' : 'Nenhum template' }}</option>
+          <option *ngFor="let template of templates" [value]="template.nome">
+            {{ template.nome }}
           </option>
-          <option value="Contrato Design Gráfico">
-            Contrato Design Gráfico
-          </option>
-          <option value="Contrato App Mobile">Contrato App Mobile</option>
-          <option value="Contrato Consultoria">Contrato Consultoria</option>
         </select>
       </div>
 

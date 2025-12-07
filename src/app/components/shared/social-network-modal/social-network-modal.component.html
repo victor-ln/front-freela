@@ -18,12 +18,10 @@
           class="form-select"
           [class.error]="isFieldInvalid('clientName')"
         >
-          <option value="">Selecione um cliente</option>
-          <option value="Empresa ABC Ltda">Empresa ABC Ltda</option>
-          <option value="Startup XYZ">Startup XYZ</option>
-          <option value="Loja 123">Loja 123</option>
-          <option value="Tech Inovação">Tech Inovação</option>
-          <option value="Moda Fashion">Moda Fashion</option>
+          <option value="">{{ isLoadingClients ? 'Carregando...' : 'Selecione um cliente' }}</option>
+          <option *ngFor="let client of clients" [value]="client.nomeRazaoSocial">
+            {{ client.nomeRazaoSocial }}
+          </option>
         </select>
         <div class="error-message" *ngIf="isFieldInvalid('clientName')">
           Cliente é obrigatório
@@ -40,14 +38,10 @@
           class="form-select"
           [class.error]="isFieldInvalid('type')"
         >
-          <option value="">Selecione o tipo</option>
-          <option value="Facebook">Facebook</option>
-          <option value="Instagram">Instagram</option>
-          <option value="LinkedIn">LinkedIn</option>
-          <option value="Twitter">Twitter</option>
-          <option value="TikTok">TikTok</option>
-          <option value="YouTube">YouTube</option>
-          <option value="WhatsApp Business">WhatsApp Business</option>
+          <option value="">{{ isLoadingTypes ? 'Carregando...' : 'Selecione o tipo' }}</option>
+          <option *ngFor="let type of socialNetworkTypes" [value]="type.tipo">
+            {{ type.tipo }}
+          </option>
         </select>
         <div class="error-message" *ngIf="isFieldInvalid('type')">
           Tipo é obrigatório

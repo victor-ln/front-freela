@@ -26,6 +26,8 @@ export class ProfileComponent implements OnInit {
     name: '',
     email: '',
     document: '',
+    phone: '',
+    bio: '',
     address: {
       cep: '',
       street: '',
