@@ -2,6 +2,8 @@ import { Component, Input, Output, EventEmitter, OnChanges, OnInit } from '@angu
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ModalComponent } from '../modal/modal.component';
+import { ClientService } from '../../../core/services/client.service';
+import { ClientResponseDto, CreateClientDto, UpdateClientDto } from '../../../core/dto/client.dto';
 
 export interface Client {
   id: string;
@@ -40,7 +42,10 @@ export class ClientModalComponent implements OnInit, OnChanges {
   clientForm!: FormGroup;
   isSubmitting = false;
 
-  constructor(private fb: FormBuilder) {
+  constructor(
+    private fb: FormBuilder,
+    private clientService: ClientService
+  ) {
     this.initForm();
   }
 
@@ -62,7 +67,8 @@ export class ClientModalComponent implements OnInit, OnChanges {
       status: ['active', Validators.required],
       name: ['', [Validators.required, Validators.minLength(3)]],
       responsible: [''],
-      phone: ['', Validators.required],
+      primaryPhone: ['', Validators.required],
+      secondaryPhone: [''],
       document: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       cep: ['', Validators.required],
@@ -82,7 +88,8 @@ export class ClientModalComponent implements OnInit, OnChanges {
         status: this.client.status,
         name: this.client.name,
         responsible: this.client.responsible,
-        phone: this.client.phone,
+        primaryPhone: this.client.phone,
+        secondaryPhone: '',
         document: this.client.document,
         email: this.client.email,
         cep: this.client.address.cep,
@@ -127,34 +134,114 @@ export class ClientModalComponent implements OnInit, OnChanges {
     if (this.isViewMode) return;
     if (this.clientForm.valid && !this.isSubmitting) {
       this.isSubmitting = true;
-      
-      const formValue = this.clientForm.getRawValue();
-      
-      const clientData: Client = {
-        id: this.client?.id || this.generateId(),
-        status: formValue.status,
-        name: formValue.name,
-        responsible: formValue.responsible,
-        phone: formValue.phone,
-        document: formValue.document,
-        email: formValue.email,
-        address: {
-          cep: formValue.cep,
-          street: formValue.street,
-          number: formValue.number,
-          complement: formValue.complement,
-          neighborhood: formValue.neighborhood,
-          city: formValue.city,
-          state: formValue.state,
-          country: formValue.country
-        }
-      };
 
-      setTimeout(() => {
-        this.clientSaved.emit(clientData);
-        this.isSubmitting = false;
-        this.onModalClose();
-      }, 500);
+      const formValue = this.clientForm.getRawValue();
+
+      if (this.client?.id) {
+        // Atualizar cliente existente
+        const updateDto: UpdateClientDto = {
+          status: formValue.status,
+          nomeRazaoSocial: formValue.name,
+          responsavel: formValue.responsible,
+          telefonePrincipal: formValue.primaryPhone,
+          telefoneSecundario: formValue.secondaryPhone || undefined,
+          cpfCnpj: formValue.document,
+          email: formValue.email,
+          endereco: {
+            cep: formValue.cep,
+            ruaAvenida: formValue.street,
+            numero: formValue.number,
+            complemento: formValue.complement || undefined,
+            bairro: formValue.neighborhood,
+            cidade: formValue.city,
+            estado: formValue.state,
+            pais: formValue.country
+          }
+        };
+
+        this.clientService.update(Number(this.client.id), updateDto).subscribe({
+          next: (response) => {
+            const clientData: Client = {
+              id: response.id.toString(),
+              status: response.status,
+              name: response.nomeRazaoSocial,
+              responsible: response.responsavel || '',
+              phone: response.telefonePrincipal,
+              document: response.cpfCnpj,
+              email: response.email,
+              address: {
+                cep: response.endereco.cep,
+                street: response.endereco.ruaAvenida,
+                number: response.endereco.numero,
+                complement: response.endereco.complemento,
+                neighborhood: response.endereco.bairro,
+                city: response.endereco.cidade,
+                state: response.endereco.estado,
+                country: response.endereco.pais
+              }
+            };
+            this.clientSaved.emit(clientData);
+            this.isSubmitting = false;
+            this.onModalClose();
+          },
+          error: (error) => {
+            console.error('Erro ao atualizar cliente:', error);
+            this.isSubmitting = false;
+          }
+        });
+      } else {
+        // Criar novo cliente
+        const createDto: CreateClientDto = {
+          status: formValue.status,
+          nomeRazaoSocial: formValue.name,
+          responsavel: formValue.responsible || undefined,
+          telefonePrincipal: formValue.primaryPhone,
+          telefoneSecundario: formValue.secondaryPhone || undefined,
+          cpfCnpj: formValue.document,
+          email: formValue.email,
+          endereco: {
+            cep: formValue.cep,
+            ruaAvenida: formValue.street,
+            numero: formValue.number,
+            complemento: formValue.complement || undefined,
+            bairro: formValue.neighborhood,
+            cidade: formValue.city,
+            estado: formValue.state,
+            pais: formValue.country
+          }
+        };
+
+        this.clientService.create(createDto).subscribe({
+          next: (response) => {
+            const clientData: Client = {
+              id: response.id.toString(),
+              status: response.status,
+              name: response.nomeRazaoSocial,
+              responsible: response.responsavel || '',
+              phone: response.telefonePrincipal,
+              document: response.cpfCnpj,
+              email: response.email,
+              address: {
+                cep: response.endereco.cep,
+                street: response.endereco.ruaAvenida,
+                number: response.endereco.numero,
+                complement: response.endereco.complemento,
+                neighborhood: response.endereco.bairro,
+                city: response.endereco.cidade,
+                state: response.endereco.estado,
+                country: response.endereco.pais
+              }
+            };
+            this.clientSaved.emit(clientData);
+            this.isSubmitting = false;
+            this.onModalClose();
+          },
+          error: (error) => {
+            console.error('Erro ao criar cliente:', error);
+            this.isSubmitting = false;
+          }
+        });
+      }
     } else {
       Object.keys(this.clientForm.controls).forEach(key => {
         this.clientForm.get(key)?.markAsTouched();

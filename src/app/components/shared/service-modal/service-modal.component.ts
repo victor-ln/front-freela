@@ -4,6 +4,8 @@ import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } 
 import { ModalComponent } from '../modal/modal.component';
 import { CategoryResponseDto } from '../../../core/dto/category.dto';
 import { TemplateResponseDto } from '../../../core/dto/template.dto';
+import { CategoryService } from '../../../core/services/category.service';
+import { TemplateService } from '../../../core/services/template.service';
 
 export interface Service {
   id: string;
@@ -28,18 +30,28 @@ export interface Service {
 export class ServiceModalComponent implements OnInit, OnChanges {
   @Input() isOpen = false;
   @Input() service: Service | null = null;
-  @Input() categories: CategoryResponseDto[] = [];
-  @Input() templates: TemplateResponseDto[] = [];
 
   @Output() closed = new EventEmitter<void>();
   @Output() serviceSaved = new EventEmitter<Service>();
 
   serviceForm!: FormGroup;
   isSubmitting = false;
+  categories: CategoryResponseDto[] = [];
+  templates: TemplateResponseDto[] = [];
+  isLoadingCategories = false;
+  isLoadingTemplates = false;
 
-  constructor(private fb: FormBuilder) { this.initForm(); }
+  constructor(
+    private fb: FormBuilder,
+    private categoryService: CategoryService,
+    private templateService: TemplateService
+  ) { this.initForm(); }
 
-  ngOnInit() { this.initForm(); }
+  ngOnInit() {
+    this.initForm();
+    this.loadCategories();
+    this.loadTemplates();
+  }
 
   ngOnChanges() {
     if (this.service && this.serviceForm) {
@@ -116,4 +128,32 @@ export class ServiceModalComponent implements OnInit, OnChanges {
 
   onCancel() { this.onModalClose(); }
   onModalClose() { this.resetForm(); this.isSubmitting = false; this.closed.emit(); }
+
+  private loadCategories(): void {
+    this.isLoadingCategories = true;
+    this.categoryService.findAllActive().subscribe({
+      next: (categories) => {
+        this.categories = categories;
+        this.isLoadingCategories = false;
+      },
+      error: (error) => {
+        console.error('Erro ao carregar categorias:', error);
+        this.isLoadingCategories = false;
+      }
+    });
+  }
+
+  private loadTemplates(): void {
+    this.isLoadingTemplates = true;
+    this.templateService.findApproved().subscribe({
+      next: (templates) => {
+        this.templates = templates;
+        this.isLoadingTemplates = false;
+      },
+      error: (error) => {
+        console.error('Erro ao carregar templates:', error);
+        this.isLoadingTemplates = false;
+      }
+    });
+  }
 }
