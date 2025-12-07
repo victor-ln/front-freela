@@ -71,69 +71,18 @@
     </div>
   </div>
 
-  <div class="category-insights">
-    <div class="insights-header">
-      <h2>Insights das Categorias</h2>
-    </div>
-    <div class="insights-grid">
-      <div class="insight-card">
-        <div class="insight-icon development">
-          <svg viewBox="0 0 24 24" fill="currentColor">
-            <rect width="20" height="14" x="2" y="7" rx="2" ry="2" />
-            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
-          </svg>
-        </div>
-        <div class="insight-content">
-          <h4>Mais Requisitada</h4>
-          <p>Desenvolvimento</p>
-          <span class="insight-stat">65% das propostas</span>
-        </div>
-      </div>
+  <app-category-modal
+    [isOpen]="isCategoryModalOpen"
+    [category]="selectedCategory"
+    (closed)="closeCategoryModal()"
+    (categorySaved)="handleCategorySaved($event)">
+  </app-category-modal>
 
-      <div class="insight-card">
-        <div class="insight-icon revenue">
-          <svg viewBox="0 0 24 24" fill="currentColor">
-            <line x1="12" y1="1" x2="12" y2="23" />
-            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-          </svg>
-        </div>
-        <div class="insight-content">
-          <h4>Maior Receita</h4>
-          <p>Desenvolvimento</p>
-          <span class="insight-stat">R$ 45.200</span>
-        </div>
-      </div>
-
-      <div class="insight-card">
-        <div class="insight-icon growth">
-          <svg viewBox="0 0 24 24" fill="currentColor">
-            <path
-              d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"
-            />
-            <path d="M12 9v4m0 4h.01" />
-          </svg>
-        </div>
-        <div class="insight-content">
-          <h4>Em Crescimento</h4>
-          <p>Consultoria</p>
-          <span class="insight-stat">+25% este mês</span>
-        </div>
-      </div>
-    </div>
-  </div>
+  <app-confirm-modal
+    [isOpen]="isConfirmModalOpen"
+    title="Confirmar Exclusão"
+    message="Tem certeza que deseja excluir esta categoria?"
+    (confirmed)="deleteCategoryConfirmed()"
+    (closed)="closeConfirmModal()">
+  </app-confirm-modal>
 </div>
-
-<app-category-modal
-  [isOpen]="isCategoryModalOpen"
-  [category]="selectedCategory"
-  (closed)="closeCategoryModal()"
-  (categorySaved)="handleCategorySaved($event)">
-</app-category-modal>
-
-<app-confirm-modal
-  [isOpen]="isConfirmModalOpen"
-  title="Confirmar Exclusão"
-  message="Tem certeza que deseja excluir esta categoria?"
-  (confirmed)="deleteCategoryConfirmed()"
-  (closed)="closeConfirmModal()">
-</app-confirm-modal>

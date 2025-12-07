@@ -2,9 +2,9 @@
   <div class="header-content">
     <div class="user-info">
       <div class="user-avatar">
-        <span class="avatar-initials">FL</span>
+        <span class="avatar-initials">{{ getInitials() }}</span>
       </div>
-      <span class="user-name">Freelancer</span>
+      <span class="user-name">{{ userName || 'Carregando...' }}</span>
     </div>
     <button class="btn-logout" (click)="logout()" title="Sair">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

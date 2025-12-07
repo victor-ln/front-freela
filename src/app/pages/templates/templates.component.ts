@@ -5,7 +5,6 @@ import { ConfirmModalComponent } from '../../components/shared/confirm-modal/con
 import { FilterBarComponent, SelectFilter } from '../../components/shared/filter-bar/filter-bar.component';
 import { TemplateService } from '../../core/services/template.service';
 import { TemplateResponseDto } from '../../core/dto/template.dto';
-import { TemplateStatus } from '../../core/enums/template-status.enum';
 
 @Component({
   selector: 'app-templates',
@@ -18,27 +17,9 @@ export class TemplatesComponent implements OnInit {
   templates: Template[] = [];
   filteredTemplates: Template[] = [];
   isLoading = false;
-
   searchFields: (keyof Template)[] = ['name'];
   selectFilters: SelectFilter[] = [
-    {
-      label: 'Todos os Status',
-      model: 'status',
-      options: [
-        { value: 'approved', label: 'Aprovado' },
-        { value: 'review', label: 'Em Revisão' },
-        { value: 'draft', label: 'Rascunho' }
-      ]
-    },
-    {
-      label: 'Todos os Tipos',
-      model: 'type',
-      options: [
-        { value: 'Contrato', label: 'Contrato' },
-        { value: 'Proposta', label: 'Proposta' },
-        { value: 'Acordo', label: 'Acordo' }
-      ]
-    }
+    { label: 'Todos os Status', model: 'status', options: [{ value: 'approved', label: 'Aprovado' }, { value: 'review', label: 'Em Revisão' }, { value: 'draft', label: 'Rascunho' }] }
   ];
 
   isTemplateModalOpen = false;
@@ -48,42 +29,40 @@ export class TemplatesComponent implements OnInit {
 
   constructor(private templateService: TemplateService) {}
 
-  ngOnInit(): void {
-    this.loadTemplates();
-  }
+  ngOnInit(): void { this.loadTemplates(); }
 
   loadTemplates(): void {
     this.isLoading = true;
     this.templateService.findAll({ page: 1, limit: 100 }).subscribe({
-      next: (response) => {
-        this.templates = response.data.map(this.mapTemplateFromApi);
+      next: (res) => {
+        this.templates = res.data.map(this.mapTemplateFromApi);
         this.filteredTemplates = [...this.templates];
         this.isLoading = false;
       },
-      error: (error) => {
-        console.error('Erro ao carregar templates:', error);
-        this.isLoading = false;
-      }
+      error: () => this.isLoading = false
     });
   }
 
-  private mapTemplateFromApi(templateDto: TemplateResponseDto): Template {
+  private mapTemplateFromApi(dto: TemplateResponseDto): Template {
+    let status = 'review';
+    if (dto.status === 'Ativo') status = 'approved';
+    else if (dto.status === 'Inativo') status = 'draft';
+    
     return {
-      id: templateDto.id.toString(),
-      name: templateDto.nome,
-      status: templateDto.status.toLowerCase(),
-      type: 'Contrato', // TODO: A API não retorna tipo, ajustar conforme necessário
-      createdAt: new Date(templateDto.createdAt),
-      updatedAt: new Date(templateDto.updatedAt),
-      usageCount: 0, // TODO: A API não retorna usageCount
-      variables: [], // TODO: A API não retorna variables
+      id: dto.id.toString(),
+      name: dto.nome,
+      status: status,
+      type: 'Contrato',
+      createdAt: new Date(dto.createdAt),
+      updatedAt: new Date(dto.updatedAt),
+      usageCount: 0,
+      variables: []
     };
   }
 
-  handleFilteredData(data: Template[]): void {
-    this.filteredTemplates = data;
-  }
+  handleFilteredData(data: Template[]) { this.filteredTemplates = data; }
 
+  // Método restaurado para corrigir o erro no HTML
   getStatusLabel(status: string): string {
     const labels: { [key: string]: string } = {
       'approved': 'Aprovado',
@@ -93,6 +72,7 @@ export class TemplatesComponent implements OnInit {
     return labels[status] || status;
   }
 
+  // Método restaurado para corrigir o erro TS2551
   downloadTemplate(template: Template) {
     const id = parseInt(template.id);
     this.templateService.downloadTemplate(id).subscribe({
@@ -100,7 +80,8 @@ export class TemplatesComponent implements OnInit {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `${template.name}.pdf`;
+        // Assume PDF baseado no código anterior, mas idealmente viria do mime-type do blob
+        a.download = `${template.name}.pdf`; 
         a.click();
         window.URL.revokeObjectURL(url);
       },
@@ -110,75 +91,47 @@ export class TemplatesComponent implements OnInit {
     });
   }
 
-  openNewTemplateModal() {
-    this.selectedTemplate = null;
-    this.isTemplateModalOpen = true;
-  }
+  openNewTemplateModal() { this.selectedTemplate = null; this.isTemplateModalOpen = true; }
+  openEditTemplateModal(t: Template) { this.selectedTemplate = { ...t }; this.isTemplateModalOpen = true; }
+  closeTemplateModal() { this.isTemplateModalOpen = false; this.selectedTemplate = null; }
 
-  openEditTemplateModal(template: Template) {
-    this.selectedTemplate = { ...template };
-    this.isTemplateModalOpen = true;
-  }
-
-  closeTemplateModal() {
-    this.isTemplateModalOpen = false;
-    this.selectedTemplate = null;
-  }
-
-  handleTemplateSaved(template: any) {
-    const templateDto = {
-      nome: template.name,
-      anexo: template.anexo || '', // TODO: Ajustar modal para enviar arquivo
-      status: template.status.toUpperCase() as TemplateStatus,
+  handleTemplateSaved(template: Template) {
+    // Mapeamento Correto de Status (Frontend -> Backend)
+    const statusMap: Record<string, string> = {
+      'approved': 'Ativo',
+      'review': 'Em Revisão',
+      'draft': 'Inativo'
     };
 
-    if (template.id && template.id !== 'new') {
-      const id = parseInt(template.id);
-      this.templateService.update(id, templateDto).subscribe({
-        next: () => {
-          this.loadTemplates();
-          this.closeTemplateModal();
-        },
-        error: (error) => {
-          console.error('Erro ao atualizar template:', error);
-        }
+    // Placeholder para anexo se não houver arquivo
+    const anexoNome = template.fileAttachment?.name || `${template.name.trim().replace(/\s+/g, '_')}.docx`;
+
+    const dto = {
+      nome: template.name,
+      anexo: anexoNome,
+      status: statusMap[template.status] || 'Em Revisão'
+    };
+
+    if (template.id && template.id.length < 10) {
+      this.templateService.update(parseInt(template.id), dto as any).subscribe({
+        next: () => { this.loadTemplates(); this.closeTemplateModal(); },
+        error: (err) => console.error(err)
       });
     } else {
-      this.templateService.create(templateDto).subscribe({
-        next: () => {
-          this.loadTemplates();
-          this.closeTemplateModal();
-        },
-        error: (error) => {
-          console.error('Erro ao criar template:', error);
-        }
+      this.templateService.create(dto as any).subscribe({
+        next: () => { this.loadTemplates(); this.closeTemplateModal(); },
+        error: (err) => alert('Erro: ' + (Array.isArray(err.error?.message) ? err.error.message.join('\n') : err.error?.message))
       });
     }
   }
 
-  confirmDeleteTemplate(template: Template) {
-    this.templateToDelete = template;
-    this.isConfirmModalOpen = true;
-  }
-
+  confirmDeleteTemplate(t: Template) { this.templateToDelete = t; this.isConfirmModalOpen = true; }
   deleteTemplateConfirmed() {
-    if (this.templateToDelete && this.templateToDelete.id) {
-      const id = parseInt(this.templateToDelete.id);
-      this.templateService.remove(id).subscribe({
-        next: () => {
-          this.loadTemplates();
-          this.closeConfirmModal();
-        },
-        error: (error) => {
-          console.error('Erro ao deletar template:', error);
-          this.closeConfirmModal();
-        }
+    if (this.templateToDelete) {
+      this.templateService.remove(parseInt(this.templateToDelete.id)).subscribe(() => {
+        this.loadTemplates(); this.closeConfirmModal();
       });
     }
   }
-
-  closeConfirmModal() {
-    this.isConfirmModalOpen = false;
-    this.templateToDelete = null;
-  }
+  closeConfirmModal() { this.isConfirmModalOpen = false; this.templateToDelete = null; }
 }

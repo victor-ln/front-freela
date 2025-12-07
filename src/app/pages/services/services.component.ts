@@ -1,16 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {
-  ServiceModalComponent,
-  Service,
-} from '../../components/shared/service-modal/service-modal.component';
+import { ServiceModalComponent, Service } from '../../components/shared/service-modal/service-modal.component';
 import { ConfirmModalComponent } from '../../components/shared/confirm-modal/confirm-modal.component';
-import {
-  FilterBarComponent,
-  SelectFilter,
-} from '../../components/shared/filter-bar/filter-bar.component';
+import { FilterBarComponent, SelectFilter } from '../../components/shared/filter-bar/filter-bar.component';
 import { ServiceService } from '../../core/services/service.service';
+import { CategoryService } from '../../core/services/category.service';
+import { TemplateService } from '../../core/services/template.service';
 import { ServiceResponseDto } from '../../core/dto/service.dto';
+import { CategoryResponseDto } from '../../core/dto/category.dto';
+import { TemplateResponseDto } from '../../core/dto/template.dto';
 import { ServiceStatus } from '../../core/enums/service-status.enum';
 import { TimeUnit } from '../../core/enums/time-unit.enum';
 
@@ -29,19 +27,16 @@ import { TimeUnit } from '../../core/enums/time-unit.enum';
 export class ServicesComponent implements OnInit {
   services: Service[] = [];
   filteredServices: Service[] = [];
+  categories: CategoryResponseDto[] = [];
+  templates: TemplateResponseDto[] = [];
   isLoading = false;
 
-  // Configuração para o FilterBarComponent
   searchFields: (keyof Service)[] = ['name', 'description'];
   selectFilters: SelectFilter[] = [
     {
       label: 'Todas as Categorias',
       model: 'category',
-      options: [
-        { value: 'Desenvolvimento', label: 'Desenvolvimento' },
-        { value: 'Design', label: 'Design' },
-        { value: 'Consultoria', label: 'Consultoria' },
-      ],
+      options: [], // Será populado dinamicamente
     },
     {
       label: 'Todos os Status',
@@ -58,10 +53,37 @@ export class ServicesComponent implements OnInit {
   selectedService: Service | null = null;
   serviceToDelete: Service | null = null;
 
-  constructor(private serviceService: ServiceService) {}
+  constructor(
+    private serviceService: ServiceService,
+    private categoryService: CategoryService,
+    private templateService: TemplateService
+  ) {}
 
   ngOnInit(): void {
+    this.loadDependencies();
     this.loadServices();
+  }
+
+  loadDependencies(): void {
+    // Carregar Categorias
+    this.categoryService.findAllActive().subscribe({
+      next: (data) => {
+        this.categories = data;
+        const catFilter = this.selectFilters.find(f => f.model === 'category');
+        if (catFilter) {
+          catFilter.options = data.map(c => ({ value: c.tipo, label: c.tipo }));
+        }
+      },
+      error: (err) => console.error('Erro ao carregar categorias', err)
+    });
+
+    // Carregar Templates
+    this.templateService.findAll({ page: 1, limit: 100 }).subscribe({
+      next: (response) => {
+        this.templates = response.data;
+      },
+      error: (err) => console.error('Erro ao carregar templates', err)
+    });
   }
 
   loadServices(): void {
@@ -85,9 +107,11 @@ export class ServicesComponent implements OnInit {
       name: serviceDto.nome,
       description: serviceDto.descricao,
       category: serviceDto.categoria.tipo,
+      categoryId: serviceDto.categoria.id,
       deliveryTime: serviceDto.prazoEntrega,
       timeUnit: serviceDto.unidadeTempoEntrega,
       templateBase: serviceDto.templateBase?.nome || '',
+      templateBaseId: serviceDto.templateBase?.id,
       basePrice: serviceDto.precoBase,
       status: serviceDto.status === ServiceStatus.ATIVO ? 'active' : 'inactive',
     };
@@ -112,42 +136,34 @@ export class ServicesComponent implements OnInit {
     this.selectedService = null;
   }
 
-  handleServiceSaved(service: any) {
-    // TODO: O modal precisa enviar categoriaId e templateBaseId ao invés de strings
-    // Por enquanto, esta implementação espera que o modal já envie os dados corretos
+  handleServiceSaved(service: Service) {
     const serviceDto = {
       nome: service.name,
       descricao: service.description,
-      categoriaId: service.categoryId || parseInt(service.category), // TODO: Ajustar modal
+      categoriaId: service.categoryId!, // ID vindo do modal
       prazoEntrega: service.deliveryTime,
       unidadeTempoEntrega: service.timeUnit as TimeUnit,
-      templateBaseId: service.templateBaseId || 1, // TODO: Ajustar modal
+      templateBaseId: service.templateBaseId, // Pode ser undefined (opcional no DTO agora)
       precoBase: service.basePrice,
       status: service.status === 'active' ? ServiceStatus.ATIVO : ServiceStatus.INATIVO,
     };
 
-    if (service.id && service.id !== 'new') {
-      // Atualizar serviço existente
+    if (service.id && service.id.length < 10) { // Verifica se é ID numérico do backend
       const id = parseInt(service.id);
       this.serviceService.update(id, serviceDto).subscribe({
         next: () => {
           this.loadServices();
           this.closeServiceModal();
         },
-        error: (error) => {
-          console.error('Erro ao atualizar serviço:', error);
-        }
+        error: (error) => console.error('Erro ao atualizar serviço:', error)
       });
     } else {
-      // Criar novo serviço
       this.serviceService.create(serviceDto).subscribe({
         next: () => {
           this.loadServices();
           this.closeServiceModal();
         },
-        error: (error) => {
-          console.error('Erro ao criar serviço:', error);
-        }
+        error: (error) => console.error('Erro ao criar serviço:', error)
       });
     }
   }

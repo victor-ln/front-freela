@@ -9,7 +9,7 @@ export interface CreateServiceDto {
   categoriaId: number;
   prazoEntrega: number;
   unidadeTempoEntrega: TimeUnit;
-  templateBaseId: number;
+  templateBaseId?: number; // Tornado opcional (?)
   status?: ServiceStatus;
   precoBase: number;
 }
@@ -23,7 +23,7 @@ export interface ServiceResponseDto {
   categoria: CategoryResponseDto;
   prazoEntrega: number;
   unidadeTempoEntrega: TimeUnit;
-  templateBase: TemplateResponseDto;
+  templateBase?: TemplateResponseDto; // Tornado opcional
   status: ServiceStatus;
   precoBase: number;
   createdAt: Date;
