@@ -13,8 +13,10 @@
   border-radius: 12px;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
   width: 100%;
-  max-width: 420px;
+  max-width: 520px;
   animation: fadeIn 0.5s ease-out;
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
 .auth-header {
@@ -155,4 +157,44 @@
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+/* Form sections and rows for address fields */
+.form-section {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--ff-gray-light);
+}
+
+.form-section h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--ff-gray-dark);
+  margin-bottom: 1rem;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.form-group-small {
+  flex: 0 0 35%;
+}
+
+.form-group-large {
+  flex: 1;
+}
+
+@media (max-width: 576px) {
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+
+  .form-group-small,
+  .form-group-large {
+    flex: 1;
+  }
 }

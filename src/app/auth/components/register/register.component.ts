@@ -23,12 +23,18 @@ export class RegisterComponent {
     private router: Router
   ) {
     this.registerForm = this.fb.group({
-      nome: ['', [Validators.required, Validators.minLength(3)]],
+      nome: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
       email: ['', [Validators.required, Validators.email]],
-      senha: ['', [Validators.required, Validators.minLength(6)]],
+      senha: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(50)]],
       cpfCnpj: ['', Validators.required],
-      // Os campos de endereço foram omitidos para simplicidade no registo inicial.
-      // O ideal seria pedi-los num passo seguinte (onboarding).
+      cep: ['', [Validators.required, Validators.minLength(8)]],
+      ruaAvenida: ['', [Validators.required, Validators.minLength(5)]],
+      numero: ['', Validators.required],
+      complemento: [''],
+      bairro: ['', Validators.required],
+      cidade: ['', Validators.required],
+      estado: ['', Validators.required],
+      pais: ['Brasil', Validators.required],
     });
   }
 
@@ -40,18 +46,22 @@ export class RegisterComponent {
     this.errorMessage = null;
     this.successMessage = null;
 
-    // O DTO `CreateFreelancerDto` espera um objeto de endereço.
-    // Como simplificamos o formulário, enviamos um objeto vazio ou com valores padrão.
+    const formValue = this.registerForm.value;
+
     const formData = {
-      ...this.registerForm.value,
+      nome: formValue.nome,
+      email: formValue.email,
+      senha: formValue.senha,
+      cpfCnpj: formValue.cpfCnpj,
       endereco: {
-        cep: "00000-000",
-        ruaAvenida: "N/A",
-        numero: "0",
-        bairro: "N/A",
-        cidade: "N/A",
-        estado: "SP",
-        pais: "Brasil"
+        cep: formValue.cep,
+        ruaAvenida: formValue.ruaAvenida,
+        numero: formValue.numero,
+        complemento: formValue.complemento || undefined,
+        bairro: formValue.bairro,
+        cidade: formValue.cidade,
+        estado: formValue.estado,
+        pais: formValue.pais,
       }
     };
 
