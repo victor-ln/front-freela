@@ -215,10 +215,8 @@
                   class="form-select"
                 >
                   <option value="">Selecione...</option>
-                  <option value="SP">São Paulo</option>
-                  <option value="RJ">Rio de Janeiro</option>
-                  <option value="MG">Minas Gerais</option>
-                  </select>
+                  <option *ngFor="let estado of estados" [value]="estado">{{ estado }}</option>
+                </select>
               </div>
               <div class="form-group">
                 <label for="country">País</label>
@@ -330,18 +328,28 @@
                 <input
                   type="password"
                   id="currentPassword"
+                  [(ngModel)]="passwordData.currentPassword"
+                  name="currentPassword"
                   class="form-input"
                 />
               </div>
               <div class="form-group">
                 <label for="newPassword">Nova Senha</label>
-                <input type="password" id="newPassword" class="form-input" />
+                <input
+                  type="password"
+                  id="newPassword"
+                  [(ngModel)]="passwordData.newPassword"
+                  name="newPassword"
+                  class="form-input"
+                />
               </div>
               <div class="form-group">
                 <label for="confirmPassword">Confirmar Nova Senha</label>
                 <input
                   type="password"
                   id="confirmPassword"
+                  [(ngModel)]="passwordData.confirmPassword"
+                  name="confirmPassword"
                   class="form-input"
                 />
               </div>
@@ -379,8 +387,10 @@
       </div>
 
       <div class="form-actions">
-        <button class="btn-secondary" (click)="cancelChanges()">Cancelar</button>
-        <button class="btn-primary" (click)="saveChanges()">Salvar Alterações</button>
+        <button class="btn-secondary" (click)="cancelChanges()" [disabled]="isSaving">Cancelar</button>
+        <button class="btn-primary" (click)="saveChanges()" [disabled]="isSaving">
+          {{ isSaving ? 'Salvando...' : 'Salvar Alterações' }}
+        </button>
       </div>
     </div>
   </div>

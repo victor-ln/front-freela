@@ -16,15 +16,12 @@ export interface UpdateFreelancerDto extends Partial<Omit<CreateFreelancerDto, '
 
 export interface FreelancerResponseDto {
   id: number;
-  userId: number;
   nome: string;
   email: string;
   cpfCnpj: string;
+  ativo: boolean;
   endereco: AddressResponseDto;
-  isActive: boolean;
   roles: Role[];
-  createdAt: Date;
-  updatedAt: Date;
 }
 
 export interface ChangePasswordDto {

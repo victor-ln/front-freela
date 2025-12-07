@@ -6,7 +6,7 @@
     </p>
   </div>
 
-  <div class="stats-grid">
+  <div class="stats-grid" *ngIf="!isLoading">
     <div class="stat-card">
       <div class="stat-icon clients">
         <svg viewBox="0 0 24 24" fill="currentColor">
@@ -16,8 +16,8 @@
         </svg>
       </div>
       <div class="stat-content">
-        <h3>15</h3>
-        <p>Clientes Ativos</p>
+        <h3>{{ stats.totalClientes }}</h3>
+        <p>Clientes Cadastrados</p>
       </div>
     </div>
 
@@ -32,7 +32,7 @@
         </svg>
       </div>
       <div class="stat-content">
-        <h3>8</h3>
+        <h3>{{ stats.propostasPendentes }}</h3>
         <p>Propostas Pendentes</p>
       </div>
     </div>
@@ -45,8 +45,8 @@
         </svg>
       </div>
       <div class="stat-content">
-        <h3>12</h3>
-        <p>Serviços Cadastrados</p>
+        <h3>{{ stats.projetosAtivos }}</h3>
+        <p>Projetos Ativos</p>
       </div>
     </div>
 
@@ -58,10 +58,14 @@
         </svg>
       </div>
       <div class="stat-content">
-        <h3>R$ 25.400</h3>
+        <h3>{{ formatCurrency(stats.receitaMensal) }}</h3>
         <p>Receita este Mês</p>
       </div>
     </div>
+  </div>
+
+  <div class="stats-grid loading" *ngIf="isLoading">
+    <p>Carregando estatísticas...</p>
   </div>
 
   <div class="recent-section">
@@ -70,31 +74,20 @@
         <h2>Propostas Recentes</h2>
         <a routerLink="/proposals" class="view-all">Ver todas</a>
       </div>
-      <div class="proposals-list">
-        <div class="proposal-item">
+      <div class="proposals-list" *ngIf="recentProposals.length > 0">
+        <div class="proposal-item" *ngFor="let proposal of recentProposals">
           <div class="proposal-info">
-            <h4>Website Corporativo</h4>
-            <p>Cliente: Empresa ABC</p>
-            <span class="status pending">Pendente</span>
+            <h4>{{ proposal.titulo }}</h4>
+            <p>Cliente: {{ proposal.cliente.nomeRazaoSocial }}</p>
+            <span class="status" [ngClass]="getProposalStatusClass(proposal.status)">
+              {{ getProposalStatusLabel(proposal.status) }}
+            </span>
           </div>
-          <div class="proposal-value">R$ 5.500</div>
+          <div class="proposal-value">{{ formatCurrency(proposal.valorTotal) }}</div>
         </div>
-        <div class="proposal-item">
-          <div class="proposal-info">
-            <h4>App Mobile</h4>
-            <p>Cliente: Startup XYZ</p>
-            <span class="status accepted">Aceita</span>
-          </div>
-          <div class="proposal-value">R$ 12.000</div>
-        </div>
-        <div class="proposal-item">
-          <div class="proposal-info">
-            <h4>Logo e Identidade</h4>
-            <p>Cliente: Loja 123</p>
-            <span class="status pending">Pendente</span>
-          </div>
-          <div class="proposal-value">R$ 2.800</div>
-        </div>
+      </div>
+      <div class="proposals-list" *ngIf="recentProposals.length === 0 && !isLoading">
+        <p class="empty-message">Nenhuma proposta recente encontrada.</p>
       </div>
     </div>
 
