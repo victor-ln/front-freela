@@ -2,7 +2,7 @@ import { Component, Input, Output, EventEmitter, OnChanges, OnInit } from '@angu
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ModalComponent } from '../modal/modal.component';
-import { ClientService } from '../../../core/services/client.service';
+import { MockClientService } from '../../../core/services/mock/mock-client.service';
 import { ClientResponseDto, CreateClientDto, UpdateClientDto } from '../../../core/dto/client.dto';
 
 export interface Client {
@@ -44,7 +44,7 @@ export class ClientModalComponent implements OnInit, OnChanges {
 
   constructor(
     private fb: FormBuilder,
-    private clientService: ClientService
+    private clientService: MockClientService
   ) {
     this.initForm();
   }

@@ -2,9 +2,9 @@ import { Component, Input, Output, EventEmitter, OnChanges, OnInit } from '@angu
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ModalComponent } from '../modal/modal.component';
-import { ServiceService } from '../../../core/services/service.service';
-import { ClientService } from '../../../core/services/client.service';
-import { TemplateService } from '../../../core/services/template.service';
+import { MockServiceService } from '../../../core/services/mock/mock-service.service';
+import { MockClientService } from '../../../core/services/mock/mock-client.service';
+import { MockTemplateService } from '../../../core/services/mock/mock-template.service';
 import { ServiceResponseDto } from '../../../core/dto/service.dto';
 import { ClientResponseDto } from '../../../core/dto/client.dto';
 import { TemplateResponseDto } from '../../../core/dto/template.dto';
@@ -49,9 +49,9 @@ export class ProposalModalComponent implements OnInit, OnChanges {
 
   constructor(
     private fb: FormBuilder,
-    private serviceService: ServiceService,
-    private clientService: ClientService,
-    private templateService: TemplateService
+    private serviceService: MockServiceService,
+    private clientService: MockClientService,
+    private templateService: MockTemplateService
   ) {
     this.initForm();
   }

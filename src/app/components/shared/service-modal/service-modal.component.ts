@@ -4,8 +4,8 @@ import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } 
 import { ModalComponent } from '../modal/modal.component';
 import { CategoryResponseDto } from '../../../core/dto/category.dto';
 import { TemplateResponseDto } from '../../../core/dto/template.dto';
-import { CategoryService } from '../../../core/services/category.service';
-import { TemplateService } from '../../../core/services/template.service';
+import { MockCategoryService } from '../../../core/services/mock/mock-category.service';
+import { MockTemplateService } from '../../../core/services/mock/mock-template.service';
 
 export interface Service {
   id: string;
@@ -43,8 +43,8 @@ export class ServiceModalComponent implements OnInit, OnChanges {
 
   constructor(
     private fb: FormBuilder,
-    private categoryService: CategoryService,
-    private templateService: TemplateService
+    private categoryService: MockCategoryService,
+    private templateService: MockTemplateService
   ) { this.initForm(); }
 
   ngOnInit() {
