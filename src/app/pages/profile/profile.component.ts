@@ -26,8 +26,6 @@ export class ProfileComponent implements OnInit {
     name: '',
     email: '',
     document: '',
-    phone: '',
-    bio: '',
     address: {
       cep: '',
       street: '',
@@ -86,8 +84,6 @@ export class ProfileComponent implements OnInit {
           name: profile.nome,
           email: profile.email,
           document: profile.cpfCnpj,
-          phone: '',
-          bio: '',
           address: {
             cep: profile.endereco.cep,
             street: profile.endereco.ruaAvenida,
