@@ -2,8 +2,8 @@ import { Component, Input, Output, EventEmitter, OnChanges, OnInit } from '@angu
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ModalComponent } from '../modal/modal.component';
-import { ClientService } from '../../../core/services/client.service';
-import { SocialNetworkTypeService } from '../../../core/services/social-network-type.service';
+import { MockClientService } from '../../../core/services/mock/mock-client.service';
+import { MockSocialNetworkTypeService } from '../../../core/services/mock/mock-social-network-type.service';
 import { ClientResponseDto } from '../../../core/dto/client.dto';
 import { SocialNetworksTypeResponseDto } from '../../../core/dto/social-network-type.dto';
 
@@ -37,8 +37,8 @@ export class SocialNetworkModalComponent implements OnInit, OnChanges {
 
   constructor(
     private fb: FormBuilder,
-    private clientService: ClientService,
-    private socialNetworkTypeService: SocialNetworkTypeService
+    private clientService: MockClientService,
+    private socialNetworkTypeService: MockSocialNetworkTypeService
   ) {
     this.initForm();
   }
