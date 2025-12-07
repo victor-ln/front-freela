@@ -7,6 +7,7 @@ import { ServiceStatus } from '../../enums/service-status.enum';
 import { CategoryResponseDto } from '../../dto/category.dto';
 import { TemplateResponseDto } from '../../dto/template.dto';
 import { TimeUnit } from '../../enums/time-unit.enum';
+import { PaginatedResponseDto } from '../../dto/paginated-response.dto';
 
 @Injectable({
   providedIn: 'root'
@@ -22,9 +23,36 @@ export class MockServiceService {
     return of(active).pipe(delay(300));
   }
 
-  findAll(): Observable<ServiceResponseDto[]> {
+  findAll(pagination: any = {}): Observable<PaginatedResponseDto<ServiceResponseDto>> {
     const services = this.storage.get<ServiceResponseDto>(this.ENTITY);
-    return of(services).pipe(delay(300));
+    let filtered = services;
+
+    if (pagination.search) {
+      const search = pagination.search.toLowerCase();
+      filtered = services.filter(s =>
+        s.nome.toLowerCase().includes(search) ||
+        s.descricao.toLowerCase().includes(search)
+      );
+    }
+
+    const page = pagination.page || 1;
+    const limit = pagination.limit || 10;
+    const start = (page - 1) * limit;
+    const end = start + limit;
+    const data = filtered.slice(start, end);
+
+    const response: PaginatedResponseDto<ServiceResponseDto> = {
+      data,
+      meta: {
+        totalItems: filtered.length,
+        itemCount: data.length,
+        itemsPerPage: limit,
+        totalPages: Math.ceil(filtered.length / limit),
+        currentPage: page
+      }
+    };
+
+    return of(response).pipe(delay(300));
   }
 
   findOne(id: number): Observable<ServiceResponseDto | null> {
@@ -74,7 +102,7 @@ export class MockServiceService {
     return of(updated as ServiceResponseDto).pipe(delay(300));
   }
 
-  delete(id: number): Observable<{ message: string }> {
+  remove(id: number): Observable<{ message: string }> {
     this.storage.delete(this.ENTITY, id);
     return of({ message: 'Serviço removido com sucesso' }).pipe(delay(300));
   }

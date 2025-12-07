@@ -181,7 +181,7 @@ export class ServicesComponent implements OnInit {
           this.loadServices();
           this.closeConfirmModal();
         },
-        error: (error) => {
+        error: (error: any) => {
           console.error('Erro ao deletar serviço:', error);
           this.closeConfirmModal();
         }
