@@ -43,7 +43,7 @@ export class SocialNetworkTypesComponent implements OnInit {
   private mapTypeFromApi(dto: SocialNetworksTypeResponseDto): any {
     return {
       id: dto.id.toString(),
-      name: dto.tipo,
+      type: dto.tipo,
       status: dto.status ? 'active' : 'inactive',
       usage: 0, // TODO: API não retorna contador de uso
     };
@@ -78,7 +78,7 @@ export class SocialNetworkTypesComponent implements OnInit {
 
   handleSocialNetworkTypeSaved(socialNetworkType: SocialNetworkType) {
     const dto = {
-      tipo: socialNetworkType.name,
+      tipo: socialNetworkType.type,
       status: socialNetworkType.status === 'active',
     };
 

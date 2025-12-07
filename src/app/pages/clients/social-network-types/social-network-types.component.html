@@ -12,11 +12,11 @@
   <div class="types-grid">
     <div *ngFor="let type of types" class="type-card">
       <div class="type-header">
-        <div class="type-icon" [class]="type.name.toLowerCase()">
-          <i [innerHTML]="getTypeIcon(type.name)"></i>
+        <div class="type-icon" [class]="type.type.toLowerCase()">
+          <i [innerHTML]="getTypeIcon(type.type)"></i>
         </div>
         <div class="type-info">
-          <h3>{{ type.name }}</h3>
+          <h3>{{ type.type }}</h3>
           <span class="status" [class]="type.status">
             {{ type.status === "active" ? "Ativo" : "Inativo" }}
           </span>

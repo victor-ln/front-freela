@@ -113,10 +113,11 @@ export class KanbanComponent implements OnInit {
       [TaskStatus.DONE]: 'concluido',
     };
 
-    const priorityMap: Record<TaskPriority, string> = {
+    const priorityMap: Record<TaskPriority, 'low' | 'medium' | 'high'> = {
       [TaskPriority.LOW]: 'low',
       [TaskPriority.MEDIUM]: 'medium',
       [TaskPriority.HIGH]: 'high',
+      [TaskPriority.URGENT]: 'high',
     };
 
     return {

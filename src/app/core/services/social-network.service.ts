@@ -32,12 +32,6 @@ export class SocialNetworkService {
     if (pagination?.search) {
       params = params.set('search', pagination.search);
     }
-    if (pagination?.sortBy) {
-      params = params.set('sortBy', pagination.sortBy);
-    }
-    if (pagination?.sortOrder) {
-      params = params.set('sortOrder', pagination.sortOrder);
-    }
 
     return this.http.get<PaginatedResponseDto<SocialNetworkResponseDto>>(this.apiUrl, { params });
   }
