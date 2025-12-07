@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SocialNetworkTypeModalComponent, SocialNetworkType } from '../../../components/shared/social-network-type-modal/social-network-type-modal.component';
 import { ConfirmModalComponent } from '../../../components/shared/confirm-modal/confirm-modal.component';
-import { MockSocialNetworkTypeService } from '../../../core/services/social-network-type.service';
+import { MockSocialNetworkTypeService } from '../../../core/services/mock/mock-social-network-type.service';
 import { SocialNetworksTypeResponseDto } from '../../../core/dto/social-network-type.dto';
 
 @Component({

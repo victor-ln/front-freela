@@ -10,7 +10,7 @@ import {
   FilterBarComponent,
   SelectFilter,
 } from '../../../components/shared/filter-bar/filter-bar.component';
-import { MockSocialNetworkService } from '../../../core/services/social-network.service';
+import { MockSocialNetworkService } from '../../../core/services/mock/mock-social-network.service';
 import { SocialNetworkResponseDto } from '../../../core/dto/social-network.dto';
 
 @Component({

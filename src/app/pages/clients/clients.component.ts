@@ -16,7 +16,7 @@ import {
   FilterBarComponent,
   SelectFilter,
 } from '../../components/shared/filter-bar/filter-bar.component';
-import { MockClientService } from '../../core/services/client.service';
+import { MockClientService } from '../../core/services/mock/mock-client.service';
 import { ClientResponseDto } from '../../core/dto/client.dto';
 
 @Component({
