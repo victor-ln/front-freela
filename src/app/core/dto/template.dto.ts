@@ -18,8 +18,8 @@ export interface TemplateResponseDto {
   nome: string;
   anexo: string;
   status: TemplateStatus;
-  dataCriacao: Date;
-  dataAtualizacao: Date;
+  dataCriacao: Date; // Data de criação do template
+  dataAtualizacao: Date; // Data de última atualização
   createdAt: Date;
   updatedAt: Date;
 }
