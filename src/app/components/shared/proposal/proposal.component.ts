@@ -2,8 +2,9 @@ import { Component, Input, Output, EventEmitter, OnChanges, OnInit } from '@angu
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ModalComponent } from '../modal/modal.component';
-import { ServiceService } from '../../../core/services/service.service';
-import { ClientService } from '../../../core/services/client.service';
+import { MockServiceService as ServiceService} from '../../../core/services/mock/mock-service.service';
+// import { ClientService } from '../../../core/services/client.service';
+import { MockClientService as ClientService } from '../../../core/services/mock/mock-client.service';
 import { TemplateService } from '../../../core/services/template.service';
 import { ServiceResponseDto } from '../../../core/dto/service.dto';
 import { ClientResponseDto } from '../../../core/dto/client.dto';
@@ -169,7 +170,7 @@ export class ProposalModalComponent implements OnInit, OnChanges {
       const selectedTemplate = this.templates.find(t => t.id == formValue.templateId);
 
       const proposalData: Proposal = {
-        id: this.proposal?.id || this.generateId(),
+        id: this.proposal?.id || '',
         title: formValue.title,
         description: formValue.description,
         clientId: parseInt(formValue.clientId),
@@ -240,9 +241,9 @@ export class ProposalModalComponent implements OnInit, OnChanges {
 
   private loadTemplates(): void {
     this.isLoadingTemplates = true;
-    this.templateService.findApproved().subscribe({
+    this.templateService.findAll().subscribe({
       next: (templates) => {
-        this.templates = templates;
+        this.templates = templates.data;
         this.isLoadingTemplates = false;
       },
       error: (error) => {

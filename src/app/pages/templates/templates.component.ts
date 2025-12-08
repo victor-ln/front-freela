@@ -62,6 +62,20 @@ export class TemplatesComponent implements OnInit {
     });
   }
 
+  approveTemplate(template: Template) {
+    const id = parseInt(template.id);
+    // Envia o status 'Ativo' que corresponde a 'Approved' no Backend
+    this.templateService.approve(id, { status: 'APROVADO' } as any).subscribe({
+      next: () => {
+        this.loadTemplates(); // Recarrega a lista para atualizar o status na tela
+      },
+      error: (error) => {
+        console.error('Erro ao aprovar template:', error);
+        alert('Erro ao aprovar template. Verifique o console.');
+      }
+    });
+  }
+
   private mapTemplateFromApi(dto: TemplateResponseDto): Template {
     let statusFrontend = 'review';
 

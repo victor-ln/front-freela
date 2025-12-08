@@ -127,27 +127,6 @@
         </div>
       </div>
 
-      <div class="proposal-details">
-        <div class="detail-grid">
-          <div class="detail-item">
-            <span class="detail-label">Template:</span>
-            <span class="detail-value">{{ proposal.template || 'Não definido' }}</span>
-          </div>
-          <div class="detail-item">
-            <span class="detail-label">Criado em:</span>
-            <span class="detail-value">{{ proposal.createdAt | date:'dd/MM/yyyy' }}</span>
-          </div>
-          <div class="detail-item">
-            <span class="detail-label">Atualizado:</span>
-            <span class="detail-value">{{ proposal.updatedAt | date:'dd/MM/yyyy' }}</span>
-          </div>
-          <div class="detail-item" *ngIf="proposal.acceptedAt">
-            <span class="detail-label">Aceita em:</span>
-            <span class="detail-value">{{ proposal.acceptedAt | date:'dd/MM/yyyy' }}</span>
-          </div>
-        </div>
-      </div>
-
       <div class="proposal-footer">
         <div class="proposal-value">
           <span class="value-label">Valor Total</span>

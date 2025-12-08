@@ -5,7 +5,7 @@ import { ModalComponent } from '../modal/modal.component';
 import { CategoryResponseDto } from '../../../core/dto/category.dto';
 import { TemplateResponseDto } from '../../../core/dto/template.dto';
 import { MockCategoryService } from '../../../core/services/mock/mock-category.service';
-import { MockTemplateService } from '../../../core/services/mock/mock-template.service';
+import { TemplateService } from '../../../core/services/template.service';
 
 export interface Service {
   id: string;
@@ -44,7 +44,7 @@ export class ServiceModalComponent implements OnInit, OnChanges {
   constructor(
     private fb: FormBuilder,
     private categoryService: MockCategoryService,
-    private templateService: MockTemplateService
+    private templateService: TemplateService
   ) { this.initForm(); }
 
   ngOnInit() {
@@ -145,9 +145,9 @@ export class ServiceModalComponent implements OnInit, OnChanges {
 
   private loadTemplates(): void {
     this.isLoadingTemplates = true;
-    this.templateService.findApproved().subscribe({
+    this.templateService.findAll().subscribe({
       next: (templates) => {
-        this.templates = templates;
+        this.templates = templates.data;
         this.isLoadingTemplates = false;
       },
       error: (error) => {
