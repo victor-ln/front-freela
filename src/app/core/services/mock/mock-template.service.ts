@@ -21,7 +21,7 @@ export class MockTemplateService {
         id: 1,
         nome: 'Template Proposta Comercial',
         anexo: 'proposta-comercial.pdf',
-        status: TemplateStatus.ACTIVE,
+        status: TemplateStatus.APPROVED,
         dataCriacao: new Date(),
         dataAtualizacao: new Date(),
         createdAt: new Date(),
@@ -31,7 +31,7 @@ export class MockTemplateService {
         id: 2,
         nome: 'Template Briefing Design',
         anexo: 'briefing-design.pdf',
-        status: TemplateStatus.ACTIVE,
+        status: TemplateStatus.APPROVED,
         dataCriacao: new Date(),
         dataAtualizacao: new Date(),
         createdAt: new Date(),
@@ -41,7 +41,7 @@ export class MockTemplateService {
         id: 3,
         nome: 'Template Contrato Serviços',
         anexo: 'contrato-servicos.pdf',
-        status: TemplateStatus.ACTIVE,
+        status: TemplateStatus.APPROVED,
         dataCriacao: new Date(),
         dataAtualizacao: new Date(),
         createdAt: new Date(),
@@ -51,7 +51,7 @@ export class MockTemplateService {
         id: 4,
         nome: 'Template NDA',
         anexo: 'nda.pdf',
-        status: TemplateStatus.ACTIVE,
+        status: TemplateStatus.APPROVED,
         dataCriacao: new Date(),
         dataAtualizacao: new Date(),
         createdAt: new Date(),
@@ -64,7 +64,7 @@ export class MockTemplateService {
 
   findApproved(): Observable<TemplateResponseDto[]> {
     const templates = this.storage.get<TemplateResponseDto>(this.ENTITY);
-    const approved = templates.filter(t => t.status === TemplateStatus.ACTIVE);
+    const approved = templates.filter(t => t.status === TemplateStatus.APPROVED);
     return of(approved).pipe(delay(300));
   }
 

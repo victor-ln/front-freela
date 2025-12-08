@@ -6,6 +6,13 @@ import { TemplateResponseDto, CreateTemplateDto, UpdateTemplateDto, ApproveTempl
 import { PaginatedResponseDto, PaginationDto } from '../../common/dto/pagination.dto';
 import { TemplateStatus } from '../enums/template-status.enum';
 
+export interface UploadTemplateDto {
+  nome: string;
+  descricao?: string;
+  freelancerId: number;
+  file: File;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -15,8 +22,17 @@ export class TemplateService {
   constructor(private http: HttpClient) { }
 
   create(createDto: CreateTemplateDto): Observable<TemplateResponseDto> {
-    // O upload de arquivo real exigiria 'FormData', mas seguindo o DTO, o anexo é uma string (caminho/URL)
     return this.http.post<TemplateResponseDto>(this.apiUrl, createDto);
+  }
+
+  upload(uploadDto: UploadTemplateDto): Observable<TemplateResponseDto> {
+    const formData = new FormData();
+    formData.append('file', uploadDto.file, uploadDto.file.name);
+    formData.append('nome', uploadDto.nome);
+    formData.append('descricao', uploadDto.descricao || '');
+    formData.append('freelancerId', uploadDto.freelancerId.toString());
+
+    return this.http.post<TemplateResponseDto>(`${this.apiUrl}/upload`, formData);
   }
 
   findAll(pagination: PaginationDto = {}): Observable<PaginatedResponseDto<TemplateResponseDto>> {

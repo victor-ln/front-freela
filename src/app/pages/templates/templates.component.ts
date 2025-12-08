@@ -3,9 +3,10 @@ import { CommonModule } from '@angular/common';
 import { TemplateModalComponent, Template } from '../../components/shared/template-modal/template-modal.component';
 import { ConfirmModalComponent } from '../../components/shared/confirm-modal/confirm-modal.component';
 import { FilterBarComponent, SelectFilter } from '../../components/shared/filter-bar/filter-bar.component';
-import { TemplateService } from '../../core/services/template.service';
+import { TemplateService, UploadTemplateDto } from '../../core/services/template.service';
 import { TemplateResponseDto } from '../../core/dto/template.dto';
 import { TemplateStatus } from '../../core/enums/template-status.enum';
+import { FreelancerService } from '../../core/services/freelancer.service';
 
 @Component({
   selector: 'app-templates',
@@ -37,7 +38,10 @@ export class TemplatesComponent implements OnInit {
   selectedTemplate: Template | null = null;
   templateToDelete: Template | null = null;
 
-  constructor(private templateService: TemplateService) {}
+  constructor(
+    private templateService: TemplateService,
+    private freelancerService: FreelancerService
+  ) {}
 
   ngOnInit(): void {
     this.loadTemplates();
@@ -60,22 +64,22 @@ export class TemplatesComponent implements OnInit {
 
   private mapTemplateFromApi(dto: TemplateResponseDto): Template {
     let statusFrontend = 'review';
-    
+
     // Mapeamento: Valor do Backend -> Chave do Frontend
-    // O backend retorna 'Ativo', 'Em Revisão', 'Inativo'
+    // O backend retorna 'APROVADO', 'EM_REVISAO', 'REJEITADO'
     switch (dto.status) {
-      case TemplateStatus.ACTIVE: // 'Ativo'
+      case TemplateStatus.APPROVED: // 'APROVADO'
         statusFrontend = 'approved';
         break;
-      case TemplateStatus.INACTIVE: // 'Inativo'
+      case TemplateStatus.REJECTED: // 'REJEITADO'
         statusFrontend = 'draft';
         break;
-      case TemplateStatus.UNDER_REVIEW: // 'Em Revisão'
+      case TemplateStatus.UNDER_REVIEW: // 'EM_REVISAO'
       default:
         statusFrontend = 'review';
         break;
     }
-    
+
     return {
       id: dto.id.toString(),
       name: dto.nome,
@@ -85,7 +89,7 @@ export class TemplatesComponent implements OnInit {
       updatedAt: new Date(dto.updatedAt),
       usageCount: 0,
       variables: [],
-      fileAttachment: dto.anexo ? new File([], dto.anexo) : undefined
+      fileAttachment: undefined
     };
   }
 
@@ -135,26 +139,16 @@ export class TemplatesComponent implements OnInit {
   }
 
   handleTemplateSaved(template: Template) {
-    // Mapeamento: Chave do Frontend -> Valor do Backend (Enum)
-    const statusMap: Record<string, TemplateStatus> = {
-      'approved': TemplateStatus.ACTIVE,       // Envia 'Ativo'
-      'review': TemplateStatus.UNDER_REVIEW,   // Envia 'Em Revisão'
-      'draft': TemplateStatus.INACTIVE         // Envia 'Inativo'
-    };
-    
-    const anexoNome = template.fileAttachment?.name || 
-      (template.name ? `${template.name.replace(/\s+/g, '_')}.docx` : 'template.docx');
+    const isUpdate = template.id && template.id.length < 10;
 
-    const templateDto = {
-      nome: template.name,
-      anexo: anexoNome,
-      // Garante que enviamos um dos valores permitidos pelo backend
-      status: statusMap[template.status] || TemplateStatus.UNDER_REVIEW
-    };
-
-    if (template.id && template.id.length < 10) {
+    if (isUpdate) {
+      // Update existing template (metadata only)
       const id = parseInt(template.id);
-      this.templateService.update(id, templateDto).subscribe({
+      const updateDto = {
+        nome: template.name,
+      };
+
+      this.templateService.update(id, updateDto).subscribe({
         next: () => {
           this.loadTemplates();
           this.closeTemplateModal();
@@ -165,15 +159,29 @@ export class TemplatesComponent implements OnInit {
         }
       });
     } else {
-      this.templateService.create(templateDto).subscribe({
+      // Create new template with file upload
+      if (!template.fileAttachment) {
+        alert('É necessário selecionar um arquivo .docx para criar um novo template');
+        return;
+      }
+
+      const freelancerId = this.freelancerService.getCurrentFreelancerId();
+      const uploadDto: UploadTemplateDto = {
+        nome: template.name,
+        descricao: template.type || '',
+        freelancerId: freelancerId,
+        file: template.fileAttachment
+      };
+
+      this.templateService.upload(uploadDto).subscribe({
         next: () => {
           this.loadTemplates();
           this.closeTemplateModal();
         },
         error: (error) => {
           console.error('Erro ao criar:', error);
-          const msg = error.error?.message 
-            ? (Array.isArray(error.error.message) ? error.error.message.join('\n') : error.error.message) 
+          const msg = error.error?.message
+            ? (Array.isArray(error.error.message) ? error.error.message.join('\n') : error.error.message)
             : 'Erro desconhecido';
           alert('Erro ao criar template:\n' + msg);
         }

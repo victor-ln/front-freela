@@ -35,4 +35,21 @@ export class FreelancerService {
   changePassword(changePasswordDto: ChangePasswordDto): Observable<{ message: string }> {
     return this.http.patch<{ message: string }>(`${this.apiUrl}/change-password`, changePasswordDto);
   }
+
+  /**
+   * Obtém o ID do freelancer logado a partir do token JWT
+   * Por enquanto retorna 1 como fallback (para desenvolvimento)
+   */
+  getCurrentFreelancerId(): number {
+    const token = localStorage.getItem('accessToken');
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        return payload.sub || payload.freelancerId || 1;
+      } catch {
+        return 1;
+      }
+    }
+    return 1;
+  }
 }
