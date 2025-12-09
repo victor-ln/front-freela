@@ -24,181 +24,9 @@ export class MockKanbanService {
   }
 
   private initializeDefaultData(): void {
-    // Wait for proposals to be initialized, then create kanbans referencing them
-    setTimeout(() => {
-      this.proposalService.findAll({ page: 1, limit: 10 }).pipe(take(1)).subscribe({
-        next: (proposalsResponse) => {
-          const proposals = proposalsResponse.data;
-          if (proposals.length > 0 && this.storage.get(this.KANBAN_ENTITY).length === 0) {
-            this.seedWithRealData(proposals);
-          }
-        },
-        error: (err) => {
-          console.warn('Could not fetch proposals for mock kanbans:', err);
-          // Create default kanban without proposal reference
-          this.seedDefaultData();
-        }
-      });
-    }, 500); // Small delay to ensure proposals are loaded first
-  }
-
-  private seedWithRealData(proposals: any[]): void {
-    const defaultKanbans: Partial<KanbanResponseDto>[] = proposals.map((proposal, index) => ({
-      id: index + 1,
-      titulo: `Kanban - ${proposal.titulo}`,
-      descricao: `Quadro de tarefas para: ${proposal.descricao?.substring(0, 50)}...`,
-      proposta: proposal,
-      colunas: ['a-fazer', 'em-progresso', 'concluido'],
-      ativo: true,
-      createdAt: new Date(Date.now() - (7 - index) * 24 * 60 * 60 * 1000),
-      updatedAt: new Date()
-    }));
-
-    this.storage.initializeIfEmpty(this.KANBAN_ENTITY, defaultKanbans);
-
-    // Create default tasks for the first kanban
-    if (defaultKanbans.length > 0) {
-      this.seedDefaultTasks(1);
-    }
-  }
-
-  private seedDefaultData(): void {
-    const defaultKanbans: Partial<KanbanResponseDto>[] = [
-      {
-        id: 1,
-        titulo: 'Projeto Website Institucional',
-        descricao: 'Kanban para gerenciamento do projeto de website',
-        colunas: ['a-fazer', 'em-progresso', 'concluido'],
-        ativo: true,
-        createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
-        updatedAt: new Date()
-      }
-    ];
-
-    this.storage.initializeIfEmpty(this.KANBAN_ENTITY, defaultKanbans);
-    this.seedDefaultTasks(1);
-  }
-
-  private seedDefaultTasks(kanbanId: number): void {
-    const defaultTasks: Partial<TaskResponseDto>[] = [
-      {
-        id: 1,
-        titulo: 'Definir requisitos do projeto',
-        descricao: 'Reunir com cliente para levantar todos os requisitos do website',
-        status: TaskStatus.DONE,
-        prioridade: TaskPriority.HIGH,
-        dataInicio: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
-        dataVencimento: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
-        dataConclusao: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
-        estimativaHoras: 4,
-        horasGastas: 3,
-        tags: ['requisitos', 'cliente'],
-        kanbanId: kanbanId,
-        ordem: 1,
-        bloqueada: false,
-        createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
-        updatedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000)
-      },
-      {
-        id: 2,
-        titulo: 'Criar wireframes das páginas',
-        descricao: 'Desenvolver wireframes de baixa fidelidade para todas as páginas principais',
-        status: TaskStatus.DONE,
-        prioridade: TaskPriority.HIGH,
-        dataInicio: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
-        dataVencimento: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
-        dataConclusao: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
-        estimativaHoras: 8,
-        horasGastas: 10,
-        tags: ['design', 'wireframe'],
-        kanbanId: kanbanId,
-        ordem: 2,
-        bloqueada: false,
-        createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
-        updatedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000)
-      },
-      {
-        id: 3,
-        titulo: 'Desenvolver design do layout principal',
-        descricao: 'Criar design de alta fidelidade do layout principal do website',
-        status: TaskStatus.IN_PROGRESS,
-        prioridade: TaskPriority.HIGH,
-        dataInicio: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-        dataVencimento: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
-        estimativaHoras: 16,
-        horasGastas: 8,
-        tags: ['design', 'ui'],
-        kanbanId: kanbanId,
-        ordem: 1,
-        bloqueada: false,
-        createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-        updatedAt: new Date()
-      },
-      {
-        id: 4,
-        titulo: 'Implementar página inicial',
-        descricao: 'Desenvolver o HTML/CSS/JS da página inicial baseado no design aprovado',
-        status: TaskStatus.IN_PROGRESS,
-        prioridade: TaskPriority.MEDIUM,
-        dataInicio: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
-        dataVencimento: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
-        estimativaHoras: 24,
-        horasGastas: 4,
-        tags: ['frontend', 'desenvolvimento'],
-        kanbanId: kanbanId,
-        ordem: 2,
-        bloqueada: false,
-        createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
-        updatedAt: new Date()
-      },
-      {
-        id: 5,
-        titulo: 'Configurar ambiente de desenvolvimento',
-        descricao: 'Setup do ambiente com Docker, configuração de CI/CD',
-        status: TaskStatus.TODO,
-        prioridade: TaskPriority.HIGH,
-        dataVencimento: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000),
-        estimativaHoras: 4,
-        tags: ['devops', 'infraestrutura'],
-        kanbanId: kanbanId,
-        ordem: 1,
-        bloqueada: false,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        id: 6,
-        titulo: 'Implementar formulário de contato',
-        descricao: 'Criar formulário de contato com validação e integração com backend',
-        status: TaskStatus.TODO,
-        prioridade: TaskPriority.MEDIUM,
-        dataVencimento: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-        estimativaHoras: 6,
-        tags: ['frontend', 'backend'],
-        kanbanId: kanbanId,
-        ordem: 2,
-        bloqueada: false,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        id: 7,
-        titulo: 'Otimização SEO',
-        descricao: 'Implementar meta tags, sitemap, e otimizações para mecanismos de busca',
-        status: TaskStatus.TODO,
-        prioridade: TaskPriority.LOW,
-        dataVencimento: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
-        estimativaHoras: 8,
-        tags: ['seo', 'marketing'],
-        kanbanId: kanbanId,
-        ordem: 3,
-        bloqueada: false,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      }
-    ];
-
-    this.storage.initializeIfEmpty(this.TASK_ENTITY, defaultTasks);
+    // No seed data - users create their own kanbans and tasks
+    this.storage.initializeIfEmpty(this.KANBAN_ENTITY, []);
+    this.storage.initializeIfEmpty(this.TASK_ENTITY, []);
   }
 
   // Kanban CRUD operations
@@ -221,6 +49,22 @@ export class MockKanbanService {
       }),
       delay(300)
     );
+  }
+
+  // Create a standalone kanban without a proposal
+  createStandalone(createDto: Omit<CreateKanbanDto, 'propostaId'> & { propostaId?: number }): Observable<KanbanResponseDto> {
+    const newKanban: Partial<KanbanResponseDto> = {
+      id: 0,
+      titulo: createDto.titulo,
+      descricao: createDto.descricao,
+      colunas: createDto.colunas || ['a-fazer', 'em-progresso', 'concluido'],
+      ativo: true,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+
+    const saved = this.storage.add(this.KANBAN_ENTITY, newKanban);
+    return of(saved as KanbanResponseDto).pipe(delay(300));
   }
 
   findAll(pagination: PaginationDto = {}): Observable<PaginatedResponseDto<KanbanResponseDto>> {

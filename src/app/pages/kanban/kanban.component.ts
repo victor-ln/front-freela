@@ -51,8 +51,10 @@ export class KanbanComponent implements OnInit {
   isTaskModalOpen = false;
   isConfirmModalOpen = false;
   isViewModalOpen = false;
+  isCreateKanbanModalOpen = false;
   selectedTask: Task | null = null;
   taskToDelete: Task | null = null;
+  newKanbanTitle = '';
 
   constructor(private kanbanService: KanbanService) {}
 
@@ -290,6 +292,44 @@ export class KanbanComponent implements OnInit {
   closeConfirmModal() {
     this.isConfirmModalOpen = false;
     this.taskToDelete = null;
+  }
+
+  openCreateKanbanModal() {
+    this.isCreateKanbanModalOpen = true;
+    this.newKanbanTitle = '';
+  }
+
+  closeCreateKanbanModal() {
+    this.isCreateKanbanModalOpen = false;
+    this.newKanbanTitle = '';
+  }
+
+  createKanban() {
+    if (!this.newKanbanTitle.trim()) return;
+
+    // Create a standalone kanban without a proposal
+    const kanbanDto = {
+      titulo: this.newKanbanTitle,
+      descricao: 'Quadro de tarefas',
+      propostaId: 0, // Will be handled by mock service
+      colunas: ['a-fazer', 'em-progresso', 'concluido']
+    };
+
+    this.kanbanService.createStandalone(kanbanDto).subscribe({
+      next: (kanban) => {
+        this.loadKanbans();
+        this.closeCreateKanbanModal();
+        // Auto-select the new kanban
+        setTimeout(() => {
+          this.kanbanId = kanban.id;
+          this.selectedKanbanId = kanban.id.toString();
+          this.loadTasks();
+        }, 300);
+      },
+      error: (error) => {
+        console.error('Erro ao criar kanban:', error);
+      }
+    });
   }
 
   getTotalTasks(): number {

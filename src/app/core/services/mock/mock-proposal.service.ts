@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable, of, throwError, forkJoin } from 'rxjs';
-import { delay, map, switchMap, take } from 'rxjs/operators';
+import { delay, map, switchMap, take, tap } from 'rxjs/operators';
 import { MockStorageService } from './mock-storage.service';
 import { MockClientService } from './mock-client.service';
 import { TemplateService } from '../template.service';
@@ -26,72 +26,8 @@ export class MockProposalService {
   }
 
   private initializeDefaultData(): void {
-    // Fetch real templates from backend and create initial proposals with them
-    this.templateService.findAll({ page: 1, limit: 10 }).pipe(take(1)).subscribe({
-      next: (templatesResponse) => {
-        const templates = templatesResponse.data;
-        if (templates.length > 0 && this.storage.get(this.ENTITY).length === 0) {
-          // Get clients to reference
-          this.clientService.findAll({ page: 1, limit: 10 }).pipe(take(1)).subscribe({
-            next: (clientsResponse) => {
-              const clients = clientsResponse.data;
-              if (clients.length > 0) {
-                this.seedWithRealData(templates, clients);
-              }
-            }
-          });
-        }
-      },
-      error: (err) => {
-        console.warn('Could not fetch templates for mock proposals:', err);
-      }
-    });
-  }
-
-  private seedWithRealData(templates: TemplateResponseDto[], clients: ClientResponseDto[]): void {
-    const defaultProposals: Partial<ProposalResponseDto>[] = [
-      {
-        id: 1,
-        titulo: 'Proposta de Desenvolvimento de Website',
-        descricao: 'Desenvolvimento de website institucional com painel administrativo e integração com redes sociais.',
-        cliente: clients[0],
-        servicos: [],
-        template: templates[0],
-        valorTotal: 8500.00,
-        status: ProposalStatus.PENDING,
-        contratoStatus: ContractStatus.WAITING_PROPOSAL,
-        createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
-        updatedAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
-      },
-      {
-        id: 2,
-        titulo: 'Proposta de Identidade Visual',
-        descricao: 'Criação de logotipo, paleta de cores, tipografia e manual de identidade visual completo.',
-        cliente: clients.length > 1 ? clients[1] : clients[0],
-        servicos: [],
-        template: templates.length > 1 ? templates[1] : templates[0],
-        valorTotal: 4200.00,
-        status: ProposalStatus.ACCEPTED,
-        contratoStatus: ContractStatus.CONTRACT_GENERATED,
-        createdAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000),
-        updatedAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000)
-      },
-      {
-        id: 3,
-        titulo: 'Proposta de Aplicativo Mobile',
-        descricao: 'Desenvolvimento de aplicativo mobile multiplataforma (iOS e Android) para delivery.',
-        cliente: clients.length > 2 ? clients[2] : clients[0],
-        servicos: [],
-        template: templates.length > 2 ? templates[2] : templates[0],
-        valorTotal: 25000.00,
-        status: ProposalStatus.SENT,
-        contratoStatus: ContractStatus.WAITING_PROPOSAL,
-        createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
-        updatedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000)
-      }
-    ];
-
-    this.storage.initializeIfEmpty(this.ENTITY, defaultProposals);
+    // No seed data - users create their own proposals
+    this.storage.initializeIfEmpty(this.ENTITY, []);
   }
 
   create(createDto: CreateProposalDto): Observable<ProposalResponseDto> {
@@ -238,14 +174,57 @@ export class MockProposalService {
       return throwError(() => new Error('Proposta não encontrada'));
     }
 
+    // If proposal has a template, download it and trigger browser download
+    if (proposal.template?.id) {
+      return this.templateService.downloadTemplate(proposal.template.id).pipe(
+        tap((blob: Blob) => {
+          // Create download link
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `Contrato_${proposal.titulo.replace(/\s+/g, '_')}_${proposal.cliente?.nomeRazaoSocial?.replace(/\s+/g, '_') || 'Cliente'}.docx`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          window.URL.revokeObjectURL(url);
+        }),
+        map(() => {
+          const updated: ProposalResponseDto = {
+            ...proposal,
+            contratoStatus: ContractStatus.CONTRACT_GENERATED,
+            contratoGerado: `contrato_${id}_${Date.now()}.docx`,
+            updatedAt: new Date()
+          };
+
+          this.storage.update(this.ENTITY, id, updated);
+          return updated;
+        })
+      );
+    }
+
+    // If no template, just update the status
     const updated: ProposalResponseDto = {
       ...proposal,
       contratoStatus: ContractStatus.CONTRACT_GENERATED,
-      contratoGerado: `contrato_${id}_${Date.now()}.pdf`,
+      contratoGerado: `contrato_${id}_${Date.now()}.docx`,
       updatedAt: new Date()
     };
 
     this.storage.update(this.ENTITY, id, updated);
     return of(updated).pipe(delay(300));
+  }
+
+  downloadContract(id: number, format: 'pdf' | 'docx' = 'docx'): Observable<Blob> {
+    const proposal = this.storage.findById<ProposalResponseDto>(this.ENTITY, id);
+    if (!proposal) {
+      return throwError(() => new Error('Proposta não encontrada'));
+    }
+
+    if (!proposal.template?.id) {
+      return throwError(() => new Error('Proposta não possui template associado'));
+    }
+
+    // Download the template file from backend
+    return this.templateService.downloadTemplate(proposal.template.id);
   }
 }

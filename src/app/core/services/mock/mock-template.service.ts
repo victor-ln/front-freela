@@ -16,50 +16,8 @@ export class MockTemplateService {
   }
 
   private initializeDefaultData(): void {
-    const defaultTemplates: TemplateResponseDto[] = [
-      {
-        id: 1,
-        nome: 'Template Proposta Comercial',
-        anexo: 'proposta-comercial.pdf',
-        status: TemplateStatus.APPROVED,
-        dataCriacao: new Date(),
-        dataAtualizacao: new Date(),
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        id: 2,
-        nome: 'Template Briefing Design',
-        anexo: 'briefing-design.pdf',
-        status: TemplateStatus.APPROVED,
-        dataCriacao: new Date(),
-        dataAtualizacao: new Date(),
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        id: 3,
-        nome: 'Template Contrato Serviços',
-        anexo: 'contrato-servicos.pdf',
-        status: TemplateStatus.APPROVED,
-        dataCriacao: new Date(),
-        dataAtualizacao: new Date(),
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        id: 4,
-        nome: 'Template NDA',
-        anexo: 'nda.pdf',
-        status: TemplateStatus.APPROVED,
-        dataCriacao: new Date(),
-        dataAtualizacao: new Date(),
-        createdAt: new Date(),
-        updatedAt: new Date()
-      }
-    ];
-
-    this.storage.initializeIfEmpty(this.ENTITY, defaultTemplates);
+    // No seed data - templates come from the real backend
+    this.storage.initializeIfEmpty(this.ENTITY, []);
   }
 
   findApproved(): Observable<TemplateResponseDto[]> {

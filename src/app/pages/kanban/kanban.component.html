@@ -45,7 +45,36 @@
     </div>
   </div>
 
-  <div class="kanban-board" cdkDropListGroup>
+  <!-- Empty state when no kanban is selected -->
+  <div class="empty-state" *ngIf="!kanbanId && kanbans.length === 0">
+    <div class="empty-icon">
+      <svg viewBox="0 0 24 24" fill="currentColor">
+        <rect width="8" height="4" x="8" y="2" rx="1" ry="1" />
+        <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+      </svg>
+    </div>
+    <h3>Nenhum quadro Kanban encontrado</h3>
+    <p>Crie uma proposta e aceite-a para gerar um quadro Kanban automaticamente, ou crie um quadro manualmente.</p>
+    <button class="btn-primary" (click)="openCreateKanbanModal()">
+      <svg viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 5v14m-7-7h14" />
+      </svg>
+      Criar Novo Quadro
+    </button>
+  </div>
+
+  <div class="empty-state" *ngIf="!kanbanId && kanbans.length > 0">
+    <div class="empty-icon">
+      <svg viewBox="0 0 24 24" fill="currentColor">
+        <circle cx="12" cy="12" r="10" />
+        <path d="M12 8v8m-4-4h8" />
+      </svg>
+    </div>
+    <h3>Selecione um quadro Kanban</h3>
+    <p>Escolha um projeto no menu acima para visualizar e gerenciar suas tarefas.</p>
+  </div>
+
+  <div class="kanban-board" cdkDropListGroup *ngIf="kanbanId">
     <div *ngFor="let column of columns" class="kanban-column">
       <div class="column-header" [style.border-color]="column.color">
         <h3>{{ column.title }}</h3>
@@ -194,3 +223,35 @@
   (confirmed)="deleteTaskConfirmed()"
   (closed)="closeConfirmModal()">
 </app-confirm-modal>
+
+<!-- Create Kanban Modal -->
+<div class="modal-overlay" *ngIf="isCreateKanbanModalOpen" (click)="closeCreateKanbanModal()">
+  <div class="modal-content create-kanban-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Criar Novo Quadro Kanban</h2>
+      <button class="close-btn" (click)="closeCreateKanbanModal()">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path d="M18 6L6 18M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label for="kanbanTitle">Nome do Quadro *</label>
+        <input
+          type="text"
+          id="kanbanTitle"
+          [(ngModel)]="newKanbanTitle"
+          placeholder="Ex: Projeto Website, Desenvolvimento App..."
+          class="form-control"
+        />
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="closeCreateKanbanModal()">Cancelar</button>
+      <button class="btn-primary" (click)="createKanban()" [disabled]="!newKanbanTitle.trim()">
+        Criar Quadro
+      </button>
+    </div>
+  </div>
+</div>

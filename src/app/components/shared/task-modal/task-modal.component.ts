@@ -2,8 +2,10 @@ import { Component, Input, Output, EventEmitter, OnChanges, OnInit } from '@angu
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ModalComponent } from '../modal/modal.component';
-import { ClientService } from '../../../core/services/client.service';
-import { ProposalService } from '../../../core/services/proposal.service';
+// import { ClientService } from '../../../core/services/client.service';
+import { MockClientService as ClientService } from '../../../core/services/mock/mock-client.service';
+// import { ProposalService } from '../../../core/services/proposal.service';
+import { MockProposalService as ProposalService } from '../../../core/services/mock/mock-proposal.service';
 import { ClientResponseDto } from '../../../core/dto/client.dto';
 import { ProposalResponseDto } from '../../../core/dto/proposal.dto';
 
@@ -67,12 +69,12 @@ export class TaskModalComponent implements OnInit, OnChanges {
     this.taskForm = this.fb.group({
       title: ['', [Validators.required, Validators.minLength(3)]],
       description: [''],
-      client: ['', Validators.required],
-      proposal: ['', Validators.required],
+      client: [''],
+      proposal: [''],
       priority: ['medium'],
       status: ['a-fazer'],
       startDate: [''],
-      dueDate: ['']
+      dueDate: ['', Validators.required]
     });
   }
 
