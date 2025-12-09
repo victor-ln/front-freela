@@ -1,7 +1,8 @@
 export enum ContractStatus {
-  NOT_GENERATED = 'Não Gerado',
-  GENERATED = 'Gerado',
-  EDITED_MANUALLY = 'Editado Manualmente',
-  SENT = 'Enviado',
-  SIGNED = 'Assinado',
+  WAITING_PROPOSAL = 'WAITING_PROPOSAL',
+  NOT_GENERATED = 'NOT_GENERATED',
+  CONTRACT_GENERATED = 'CONTRACT_GENERATED',
+  EDITED_MANUALLY = 'EDITED_MANUALLY',
+  SENT = 'SENT',
+  SIGNED = 'SIGNED',
 }

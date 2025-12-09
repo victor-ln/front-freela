@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { CdkDragDrop, moveItemInArray, transferArrayItem, DragDropModule } from '@angular/cdk/drag-drop';
 import { TaskModalComponent, Task } from '../../components/shared/task-modal/task-modal.component';
 import { ConfirmModalComponent } from '../../components/shared/confirm-modal/confirm-modal.component';
-import { KanbanService } from '../../core/services/kanban.service';
+import { MockKanbanService as KanbanService } from '../../core/services/mock/mock-kanban.service';
 import { TaskResponseDto } from '../../core/dto/task.dto';
 import { TaskStatus } from '../../core/enums/task-status.enum';
 import { TaskPriority } from '../../core/enums/task-priority.enum';

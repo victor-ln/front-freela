@@ -10,7 +10,7 @@ import {
   FilterBarComponent,
   SelectFilter,
 } from '../../components/shared/filter-bar/filter-bar.component';
-import { ProposalService } from '../../core/services/proposal.service';
+import { MockProposalService as ProposalService } from '../../core/services/mock/mock-proposal.service';
 import { ProposalResponseDto } from '../../core/dto/proposal.dto';
 import { ProposalStatus } from '../../core/enums/proposal-status.enum';
 
@@ -85,10 +85,13 @@ export class ProposalsComponent implements OnInit {
     return {
       id: proposalDto.id.toString(),
       title: proposalDto.titulo,
-      clientName: proposalDto.cliente.nomeRazaoSocial,
+      clientName: proposalDto.cliente?.nomeRazaoSocial || '',
+      clientId: proposalDto.cliente?.id,
       description: proposalDto.descricao,
-      services: proposalDto.servicos.map(s => s.nome),
-      template: proposalDto.template.nome,
+      services: proposalDto.servicos?.map(s => s.nome) || [],
+      servicosIds: proposalDto.servicos?.map(s => s.id) || [],
+      template: proposalDto.template?.nome,
+      templateId: proposalDto.template?.id,
       totalValue: proposalDto.valorTotal,
       status: statusMap[proposalDto.status] || 'pending',
       createdAt: new Date(proposalDto.createdAt),
